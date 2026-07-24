@@ -1,0 +1,285 @@
+"use client"
+
+import { useEffect, useMemo, useState } from "react"
+import {
+  Coins, ShieldCheck, Activity, Send, Gavel,
+  CheckCircle2, XCircle, Loader2, Sparkles, Bot, Lock, Umbrella,
+} from "lucide-react"
+import { useAuth } from "@/context/AuthProvider"
+import { useReputation } from "@/context/ReputationProvider"
+import { useMarketplace } from "@/lib/marketplace"
+import { AGENTS } from "@/lib/agents"
+
+const STEPS = ["Mint", "Escrow RLO", "A2A Dispatch", "Deliver", "Judge (webcall)", "Settle"]
+const STEP_INDEX: Record<string, number> = { idle: 0, escrow: 1, dispatch: 2, working: 3, judging: 4, done: 5, refunded: 5 }
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+const fakeTx = () => "0x" + Math.random().toString(16).slice(2, 10)
+
+type Row = { id: string; agent: string; reward: number; status: "PAID" | "REFUNDED" | "AUTO-REFUND"; score: number | null; tx: string; insured: boolean }
+
+export default function Dashboard() {
+  const { identity } = useAuth()
+  const { recordOutcome } = useReputation()
+  const { collectPremium, payClaim, poolBalance } = useMarketplace()
+
+  const [agentId, setAgentId] = useState("scribe")
+  const [prompt, setPrompt] = useState("")
+  const [criteria, setCriteria] = useState("")
+  const [reward, setReward] = useState(50)
+  const [deadline, setDeadline] = useState(25)
+  const [insured, setInsured] = useState(false)
+
+  const [status, setStatus] = useState<string>("idle")
+  const [output, setOutput] = useState("")
+  const [score, setScore] = useState<number | null>(null)
+  const [reason, setReason] = useState("")
+  const [verdict, setVerdict] = useState<string | null>(null)
+  const [insuranceMsg, setInsuranceMsg] = useState("")
+  const [error, setError] = useState("")
+  const [history, setHistory] = useState<Row[]>([])
+  useEffect(() => { fetch("/api/ledger").then((r) => r.json()).then((d) => { if (Array.isArray(d.rows)) setHistory(d.rows as Row[]) }).catch(() => {}) }, [])
+
+  const agent = AGENTS.find((a) => a.id === agentId)!
+  const busy = ["escrow", "dispatch", "working", "judging"].includes(status)
+  const premium = Math.max(1, Math.round(reward * 0.2))
+
+  function resetForm() {
+    setPrompt(""); setCriteria(""); setOutput(""); setScore(null)
+    setReason(""); setVerdict(null); setInsuranceMsg(""); setError(""); setStatus("idle")
+  }
+  function selectAgent(id: string) {
+    if (busy) return
+    setAgentId(id); resetForm()
+  }
+
+  const metrics = useMemo(() => {
+    const tasks = history.length
+    const paid = history.filter((h) => h.status === "PAID")
+    const rloPaid = paid.reduce((s, h) => s + h.reward, 0)
+    const scored = history.filter((h) => h.score != null) as Row[]
+    const avg = scored.length ? Math.round(scored.reduce((s, h) => s + (h.score || 0), 0) / scored.length) : 0
+    const passRate = tasks ? Math.round((paid.length / tasks) * 100) : 0
+    return { tasks, rloPaid, avg, passRate }
+  }, [history])
+
+  async function runTask() {
+    if (!prompt.trim() || busy) return
+    setError(""); setOutput(""); setScore(null); setReason(""); setVerdict(null); setInsuranceMsg("")
+
+    const isInsured = insured
+    const coverAtMint = poolBalance
+
+    setStatus("escrow"); await sleep(700)
+    if (isInsured) collectPremium(premium)
+    setStatus("dispatch"); await sleep(600)
+    setStatus("working")
+
+    const fetchP = fetch("/api/scale", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt, criteria, persona: agent.persona }),
+    }).then((r) => r.json())
+
+    const timeoutP = new Promise((_, rej) => setTimeout(() => rej({ __timeout: true }), deadline * 1000))
+
+    try {
+      const data: any = await Promise.race([fetchP, timeoutP])
+      if (data?.error) { setError(data.error); setStatus("idle"); return }
+
+      setStatus("judging"); await sleep(800)
+      setOutput(data.output); setScore(data.score); setReason(data.reason); setVerdict(data.verdict)
+      const passed = data.verdict === "PASS"
+      if (!passed && isInsured) {
+        const pay = Math.min(reward, coverAtMint)
+        payClaim(reward)
+        setInsuranceMsg(`Insurance triggered — pool paid ${pay} RLO to the requester.`)
+      }
+      setStatus(passed ? "done" : "refunded")
+      const _row: Row = { id: crypto.randomUUID(), agent: agent.name, reward, status: passed ? "PAID" : "REFUNDED", score: data.score, tx: fakeTx(), insured: isInsured }; setHistory((h) => [_row, ...h]); fetch("/api/ledger", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(_row) }).catch(() => {})
+      recordOutcome({ agentId: agent.id, agentName: agent.name, result: passed ? "PASS" : "FAIL", score: data.score, reward })
+    } catch (e: any) {
+      if (e?.__timeout) {
+        setStatus("refunded"); setVerdict("TIMEOUT")
+        setReason("Deadline missed — escrow auto-refunded by Rialo native timer.")
+        if (isInsured) {
+          const pay = Math.min(reward, coverAtMint)
+          payClaim(reward)
+          setInsuranceMsg(`Insurance triggered — pool paid ${pay} RLO to the requester.`)
+        }
+        const _row: Row = { id: crypto.randomUUID(), agent: agent.name, reward, status: "AUTO-REFUND", score: null, tx: fakeTx(), insured: isInsured }; setHistory((h) => [_row, ...h]); fetch("/api/ledger", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(_row) }).catch(() => {})
+        recordOutcome({ agentId: agent.id, agentName: agent.name, result: "REFUND", score: null, reward })
+      } else {
+        setError("Network error. Coba lagi."); setStatus("idle")
+      }
+    }
+  }
+
+  const activeStep = STEP_INDEX[status] ?? 0
+
+  return (
+    <main className="mx-auto max-w-6xl px-5 py-10">
+      <div className="mb-8">
+        <p className="mb-1 text-sm font-medium text-[#EAE1CE]">SCALE Console</p>
+        <h1 className="text-2xl font-semibold text-[#F1EADD]">Mint an agent labor task</h1>
+        <p className="mt-1 text-sm text-[#B2A693]">
+          Escrow-backed work with autonomous judging, deadline auto-refunds, and optional failure insurance — powered by Rialo native timers &amp; webcalls.
+        </p>
+      </div>
+
+      <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-4">
+        {[
+          { icon: <Activity className="h-4 w-4" />, label: "Tasks run", value: metrics.tasks },
+          { icon: <Coins className="h-4 w-4" />, label: "RLO paid out", value: metrics.rloPaid },
+          { icon: <ShieldCheck className="h-4 w-4" />, label: "Pass rate", value: metrics.passRate + "%" },
+          { icon: <Sparkles className="h-4 w-4" />, label: "Avg. score", value: metrics.avg },
+        ].map((m) => (
+          <div key={m.label} className="rounded-xl border border-[#2A2119] bg-[#16120D] p-4">
+            <div className="mb-2 flex items-center gap-1.5 text-[#847668]">{m.icon}<span className="text-xs">{m.label}</span></div>
+            <div className="text-2xl font-semibold text-[#F1EADD]">{m.value}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-[#F1EADD]">New SCALE Task</h2>
+            <button onClick={resetForm} className="text-xs text-[#847668] hover:text-[#EAE1CE]">Clear</button>
+          </div>
+
+          <label className="mb-1.5 block text-xs text-[#B2A693]">Worker agent — from Rialo Agent Registry</label>
+          <div className="mb-4 grid grid-cols-2 gap-2">
+            {AGENTS.map((a) => (
+              <button key={a.id} onClick={() => selectAgent(a.id)} disabled={busy}
+                className={`rounded-lg border px-3 py-2 text-left text-sm transition-colors disabled:opacity-50 ${agentId === a.id ? "border-[#EAE1CE] bg-[#EAE1CE]/10 text-[#F1EADD]" : "border-[#2A2119] text-[#B2A693] hover:border-[#EAE1CE]/40"}`}>
+                <span className="flex items-center gap-1.5 font-medium"><a.icon className="h-4 w-4" />{a.name}</span>
+                <span className="mt-0.5 block text-[11px] text-[#847668]">{a.specialty}</span>
+              </button>
+            ))}
+          </div>
+
+          <label className="mb-1.5 block text-xs text-[#B2A693]">Task prompt</label>
+          <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} rows={3}
+            placeholder="Describe the task for this agent…"
+            className="mb-4 w-full resize-none rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5 text-sm text-[#F1EADD] outline-none placeholder:text-[#847668] focus:border-[#EAE1CE]/50" />
+
+          <label className="mb-1.5 block text-xs text-[#B2A693]">Quality criteria (Judge agent checks this)</label>
+          <input value={criteria} onChange={(e) => setCriteria(e.target.value)}
+            placeholder="What must the result satisfy to pass?"
+            className="mb-4 w-full rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5 text-sm text-[#F1EADD] outline-none placeholder:text-[#847668] focus:border-[#EAE1CE]/50" />
+
+          <div className="mb-4 grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1.5 block text-xs text-[#B2A693]">Reward (RLO)</label>
+              <input type="number" min={1} value={reward} onChange={(e) => setReward(Number(e.target.value))}
+                className="w-full rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs text-[#B2A693]">Deadline (seconds)</label>
+              <input type="number" min={1} value={deadline} onChange={(e) => setDeadline(Number(e.target.value))}
+                className="w-full rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
+            </div>
+          </div>
+
+          <button onClick={() => setInsured((v) => !v)}
+            className={`mb-4 flex w-full items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors ${insured ? "border-[#EAE1CE] bg-[#EAE1CE]/10 text-[#F1EADD]" : "border-[#2A2119] text-[#B2A693] hover:border-[#EAE1CE]/40"}`}>
+            <Umbrella className="h-4 w-4" />
+            <span>Insure this task</span>
+            <span className="ml-auto text-xs text-[#847668]">Premium {premium} RLO · Pool {poolBalance} RLO</span>
+            <span className={`h-4 w-4 rounded border ${insured ? "border-[#EAE1CE] bg-[#EAE1CE]" : "border-[#847668]"}`} />
+          </button>
+
+          {!identity && (
+            <div className="mb-3 flex items-center gap-2 rounded-lg border border-[#F5B759]/30 bg-[#F5B759]/10 px-3 py-2 text-xs text-[#F5B759]">
+              <Lock className="h-3.5 w-3.5" /> Sign in with Rialo to mint a task (gasless).
+            </div>
+          )}
+
+          <button onClick={runTask} disabled={busy || !prompt.trim() || !identity}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#EAE1CE] px-4 py-2.5 text-sm font-medium text-[#0D0A07] transition-colors hover:bg-[#F4EEDF] disabled:cursor-not-allowed disabled:opacity-40">
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            {busy ? "Processing on Rialo…" : "Mint SCALE task"}
+          </button>
+
+          {error && <p className="mt-3 text-center text-xs text-[#FF6B6B]">{error}</p>}
+        </div>
+
+        <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
+          <h2 className="mb-4 text-sm font-semibold text-[#F1EADD]">Task lifecycle</h2>
+
+          <div className="mb-6 space-y-2.5">
+            {STEPS.map((s, i) => {
+              const active = i === activeStep && busy
+              const done = i < activeStep || status === "done" || (status === "refunded" && i <= activeStep)
+              const refundStep = status === "refunded" && i === activeStep
+              return (
+                <div key={s} className="flex items-center gap-3">
+                  <span className={`grid h-6 w-6 place-items-center rounded-full text-[11px] ${refundStep ? "bg-[#FF6B6B] text-white" : done ? "bg-[#EAE1CE] text-[#0D0A07]" : active ? "bg-[#EAE1CE]/20 text-[#EAE1CE]" : "bg-[#0B0906] text-[#847668]"}`}>
+                    {active ? <Loader2 className="h-3 w-3 animate-spin" /> : i + 1}
+                  </span>
+                  <span className={`text-sm ${done || active ? "text-[#F1EADD]" : "text-[#847668]"}`}>{s}</span>
+                </div>
+              )
+            })}
+          </div>
+
+          {verdict && (
+            <div className={`mb-3 flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${verdict === "PASS" ? "bg-[#EAE1CE]/10 text-[#EAE1CE]" : "bg-[#FF6B6B]/10 text-[#FF6B6B]"}`}>
+              {verdict === "PASS" ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
+              {verdict === "PASS" ? "PASS — worker paid" : verdict === "TIMEOUT" ? "AUTO-REFUND — deadline missed" : "FAIL — requester refunded"}
+              {score != null && <span className="ml-auto font-semibold">{score}/100</span>}
+            </div>
+          )}
+
+          {insuranceMsg && (
+            <div className="mb-3 flex items-center gap-2 rounded-lg bg-[#F4EEDF]/10 px-3 py-2 text-sm text-[#F4EEDF]">
+              <Umbrella className="h-4 w-4" /> {insuranceMsg}
+            </div>
+          )}
+
+          {score != null && (
+            <div className="mb-3 h-1.5 w-full overflow-hidden rounded-full bg-[#0B0906]">
+              <div className={`h-full ${score >= 70 ? "bg-[#EAE1CE]" : "bg-[#FF6B6B]"}`} style={{ width: score + "%" }} />
+            </div>
+          )}
+          {reason && <p className="mb-4 flex items-start gap-1.5 text-xs text-[#B2A693]"><Gavel className="mt-0.5 h-3.5 w-3.5 shrink-0" />{reason}</p>}
+
+          {output && (
+            <div className="max-h-56 overflow-auto rounded-lg border border-[#2A2119] bg-[#0B0906] p-3 text-sm text-[#F1EADD] whitespace-pre-wrap">{output}</div>
+          )}
+          {!output && !busy && !verdict && (
+            <p className="flex items-center gap-2 text-sm text-[#847668]"><Bot className="h-4 w-4" />Mint a task to dispatch it to a worker agent.</p>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
+        <h2 className="mb-4 text-sm font-semibold text-[#F1EADD]">Task Ledger</h2>
+        {history.length === 0 ? (
+          <p className="text-sm text-[#847668]">No settled tasks yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="text-xs text-[#847668]">
+                <tr><th className="pb-2">Agent</th><th className="pb-2">RLO</th><th className="pb-2">Score</th><th className="pb-2">Insured</th><th className="pb-2">Status</th><th className="pb-2">Tx</th></tr>
+              </thead>
+              <tbody className="text-[#B2A693]">
+                {history.map((h) => (
+                  <tr key={h.id} className="border-t border-[#2A2119]">
+                    <td className="py-2 text-[#F1EADD]">{h.agent}</td>
+                    <td className="py-2">{h.reward}</td>
+                    <td className="py-2">{h.score ?? "—"}</td>
+                    <td className="py-2">{h.insured ? <ShieldCheck className="inline h-3.5 w-3.5 text-[#EAE1CE]" /> : "—"}</td>
+                    <td className="py-2"><span className={h.status === "PAID" ? "text-[#EAE1CE]" : "text-[#F5B759]"}>{h.status}</span></td>
+                    <td className="py-2 font-mono text-xs text-[#EAE1CE]">{h.tx}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </main>
+  )
+}

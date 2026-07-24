@@ -1,26 +1,91 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+html { color-scheme: dark; scroll-behavior: smooth; }
+body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+::selection { background: #EAE1CE; color: #0D0A07; }
+
+.bg-grid {
+  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.045) 1px, transparent 0);
+  background-size: 26px 26px;
+}
+.bg-glow { background: radial-gradient(60% 55% at 50% -5%, rgba(52,229,164,0.12), transparent 70%); }
+
+@keyframes trocoony-float {
+  0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+  50% { transform: translateY(-14px) rotate(1.5deg); }
+}
+.trocoony-float { animation: trocoony-float 4.5s ease-in-out infinite; will-change: transform; }
+
+/* ===== Trocooony hero logo (premium motion + warm aura) ===== */
+.trocoony-hero-wrap {
+  animation: trocoony-rise 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.trocoony-drift {
+  animation: trocoony-drift 7s ease-in-out 1.1s infinite;
+  transform-origin: center;
+  filter: drop-shadow(0 20px 45px rgba(0, 0, 0, 0.55));
+}
+.trocoony-aura {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 140%;
+  height: 180%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle at center, rgba(214,176,128,0.32), rgba(234,225,206,0.10) 45%, transparent 70%);
+  filter: blur(42px);
+  z-index: 0;
+  pointer-events: none;
+  animation: trocoony-aura-pulse 6.5s ease-in-out infinite;
+}
+@keyframes trocoony-rise {
+  0% { opacity: 0; transform: translateY(46px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes trocoony-drift {
+  0%   { transform: translateY(0) rotate(-1.2deg) scale(1); }
+  50%  { transform: translateY(-16px) rotate(1.4deg) scale(1.015); }
+  100% { transform: translateY(0) rotate(-1.2deg) scale(1); }
+}
+@keyframes trocoony-aura-pulse {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trocoony-hero-wrap, .trocoony-drift, .trocoony-aura { animation: none; }
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ===== Trocooony contrast logo reveal (reveal + shine sweep) ===== */
+.trocoony-reveal {
+  animation: trocoony-reveal 1.15s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.trocoony-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,0.9) 50%, transparent 62%);
+  background-size: 250% 100%;
+  background-position: 200% 0;
+  -webkit-mask-image: url(/logo.png);
+  mask-image: url(/logo.png);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: trocoony-shine-sweep 5s ease-in-out 1.3s infinite;
 }
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes trocoony-reveal {
+  0% { opacity: 0; clip-path: inset(0 0 100% 0); }
+  100% { opacity: 1; clip-path: inset(0 0 0 0); }
+}
+@keyframes trocoony-shine-sweep {
+  0% { background-position: 200% 0; }
+  20% { background-position: -60% 0; }
+  100% { background-position: -60% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trocoony-reveal, .trocoony-shine { animation: none; }
 }
