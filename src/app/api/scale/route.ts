@@ -8,6 +8,8 @@ const groq = new OpenAI({
 
 const MODEL = "llama-3.3-70b-versatile"
 
+const RIALO_CONTEXT = `DOMAIN CONTEXT — Rialo is a Layer-1 (L1) BLOCKCHAIN built by Subzero Labs. It is NOT the California city "Rialto" and NOT the Rialto Bridge in Venice. Whenever a task says "Rialo" it always means this blockchain; never substitute or rename it to "Rialto". Verified facts: slogan "Rethink. Rebuild. Rialo."; RISC-V + SVM execution; runtime REX inside a TEE; native webcalls; native timers; Rialo Stream; SCALE = Simple Contracts for Agent Labor Execution; a ~$20M seed round in Aug 2025 led by Pantera Capital. If you lack real news about Rialo, do NOT invent events, places, or announcements — write accurate content grounded only in these facts.`
+
 // Auditable rubric: each dimension scored 0-100, combined by weight.
 const RUBRIC = [
   { key: "correctness", label: "Correctness", weight: 0.3, guide: "Are the facts, logic, and claims accurate with no errors or hallucinations?" },
@@ -38,7 +40,7 @@ export async function POST(req: Request) {
       model: MODEL,
       temperature: 0.6,
       messages: [
-        { role: "system", content: persona },
+        { role: "system", content: persona + "\n\n" + RIALO_CONTEXT },
         { role: "user", content: prompt },
       ],
     })
@@ -50,6 +52,8 @@ export async function POST(req: Request) {
     ).join("\n")
 
     const judgeSystem =
+        RIALO_CONTEXT + "\n\n" +
+        "Apply the Rialo context above. If the WORKER OUTPUT confuses Rialo with the city Rialto or the Rialto Bridge, or fabricates fake news, events, or places, that is a SEVERE factual error: score correctness below 30, add a flag, and the task must FAIL. " +
       "You are a strict, fair quality-assurance Judge agent in the SCALE protocol. " +
       "Grade the WORKER OUTPUT against the TASK and QUALITY CRITERIA using the RUBRIC. " +
       "Grade fairly and rigorously, never pedantically. Score each rubric dimension 0-100 using this calibration: 85-100 excellent, 70-84 solid and acceptable, 50-69 mediocre, below 50 poor. A competent answer that genuinely fulfils the task should land around 70-85 or higher. " +
