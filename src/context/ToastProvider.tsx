@@ -31,7 +31,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastCtx.Provider value={{ notify }}>
       {children}
-      <div className="pointer-events-none fixed bottom-4 right-4 z-50 flex w-[calc(100vw-2rem)] max-w-sm flex-col gap-2">
+      <div className="pointer-events-none fixed bottom-4 right-4 z-[100] flex w-[22rem] max-w-[90vw] flex-col gap-2">
         {toasts.map((t) => {
           const { Icon, color } = CFG[t.type]
           return (
