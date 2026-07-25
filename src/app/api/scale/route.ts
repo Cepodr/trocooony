@@ -8,6 +8,15 @@ const groq = new OpenAI({
 
 const MODEL = "llama-3.3-70b-versatile"
 
+// Auditable rubric: each dimension scored 0-100, combined by weight.
+const RUBRIC = [
+  { key: "correctness", label: "Correctness", weight: 0.3, guide: "Are the facts, logic, and claims accurate with no errors or hallucinations?" },
+  { key: "completeness", label: "Completeness", weight: 0.25, guide: "Does it fully address every part of the task, leaving nothing important out?" },
+  { key: "usefulness", label: "Usefulness", weight: 0.2, guide: "Is it genuinely actionable and valuable to the requester?" },
+  { key: "clarity", label: "Clarity & Structure", weight: 0.15, guide: "Is it well-organized, readable, and unambiguous?" },
+  { key: "criteria", label: "Criteria Adherence", weight: 0.1, guide: "Does it satisfy the specific QUALITY CRITERIA provided?" },
+]
+
 export async function POST(req: Request) {
   try {
     const key = process.env.GROQ_API_KEY
@@ -35,39 +44,79 @@ export async function POST(req: Request) {
     })
     const output = workerRes.choices[0]?.message?.content?.trim() || ""
 
-    // 2) Judge agent — quality assurance via native webcall
+    // 2) Judge agent — multi-dimensional, auditable rubric
+    const rubricText = RUBRIC.map(
+      (r) => `- ${r.key} ("${r.label}", weight ${Math.round(r.weight * 100)}%): ${r.guide}`
+    ).join("\n")
+
+    const judgeSystem =
+      "You are a strict, fair quality-assurance Judge agent in the SCALE protocol. " +
+      "Grade the WORKER OUTPUT against the TASK and QUALITY CRITERIA using the RUBRIC. " +
+      "Score every rubric dimension from 0 to 100 (be discerning: 90+ only for excellent, below 50 for poor). " +
+      "For each dimension give a short, specific note citing evidence from the output. " +
+      "Also flag any hallucination, factual error, or missing requirement. " +
+      "Reply with STRICT JSON ONLY, no markdown, in exactly this shape: " +
+      '{"dimensions":{"correctness":{"score":0,"note":""},"completeness":{"score":0,"note":""},"usefulness":{"score":0,"note":""},"clarity":{"score":0,"note":""},"criteria":{"score":0,"note":""}},"flags":[],"summary":""}'
+
     const judgeRes = await groq.chat.completions.create({
       model: MODEL,
       temperature: 0,
       messages: [
-        {
-          role: "system",
-          content:
-            "You are a strict quality-assurance Judge agent in the SCALE protocol. " +
-            "Evaluate whether the WORKER OUTPUT fulfils the TASK and the QUALITY CRITERIA. " +
-            'Reply with STRICT JSON ONLY: {"score": <integer 0-100>, "reason": "<one concise sentence>"}.',
-        },
+        { role: "system", content: judgeSystem },
         {
           role: "user",
           content:
-            "TASK:\n" + prompt + "\n\nQUALITY CRITERIA:\n" + criteria + "\n\nWORKER OUTPUT:\n" + output,
+            "TASK:\n" + prompt +
+            "\n\nQUALITY CRITERIA:\n" + criteria +
+            "\n\nRUBRIC:\n" + rubricText +
+            "\n\nWORKER OUTPUT:\n" + output,
         },
       ],
     })
-    const raw = judgeRes.choices[0]?.message?.content || ""
-    const match = raw.match(/\{[\s\S]*\}/)
-    let score = 0
-    let reason = "Judge could not parse a verdict."
+
+    const rawJudge = judgeRes.choices[0]?.message?.content || ""
+    const match = rawJudge.match(/\{[\s\S]*\}/)
+
+    let breakdown = RUBRIC.map((r) => ({ key: r.key, label: r.label, weight: r.weight, score: 0, note: "" }))
+    let flags: string[] = []
+    let summary = "Judge could not parse a verdict."
+    let parsedOk = false
+
     if (match) {
       try {
         const parsed = JSON.parse(match[0])
-        score = Math.max(0, Math.min(100, Math.round(Number(parsed.score) || 0)))
-        reason = String(parsed.reason || reason)
+        const dims = parsed.dimensions || {}
+        breakdown = RUBRIC.map((r) => {
+          const d = dims[r.key] || {}
+          const s = Math.max(0, Math.min(100, Math.round(Number(d.score) || 0)))
+          return { key: r.key, label: r.label, weight: r.weight, score: s, note: String(d.note || "").slice(0, 200) }
+        })
+        if (Array.isArray(parsed.flags)) flags = parsed.flags.map((f: unknown) => String(f)).slice(0, 8)
+        summary = String(parsed.summary || summary).slice(0, 300)
+        parsedOk = true
       } catch {}
     }
-    const verdict = score >= 70 ? "PASS" : "FAIL"
 
-    return NextResponse.json({ output, score, reason, verdict })
+    // Auditable overall score = weighted sum of dimension scores
+    const overall = parsedOk
+      ? Math.round(breakdown.reduce((sum, d) => sum + d.score * d.weight, 0))
+      : 0
+
+    // Hard gate: every core dimension must clear a floor, else auto-FAIL
+    const PASS_THRESHOLD = 70
+    const DIM_FLOOR = 40
+    const belowFloor = breakdown.some((d) => d.score < DIM_FLOOR)
+    const verdict = overall >= PASS_THRESHOLD && !belowFloor ? "PASS" : "FAIL"
+
+    return NextResponse.json({
+      output,
+      score: overall,
+      reason: summary,
+      verdict,
+      breakdown,
+      flags,
+      threshold: PASS_THRESHOLD,
+    })
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || "Unexpected error" }, { status: 500 })
   }

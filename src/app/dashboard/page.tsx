@@ -35,6 +35,8 @@ export default function Dashboard() {
   const [score, setScore] = useState<number | null>(null)
   const [reason, setReason] = useState("")
   const [verdict, setVerdict] = useState<string | null>(null)
+  const [breakdown, setBreakdown] = useState<{ key: string; label: string; weight: number; score: number; note: string }[]>([])
+  const [flags, setFlags] = useState<string[]>([])
   const [insuranceMsg, setInsuranceMsg] = useState("")
   const [error, setError] = useState("")
   const [history, setHistory] = useState<Row[]>([])
@@ -88,7 +90,7 @@ export default function Dashboard() {
       if (data?.error) { setError(data.error); setStatus("idle"); return }
 
       setStatus("judging"); await sleep(800)
-      setOutput(data.output); setScore(data.score); setReason(data.reason); setVerdict(data.verdict)
+      setOutput(data.output); setScore(data.score); setReason(data.reason); setVerdict(data.verdict); setBreakdown(data.breakdown || []); setFlags(data.flags || [])
       const passed = data.verdict === "PASS"
       if (!passed && isInsured) {
         const pay = Math.min(reward, coverAtMint)
@@ -244,6 +246,35 @@ export default function Dashboard() {
             </div>
           )}
           {reason && <p className="mb-4 flex items-start gap-1.5 text-xs text-[#B2A693]"><Gavel className="mt-0.5 h-3.5 w-3.5 shrink-0" />{reason}</p>}
+          {breakdown.length > 0 && verdict !== "TIMEOUT" && (
+            <div className="mb-4 rounded-lg border border-[#2A2119] bg-[#0B0906] p-3">
+              <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-[#B2A693]"><Gavel className="h-3.5 w-3.5" />Judge rubric</p>
+              <div className="space-y-2">
+                {breakdown.map((d) => (
+                  <div key={d.key}>
+                    <div className="flex items-center justify-between text-[11px] text-[#847668]">
+                      <span>{d.label} <span className="text-[#5f554a]">· {Math.round(d.weight * 100)}%</span></span>
+                      <span className="font-semibold text-[#B2A693]">{d.score}</span>
+                    </div>
+                    <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-[#1B1610]">
+                      <div className={"h-full " + (d.score >= 70 ? "bg-[#EAE1CE]" : d.score >= 40 ? "bg-[#F5B759]" : "bg-[#FF6B6B]")} style={{ width: d.score + "%" }} />
+                    </div>
+                    {d.note && <p className="mt-1 text-[11px] leading-snug text-[#847668]">{d.note}</p>}
+                  </div>
+                ))}
+              </div>
+              {flags.length > 0 && (
+                <div className="mt-3 border-t border-[#2A2119] pt-2">
+                  <p className="mb-1 text-[11px] font-semibold text-[#F5B759]">Flags</p>
+                  <ul className="space-y-0.5">
+                    {flags.map((fl, i) => (
+                      <li key={i} className="flex items-start gap-1 text-[11px] text-[#B2A693]"><span className="text-[#F5B759]">•</span>{fl}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
 
           {output && (
             <div className="max-h-56 overflow-auto rounded-lg border border-[#2A2119] bg-[#0B0906] p-3 text-sm text-[#F1EADD] whitespace-pre-wrap">{output}</div>
