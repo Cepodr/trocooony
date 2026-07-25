@@ -11,7 +11,6 @@ import { useReputation } from "@/context/ReputationProvider"
 import { useMarketplace } from "@/lib/marketplace"
 import { AGENTS } from "@/lib/agents"
 import { useCredits } from "@/context/CreditsProvider"
-import TopUpModal from "@/components/TopUpModal"
 
 const STEPS = ["Mint", "Escrow TRLO", "A2A Dispatch", "Deliver", "Judge (webcall)", "Settle"]
 const STEP_INDEX: Record<string, number> = { idle: 0, escrow: 1, dispatch: 2, working: 3, judging: 4, done: 5, refunded: 5 }
@@ -34,7 +33,6 @@ export default function Dashboard() {
   const [reward, setReward] = useState(50)
   const [deadline, setDeadline] = useState(25)
   const [insured, setInsured] = useState(false)
-  const [topupOpen, setTopupOpen] = useState(false)
 
   const [status, setStatus] = useState<string>("idle")
   const [output, setOutput] = useState("")
@@ -204,12 +202,6 @@ export default function Dashboard() {
             <span className={`h-4 w-4 rounded border ${insured ? "border-[#EAE1CE] bg-[#EAE1CE]" : "border-[#847668]"}`} />
           </button>
 
-          {identity && (
-              <div className="mb-3 flex items-center justify-between rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5">
-                <span className="flex items-center gap-1.5 text-sm text-[#B2A693]"><Coins className="h-4 w-4 text-[#EAE1CE]" /> Saldo <span className="font-semibold text-[#F1EADD]">{trlo} TRLO</span> <span className="text-xs text-[#847668]">· {rlo} RLO</span></span>
-                <button onClick={() => setTopupOpen(true)} className="rounded-md border border-[#EAE1CE]/40 px-2.5 py-1 text-xs font-medium text-[#EAE1CE] hover:bg-[#EAE1CE]/10">Top up</button>
-              </div>
-            )}
             {identity && trlo < reward && (
               <div className="mb-3 flex items-center gap-2 rounded-lg border border-[#FF6B6B]/30 bg-[#FF6B6B]/10 px-3 py-2 text-xs text-[#FF6B6B]">
                 <Lock className="h-3.5 w-3.5" /> Saldo TRLO kurang untuk reward {reward}. {rlo > 0 ? <button onClick={() => deposit(rlo)} className="ml-1 underline hover:text-[#EAE1CE]">Deposit {rlo} RLO ke TRLO</button> : <span className="ml-1">Top up dulu untuk dapat RLO.</span>}
@@ -228,7 +220,6 @@ export default function Dashboard() {
           </button>
 
           {error && <p className="mt-3 text-center text-xs text-[#FF6B6B]">{error}</p>}
-          <TopUpModal open={topupOpen} onClose={() => setTopupOpen(false)} />
         </div>
 
         <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
