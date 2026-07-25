@@ -13,7 +13,7 @@ import { AGENTS } from "@/lib/agents"
 import { useCredits } from "@/context/CreditsProvider"
 import TopUpModal from "@/components/TopUpModal"
 
-const STEPS = ["Mint", "Escrow RLO", "A2A Dispatch", "Deliver", "Judge (webcall)", "Settle"]
+const STEPS = ["Mint", "Escrow TRLO", "A2A Dispatch", "Deliver", "Judge (webcall)", "Settle"]
 const STEP_INDEX: Record<string, number> = { idle: 0, escrow: 1, dispatch: 2, working: 3, judging: 4, done: 5, refunded: 5 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
@@ -26,7 +26,7 @@ export default function Dashboard() {
   const { recordOutcome } = useReputation()
   const { listings, collectPremium, payClaim, poolBalance } = useMarketplace()
   const { notify } = useToast()
-  const { balance, spend, earn } = useCredits()
+  const { rlo, trlo, deposit, spendTrlo, earnTrlo } = useCredits()
 
   const [agentId, setAgentId] = useState("scribe")
   const [prompt, setPrompt] = useState("")
@@ -75,8 +75,8 @@ export default function Dashboard() {
 
   async function runTask() {
     if (!prompt.trim() || busy) return
-    if (balance < reward) { notify(`Saldo RLO kurang (butuh ${reward}, punya ${balance}). Top up dulu.`, "error"); setTopupOpen(true); return }
-    const escrowed = await spend(reward)
+    if (trlo < reward) { notify(`Saldo TRLO kurang (butuh ${reward}, punya ${trlo}). Deposit RLO ke TRLO dulu di Marketplace.`, "error"); return }
+    const escrowed = await spendTrlo(reward)
     if (!escrowed) { notify("Gagal mengunci escrow — saldo tidak cukup.", "error"); return }
     setError(""); setOutput(""); setScore(null); setReason(""); setVerdict(null); setInsuranceMsg("")
 
@@ -98,7 +98,7 @@ export default function Dashboard() {
 
     try {
       const data: any = await Promise.race([fetchP, timeoutP])
-      if (data?.error) { setError(data.error); setStatus("idle"); notify(data.error, "error"); void earn(reward); return }
+      if (data?.error) { setError(data.error); setStatus("idle"); notify(data.error, "error"); void earnTrlo(reward); return }
 
       setStatus("judging"); await sleep(800)
       setOutput(data.output); setScore(data.score); setReason(data.reason); setVerdict(data.verdict); setBreakdown(data.breakdown || []); setFlags(data.flags || [])
@@ -108,13 +108,13 @@ export default function Dashboard() {
         payClaim(reward); notify("Insurance triggered — pool paid out to requester.", "warn")
         setInsuranceMsg(`Insurance triggered — pool paid ${pay} RLO to the requester.`)
       }
-      setStatus(passed ? "done" : "refunded"); if (!passed) void earn(reward)
-      notify(passed ? `${agent.name} passed — ${data.score}/100, ${reward} RLO released.` : `${agent.name} failed — ${data.score}/100. Escrow refunded.`, passed ? "success" : "error")
+      setStatus(passed ? "done" : "refunded"); if (!passed) void earnTrlo(reward)
+      notify(passed ? `${agent.name} passed — ${data.score}/100, ${reward} TRLO released.` : `${agent.name} failed — ${data.score}/100. Escrow refunded.`, passed ? "success" : "error")
       const _row: Row = { id: crypto.randomUUID(), agent: agent.name, reward, status: passed ? "PAID" : "REFUNDED", score: data.score, tx: fakeTx(), insured: isInsured }; setHistory((h) => [_row, ...h]); fetch("/api/ledger", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(_row) }).catch(() => {})
       recordOutcome({ agentId: agent.id, agentName: agent.name, result: passed ? "PASS" : "FAIL", score: data.score, reward })
     } catch (e: any) {
       if (e?.__timeout) {
-        setStatus("refunded"); setVerdict("TIMEOUT"); void earn(reward); notify(`${agent.name} missed the deadline — escrow auto-refunded.`, "warn")
+        setStatus("refunded"); setVerdict("TIMEOUT"); void earnTrlo(reward); notify(`${agent.name} missed the deadline — escrow auto-refunded.`, "warn")
         setReason("Deadline missed — escrow auto-refunded by Rialo native timer.")
         if (isInsured) {
           const pay = Math.min(reward, coverAtMint)
@@ -124,7 +124,7 @@ export default function Dashboard() {
         const _row: Row = { id: crypto.randomUUID(), agent: agent.name, reward, status: "AUTO-REFUND", score: null, tx: fakeTx(), insured: isInsured }; setHistory((h) => [_row, ...h]); fetch("/api/ledger", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(_row) }).catch(() => {})
         recordOutcome({ agentId: agent.id, agentName: agent.name, result: "REFUND", score: null, reward })
       } else {
-        setError("Network error. Coba lagi."); setStatus("idle"); void earn(reward); notify("Network error. Coba lagi.", "error")
+        setError("Network error. Coba lagi."); setStatus("idle"); void earnTrlo(reward); notify("Network error. Coba lagi.", "error")
       }
     }
   }
@@ -144,7 +144,7 @@ export default function Dashboard() {
       <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-4">
         {[
           { icon: <Activity className="h-4 w-4" />, label: "Tasks run", value: metrics.tasks },
-          { icon: <Coins className="h-4 w-4" />, label: "RLO paid out", value: metrics.rloPaid },
+          { icon: <Coins className="h-4 w-4" />, label: "TRLO paid out", value: metrics.rloPaid },
           { icon: <ShieldCheck className="h-4 w-4" />, label: "Pass rate", value: metrics.passRate + "%" },
           { icon: <Sparkles className="h-4 w-4" />, label: "Avg. score", value: metrics.avg },
         ].map((m) => (
@@ -185,7 +185,7 @@ export default function Dashboard() {
 
           <div className="mb-4 grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1.5 block text-xs text-[#B2A693]">Reward (RLO)</label>
+              <label className="mb-1.5 block text-xs text-[#B2A693]">Reward (TRLO)</label>
               <input type="number" min={1} value={reward} onChange={(e) => setReward(Number(e.target.value))}
                 className="w-full rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
             </div>
@@ -200,19 +200,19 @@ export default function Dashboard() {
             className={`mb-4 flex w-full items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors ${insured ? "border-[#EAE1CE] bg-[#EAE1CE]/10 text-[#F1EADD]" : "border-[#2A2119] text-[#B2A693] hover:border-[#EAE1CE]/40"}`}>
             <Umbrella className="h-4 w-4" />
             <span>Insure this task</span>
-            <span className="ml-auto text-xs text-[#847668]">Premium {premium} RLO · Pool {poolBalance} RLO</span>
+            <span className="ml-auto text-xs text-[#847668]">Premium {premium} TRLO · Pool {poolBalance} TRLO</span>
             <span className={`h-4 w-4 rounded border ${insured ? "border-[#EAE1CE] bg-[#EAE1CE]" : "border-[#847668]"}`} />
           </button>
 
           {identity && (
               <div className="mb-3 flex items-center justify-between rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5">
-                <span className="flex items-center gap-1.5 text-sm text-[#B2A693]"><Coins className="h-4 w-4 text-[#EAE1CE]" /> Saldo <span className="font-semibold text-[#F1EADD]">{balance} RLO</span></span>
+                <span className="flex items-center gap-1.5 text-sm text-[#B2A693]"><Coins className="h-4 w-4 text-[#EAE1CE]" /> Saldo <span className="font-semibold text-[#F1EADD]">{trlo} TRLO</span> <span className="text-xs text-[#847668]">· {rlo} RLO</span></span>
                 <button onClick={() => setTopupOpen(true)} className="rounded-md border border-[#EAE1CE]/40 px-2.5 py-1 text-xs font-medium text-[#EAE1CE] hover:bg-[#EAE1CE]/10">Top up</button>
               </div>
             )}
-            {identity && balance < reward && (
+            {identity && trlo < reward && (
               <div className="mb-3 flex items-center gap-2 rounded-lg border border-[#FF6B6B]/30 bg-[#FF6B6B]/10 px-3 py-2 text-xs text-[#FF6B6B]">
-                <Lock className="h-3.5 w-3.5" /> Saldo kurang untuk reward {reward} RLO. Klik Top up.
+                <Lock className="h-3.5 w-3.5" /> Saldo TRLO kurang untuk reward {reward}. {rlo > 0 ? <button onClick={() => deposit(rlo)} className="ml-1 underline hover:text-[#EAE1CE]">Deposit {rlo} RLO ke TRLO</button> : <span className="ml-1">Top up dulu untuk dapat RLO.</span>}
               </div>
             )}
             {!identity && (
@@ -221,7 +221,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          <button onClick={runTask} disabled={busy || !prompt.trim() || !identity || balance < reward}
+          <button onClick={runTask} disabled={busy || !prompt.trim() || !identity || trlo < reward}
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#EAE1CE] px-4 py-2.5 text-sm font-medium text-[#0D0A07] transition-colors hover:bg-[#F4EEDF] disabled:cursor-not-allowed disabled:opacity-40">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             {busy ? "Processing on Rialo…" : "Mint SCALE task"}

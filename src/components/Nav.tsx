@@ -3,9 +3,11 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
-import { Menu, X, Wallet, Check } from "lucide-react"
+import { Menu, X, Wallet, Check, Coins } from "lucide-react"
 import { useAuth } from "@/context/AuthProvider"
 import RialoSignInModal from "@/components/RialoSignInModal"
+import TopUpModal from "@/components/TopUpModal"
+import { useCredits } from "@/context/CreditsProvider"
 
 const links = [
   { href: "/#products", label: "Products" },
@@ -26,7 +28,9 @@ export default function Nav() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [signInOpen, setSignInOpen] = useState(false)
+  const [topupOpen, setTopupOpen] = useState(false)
   const { identity, wallet, connectWallet, disconnectWallet, signOutRialo, walletError } = useAuth()
+  const { rlo, trlo } = useCredits()
   const onSepolia = wallet?.chainId === "0xaa36a7"
 
   return (
@@ -46,6 +50,11 @@ export default function Nav() {
         </div>
 
         <div className="hidden shrink-0 items-center gap-3 xl:flex">
+            {identity && (
+              <button onClick={() => setTopupOpen(true)} className="flex items-center gap-1.5 rounded-lg border border-[#2A2119] px-3 py-1.5 text-sm text-[#EAE1CE] hover:border-[#EAE1CE]/50" title="Top up & manage balance">
+                <Coins className="h-4 w-4" />{trlo} TRLO · {rlo} RLO
+              </button>
+            )}
           {identity ? (
             <button onClick={signOutRialo} className="flex items-center gap-1.5 rounded-lg border border-[#2A2119] px-3 py-1.5 text-sm text-[#F1EADD] hover:border-[#EAE1CE]/50" title="Signed in with Rialo Identity">
               <Check className="h-4 w-4 text-[#EAE1CE]" /><span className="max-w-[140px] truncate">{identity.handle}</span>
@@ -90,6 +99,7 @@ export default function Nav() {
 
       {walletError && (<div className="border-t border-[#FF6B6B]/30 bg-[#FF6B6B]/10 px-5 py-2 text-center text-xs text-[#FF6B6B]">{walletError}</div>)}
 
+        <TopUpModal open={topupOpen} onClose={() => setTopupOpen(false)} />
       <RialoSignInModal open={signInOpen} onClose={() => setSignInOpen(false)} />
     </header>
   )

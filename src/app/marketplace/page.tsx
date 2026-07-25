@@ -2,16 +2,19 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Store, ShieldCheck, TrendingUp, Coins, Plus, Trash2, ArrowRight, Umbrella, Info, Bot } from "lucide-react"
+import { Store, ShieldCheck, TrendingUp, Coins, Plus, Trash2, ArrowRight, Umbrella, Info, Bot, Wallet } from "lucide-react"
 import { AGENTS } from "@/lib/agents"
 import { useReputation } from "@/context/ReputationProvider"
 import { useMarketplace } from "@/lib/marketplace"
+import { useCredits } from "@/context/CreditsProvider"
+import TopUpModal from "@/components/TopUpModal"
 
 const BASE_PRICE: Record<string, number> = { scribe: 40, coda: 80, sage: 60, pixel: 50 }
 
 export default function MarketplacePage() {
   const { agents } = useReputation()
-  const { listings, pool, poolBalance, publishListing, removeListing, depositToPool, withdrawFromPool } = useMarketplace()
+  const { listings, pool, poolBalance, publishListing, removeListing } = useMarketplace()
+  const { rlo, trlo, deposit, withdraw } = useCredits()
 
   const repOf = (id: string) => agents.find((a: any) => a.agentId === id)?.reputation ?? null
   const tasksOf = (id: string) => agents.find((a: any) => a.agentId === id)?.tasks ?? 0
@@ -22,6 +25,7 @@ export default function MarketplacePage() {
   const [price, setPrice] = useState(50)
   const [formErr, setFormErr] = useState("")
   const [depositAmt, setDepositAmt] = useState(100)
+  const [topupOpen, setTopupOpen] = useState(false)
 
   function submit() {
     if (name.trim().length < 3 || specialty.trim().length < 3 || persona.trim().length < 15) {
@@ -41,6 +45,39 @@ export default function MarketplacePage() {
         <p className="mt-1 text-sm text-[#B2A693]">
           A permissionless market for AI agent labor — reputation is on-chain, payments are escrowed, and tasks can be insured against failure.
         </p>
+      </div>
+
+      <div className="mb-8 rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
+        <div className="mb-4 flex items-center gap-2">
+          <Wallet className="h-4 w-4 text-[#EAE1CE]" />
+          <h2 className="text-sm font-semibold text-[#F1EADD]">Your Wallet</h2>
+          <span className="ml-auto text-xs text-[#847668]">Top up once on-chain, then spend everywhere in TRLO — gasless SCALE</span>
+        </div>
+        <div className="mb-5 grid grid-cols-2 gap-3">
+          <div className="rounded-xl border border-[#2A2119] bg-[#0B0906] p-3">
+            <p className="mb-1 text-[11px] text-[#847668]">RLO — on-chain wallet</p>
+            <p className="text-lg font-semibold text-[#F1EADD]">{rlo} RLO</p>
+          </div>
+          <div className="rounded-xl border border-[#2A2119] bg-[#0B0906] p-3">
+            <p className="mb-1 text-[11px] text-[#847668]">TRLO — in-app balance</p>
+            <p className="text-lg font-semibold text-[#EAE1CE]">{trlo} TRLO</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-end gap-3">
+          <div>
+            <label className="mb-1.5 block text-xs text-[#B2A693]">Amount</label>
+            <input type="number" min={1} value={depositAmt} onChange={(e) => setDepositAmt(Number(e.target.value))}
+              className="w-40 rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
+          </div>
+          <button onClick={() => deposit(depositAmt)}
+            className="rounded-lg bg-[#EAE1CE] px-4 py-2 text-sm font-medium text-[#0D0A07] hover:bg-[#F4EEDF]">Deposit RLO to TRLO</button>
+          <button onClick={() => withdraw(depositAmt)}
+            className="rounded-lg border border-[#2A2119] px-4 py-2 text-sm text-[#B2A693] hover:border-[#EAE1CE]/50 hover:text-[#EAE1CE]">Withdraw to RLO</button>
+          <button onClick={() => setTopupOpen(true)}
+            className="rounded-lg border border-[#EAE1CE]/40 px-4 py-2 text-sm font-medium text-[#EAE1CE] hover:bg-[#EAE1CE]/10">Top up (ETH to RLO)</button>
+          <p className="flex items-center gap-1.5 text-xs text-[#847668]"><Info className="h-3.5 w-3.5" />1 RLO = 1 TRLO. Deposit converts to spendable TRLO; withdraw converts back.</p>
+        </div>
+        <TopUpModal open={topupOpen} onClose={() => setTopupOpen(false)} />
       </div>
 
       <div className="mb-8 rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
@@ -65,18 +102,7 @@ export default function MarketplacePage() {
           ))}
         </div>
 
-        <div className="flex flex-wrap items-end gap-3">
-          <div>
-            <label className="mb-1.5 block text-xs text-[#B2A693]">Underwrite (deposit RLO to earn premiums)</label>
-            <input type="number" min={1} value={depositAmt} onChange={(e) => setDepositAmt(Number(e.target.value))}
-              className="w-40 rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
-          </div>
-          <button onClick={() => depositToPool(depositAmt)}
-            className="rounded-lg bg-[#EAE1CE] px-4 py-2 text-sm font-medium text-[#0D0A07] hover:bg-[#F4EEDF]">Deposit to pool</button>
-          <button onClick={() => withdrawFromPool(depositAmt)}
-            className="rounded-lg border border-[#2A2119] px-4 py-2 text-sm text-[#B2A693] hover:border-[#FF6B6B]/50 hover:text-[#FF6B6B]">Withdraw</button>
-          <p className="flex items-center gap-1.5 text-xs text-[#847668]"><Info className="h-3.5 w-3.5" />Requesters pay a 20% premium; underwriters keep it when tasks PASS.</p>
-        </div>
+        <p className="flex items-center gap-1.5 text-xs text-[#847668]"><Info className="h-3.5 w-3.5" />Auto-funded — requesters pay a 20% premium (in TRLO) into this pool; it pays out automatically on FAIL / timeout. Manage your balance in Your Wallet above.</p>
       </div>
 
       <h2 className="mb-3 text-sm font-semibold text-[#F1EADD]">Available agents</h2>

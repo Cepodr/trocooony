@@ -4,10 +4,16 @@ import { createContext, useContext, useCallback, useEffect, useState, ReactNode 
 import { useAuth } from "@/context/AuthProvider"
 
 type CreditsCtx = {
+  rlo: number
+  trlo: number
   balance: number
   loading: boolean
   ready: boolean
   refresh: () => Promise<void>
+  deposit: (amount: number) => Promise<{ ok: boolean; error?: string }>
+  withdraw: (amount: number) => Promise<{ ok: boolean; error?: string }>
+  spendTrlo: (amount: number) => Promise<boolean>
+  earnTrlo: (amount: number) => Promise<void>
   spend: (amount: number) => Promise<boolean>
   earn: (amount: number) => Promise<void>
   topup: (txHash: string) => Promise<{ ok: boolean; credited?: number; error?: string }>
@@ -18,48 +24,45 @@ const Ctx = createContext<CreditsCtx | null>(null)
 export function CreditsProvider({ children }: { children: ReactNode }) {
   const { identity } = useAuth()
   const userKey = identity?.handle ?? null
-  const [balance, setBalance] = useState(0)
+  const [rlo, setRlo] = useState(0)
+  const [trlo, setTrlo] = useState(0)
   const [loading, setLoading] = useState(false)
 
+  const apply = useCallback((d: any) => {
+    if (typeof d?.rlo === "number") setRlo(d.rlo)
+    if (typeof d?.trlo === "number") setTrlo(d.trlo)
+  }, [])
+
   const refresh = useCallback(async () => {
-    if (!userKey) { setBalance(0); return }
+    if (!userKey) { setRlo(0); setTrlo(0); return }
     setLoading(true)
     try {
       const r = await fetch(`/api/credits?user=${encodeURIComponent(userKey)}`)
-      const d = await r.json()
-      if (typeof d.balance === "number") setBalance(d.balance)
+      apply(await r.json())
     } catch {} finally { setLoading(false) }
-  }, [userKey])
+  }, [userKey, apply])
 
   useEffect(() => { refresh() }, [refresh])
 
-  const spend = useCallback(async (amount: number): Promise<boolean> => {
-    if (!userKey) return false
+  const act = useCallback(async (action: string, amount: number): Promise<{ ok: boolean; error?: string }> => {
+    if (!userKey) return { ok: false, error: "Login dulu." }
     try {
       const r = await fetch("/api/credits", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user: userKey, delta: -Math.abs(amount) }),
+        body: JSON.stringify({ user: userKey, action, amount: Math.abs(amount) }),
       })
       const d = await r.json()
-      if (!r.ok || d.error) return false
-      if (typeof d.balance === "number") setBalance(d.balance)
-      return true
-    } catch { return false }
-  }, [userKey])
+      if (!r.ok || d.error) return { ok: false, error: d.error || "Gagal." }
+      apply(d)
+      return { ok: true }
+    } catch (e: any) { return { ok: false, error: e?.message || "Network error." } }
+  }, [userKey, apply])
 
-  const earn = useCallback(async (amount: number): Promise<void> => {
-    if (!userKey) return
-    try {
-      const r = await fetch("/api/credits", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user: userKey, delta: Math.abs(amount) }),
-      })
-      const d = await r.json()
-      if (typeof d.balance === "number") setBalance(d.balance)
-    } catch {}
-  }, [userKey])
+  const deposit = useCallback((amount: number) => act("deposit", amount), [act])
+  const withdraw = useCallback((amount: number) => act("withdraw", amount), [act])
+  const spendTrlo = useCallback(async (amount: number): Promise<boolean> => (await act("spend", amount)).ok, [act])
+  const earnTrlo = useCallback(async (amount: number): Promise<void> => { await act("earn", amount) }, [act])
 
   const topup = useCallback(async (txHash: string): Promise<{ ok: boolean; credited?: number; error?: string }> => {
     if (!userKey) return { ok: false, error: "Login dulu." }
@@ -71,13 +74,14 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
       })
       const d = await r.json()
       if (!r.ok || d.error) return { ok: false, error: d.error || "Gagal top up." }
-      if (typeof d.balance === "number") setBalance(d.balance)
+      if (typeof d.balance === "number") setRlo(d.balance)
+      if (typeof d.trlo === "number") setTrlo(d.trlo)
       return { ok: true, credited: d.credited }
     } catch (e: any) { return { ok: false, error: e?.message || "Network error." } }
   }, [userKey])
 
   return (
-    <Ctx.Provider value={{ balance, loading, ready: !!userKey, refresh, spend, earn, topup }}>
+    <Ctx.Provider value={{ rlo, trlo, balance: rlo, loading, ready: !!userKey, refresh, deposit, withdraw, spendTrlo, earnTrlo, spend: spendTrlo, earn: earnTrlo, topup }}>
       {children}
     </Ctx.Provider>
   )
