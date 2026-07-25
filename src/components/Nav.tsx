@@ -10,17 +10,11 @@ import TopUpModal from "@/components/TopUpModal"
 import { useCredits } from "@/context/CreditsProvider"
 
 const links = [
-  { href: "/#products", label: "Products" },
-  { href: "/#how", label: "How It Works" },
   { href: "/agents", label: "Agents" },
-  { href: "/workflow", label: "Workflow" },
   { href: "/marketplace", label: "Marketplace" },
-  { href: "/learn", label: "Learn" },
+  { href: "/workflow", label: "Workflow" },
   { href: "/docs", label: "Docs" },
-  { href: "/whitepaper", label: "Whitepaper" },
-  { href: "/faq", label: "FAQ" },
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/analytics", label: "Analytics" },
 ]
 
 const short = (a: string) => a.slice(0, 6) + "…" + a.slice(-4)
