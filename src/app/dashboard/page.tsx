@@ -10,6 +10,8 @@ import { useAuth } from "@/context/AuthProvider"
 import { useReputation } from "@/context/ReputationProvider"
 import { useMarketplace } from "@/lib/marketplace"
 import { AGENTS } from "@/lib/agents"
+import { useCredits } from "@/context/CreditsProvider"
+import TopUpModal from "@/components/TopUpModal"
 
 const STEPS = ["Mint", "Escrow RLO", "A2A Dispatch", "Deliver", "Judge (webcall)", "Settle"]
 const STEP_INDEX: Record<string, number> = { idle: 0, escrow: 1, dispatch: 2, working: 3, judging: 4, done: 5, refunded: 5 }
@@ -24,6 +26,7 @@ export default function Dashboard() {
   const { recordOutcome } = useReputation()
   const { listings, collectPremium, payClaim, poolBalance } = useMarketplace()
   const { notify } = useToast()
+  const { balance, spend, earn } = useCredits()
 
   const [agentId, setAgentId] = useState("scribe")
   const [prompt, setPrompt] = useState("")
@@ -31,6 +34,7 @@ export default function Dashboard() {
   const [reward, setReward] = useState(50)
   const [deadline, setDeadline] = useState(25)
   const [insured, setInsured] = useState(false)
+  const [topupOpen, setTopupOpen] = useState(false)
 
   const [status, setStatus] = useState<string>("idle")
   const [output, setOutput] = useState("")
@@ -71,6 +75,9 @@ export default function Dashboard() {
 
   async function runTask() {
     if (!prompt.trim() || busy) return
+    if (balance < reward) { notify(`Saldo RLO kurang (butuh ${reward}, punya ${balance}). Top up dulu.`, "error"); setTopupOpen(true); return }
+    const escrowed = await spend(reward)
+    if (!escrowed) { notify("Gagal mengunci escrow — saldo tidak cukup.", "error"); return }
     setError(""); setOutput(""); setScore(null); setReason(""); setVerdict(null); setInsuranceMsg("")
 
     const isInsured = insured
@@ -91,7 +98,7 @@ export default function Dashboard() {
 
     try {
       const data: any = await Promise.race([fetchP, timeoutP])
-      if (data?.error) { setError(data.error); setStatus("idle"); notify(data.error, "error"); return }
+      if (data?.error) { setError(data.error); setStatus("idle"); notify(data.error, "error"); void earn(reward); return }
 
       setStatus("judging"); await sleep(800)
       setOutput(data.output); setScore(data.score); setReason(data.reason); setVerdict(data.verdict); setBreakdown(data.breakdown || []); setFlags(data.flags || [])
@@ -101,13 +108,13 @@ export default function Dashboard() {
         payClaim(reward); notify("Insurance triggered — pool paid out to requester.", "warn")
         setInsuranceMsg(`Insurance triggered — pool paid ${pay} RLO to the requester.`)
       }
-      setStatus(passed ? "done" : "refunded")
+      setStatus(passed ? "done" : "refunded"); if (!passed) void earn(reward)
       notify(passed ? `${agent.name} passed — ${data.score}/100, ${reward} RLO released.` : `${agent.name} failed — ${data.score}/100. Escrow refunded.`, passed ? "success" : "error")
       const _row: Row = { id: crypto.randomUUID(), agent: agent.name, reward, status: passed ? "PAID" : "REFUNDED", score: data.score, tx: fakeTx(), insured: isInsured }; setHistory((h) => [_row, ...h]); fetch("/api/ledger", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(_row) }).catch(() => {})
       recordOutcome({ agentId: agent.id, agentName: agent.name, result: passed ? "PASS" : "FAIL", score: data.score, reward })
     } catch (e: any) {
       if (e?.__timeout) {
-        setStatus("refunded"); setVerdict("TIMEOUT"); notify(`${agent.name} missed the deadline — escrow auto-refunded.`, "warn")
+        setStatus("refunded"); setVerdict("TIMEOUT"); void earn(reward); notify(`${agent.name} missed the deadline — escrow auto-refunded.`, "warn")
         setReason("Deadline missed — escrow auto-refunded by Rialo native timer.")
         if (isInsured) {
           const pay = Math.min(reward, coverAtMint)
@@ -117,7 +124,7 @@ export default function Dashboard() {
         const _row: Row = { id: crypto.randomUUID(), agent: agent.name, reward, status: "AUTO-REFUND", score: null, tx: fakeTx(), insured: isInsured }; setHistory((h) => [_row, ...h]); fetch("/api/ledger", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(_row) }).catch(() => {})
         recordOutcome({ agentId: agent.id, agentName: agent.name, result: "REFUND", score: null, reward })
       } else {
-        setError("Network error. Coba lagi."); setStatus("idle"); notify("Network error. Coba lagi.", "error")
+        setError("Network error. Coba lagi."); setStatus("idle"); void earn(reward); notify("Network error. Coba lagi.", "error")
       }
     }
   }
@@ -197,19 +204,31 @@ export default function Dashboard() {
             <span className={`h-4 w-4 rounded border ${insured ? "border-[#EAE1CE] bg-[#EAE1CE]" : "border-[#847668]"}`} />
           </button>
 
-          {!identity && (
+          {identity && (
+              <div className="mb-3 flex items-center justify-between rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5">
+                <span className="flex items-center gap-1.5 text-sm text-[#B2A693]"><Coins className="h-4 w-4 text-[#EAE1CE]" /> Saldo <span className="font-semibold text-[#F1EADD]">{balance} RLO</span></span>
+                <button onClick={() => setTopupOpen(true)} className="rounded-md border border-[#EAE1CE]/40 px-2.5 py-1 text-xs font-medium text-[#EAE1CE] hover:bg-[#EAE1CE]/10">Top up</button>
+              </div>
+            )}
+            {identity && balance < reward && (
+              <div className="mb-3 flex items-center gap-2 rounded-lg border border-[#FF6B6B]/30 bg-[#FF6B6B]/10 px-3 py-2 text-xs text-[#FF6B6B]">
+                <Lock className="h-3.5 w-3.5" /> Saldo kurang untuk reward {reward} RLO. Klik Top up.
+              </div>
+            )}
+            {!identity && (
             <div className="mb-3 flex items-center gap-2 rounded-lg border border-[#F5B759]/30 bg-[#F5B759]/10 px-3 py-2 text-xs text-[#F5B759]">
               <Lock className="h-3.5 w-3.5" /> Sign in with Rialo to mint a task (gasless).
             </div>
           )}
 
-          <button onClick={runTask} disabled={busy || !prompt.trim() || !identity}
+          <button onClick={runTask} disabled={busy || !prompt.trim() || !identity || balance < reward}
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#EAE1CE] px-4 py-2.5 text-sm font-medium text-[#0D0A07] transition-colors hover:bg-[#F4EEDF] disabled:cursor-not-allowed disabled:opacity-40">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             {busy ? "Processing on Rialo…" : "Mint SCALE task"}
           </button>
 
           {error && <p className="mt-3 text-center text-xs text-[#FF6B6B]">{error}</p>}
+          <TopUpModal open={topupOpen} onClose={() => setTopupOpen(false)} />
         </div>
 
         <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
