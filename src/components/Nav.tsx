@@ -17,6 +17,7 @@ const links = [
   { href: "/docs", label: "Docs" },
   { href: "/faq", label: "FAQ" },
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/analytics", label: "Analytics" },
 ]
 
 const short = (a: string) => a.slice(0, 6) + "…" + a.slice(-4)
