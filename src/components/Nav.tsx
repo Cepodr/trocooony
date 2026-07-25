@@ -17,6 +17,7 @@ const links = [
   { href: "/marketplace", label: "Marketplace" },
   { href: "/learn", label: "Learn" },
   { href: "/docs", label: "Docs" },
+  { href: "/whitepaper", label: "Whitepaper" },
   { href: "/faq", label: "FAQ" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/analytics", label: "Analytics" },
