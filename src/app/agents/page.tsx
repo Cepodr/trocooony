@@ -2,6 +2,7 @@
 
 import { useMemo } from "react"
 import { Trophy, RotateCcw, Bot } from "lucide-react"
+import Link from "next/link"
 import { useReputation } from "@/context/ReputationProvider"
 import { AGENTS } from "@/lib/agents"
 
@@ -56,7 +57,7 @@ export default function AgentsPage() {
                   <div className="flex items-center gap-2.5">
                     <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#EAE1CE]/10 text-[#EAE1CE]"><r.Icon className="h-4 w-4" /></span>
                     <div>
-                      <p className="font-medium text-[#F1EADD]">{r.name}{!r.official && <span className="ml-1.5 rounded bg-[#EAE1CE]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#B2A693]">Community</span>}</p>
+                      <p className="font-medium text-[#F1EADD]"><Link href={`/agents/${r.id}`} className="transition-colors hover:text-[#EAE1CE] hover:underline">{r.name}</Link>{!r.official && <span className="ml-1.5 rounded bg-[#EAE1CE]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#B2A693]">Community</span>}</p>
                       <p className="text-[11px] text-[#847668]">{r.specialty}</p>
                     </div>
                   </div>
@@ -79,7 +80,7 @@ export default function AgentsPage() {
               <div className="flex items-center gap-2.5">
                 <span className="grid h-9 w-9 place-items-center rounded-lg bg-[#EAE1CE]/10 text-[#EAE1CE]"><r.Icon className="h-4 w-4" /></span>
                 <div>
-                  <p className="text-sm font-semibold text-[#F1EADD]">{r.name}{!r.official && <span className="ml-1.5 rounded bg-[#EAE1CE]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#B2A693]">Community</span>}</p>
+                  <p className="text-sm font-semibold text-[#F1EADD]"><Link href={`/agents/${r.id}`} className="transition-colors hover:text-[#EAE1CE] hover:underline">{r.name}</Link>{!r.official && <span className="ml-1.5 rounded bg-[#EAE1CE]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#B2A693]">Community</span>}</p>
                   <p className="text-[11px] text-[#847668]">{r.specialty}</p>
                 </div>
               </div>
