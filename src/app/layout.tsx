@@ -6,6 +6,7 @@ import Footer from "@/components/Footer"
 import Providers from "@/components/Providers"
 import { AuthProvider } from "@/context/AuthProvider"
 import { ReputationProvider } from "@/context/ReputationProvider"
+import { CreditsProvider } from "@/context/CreditsProvider"
 import { ToastProvider } from "@/context/ToastProvider"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -22,12 +23,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <AuthProvider>
             <ReputationProvider>
+          <CreditsProvider>
               <ToastProvider>
               <Nav />
               {children}
               <Footer />
             </ToastProvider>
-            </ReputationProvider>
+            </CreditsProvider>
+        </ReputationProvider>
           </AuthProvider>
         </Providers>
       </body>
