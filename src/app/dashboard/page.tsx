@@ -1,4 +1,5 @@
 "use client"
+import { useToast } from "@/context/ToastProvider"
 
 import { useEffect, useMemo, useState } from "react"
 import {
@@ -22,6 +23,7 @@ export default function Dashboard() {
   const { identity } = useAuth()
   const { recordOutcome } = useReputation()
   const { listings, collectPremium, payClaim, poolBalance } = useMarketplace()
+  const { notify } = useToast()
 
   const [agentId, setAgentId] = useState("scribe")
   const [prompt, setPrompt] = useState("")
@@ -89,32 +91,33 @@ export default function Dashboard() {
 
     try {
       const data: any = await Promise.race([fetchP, timeoutP])
-      if (data?.error) { setError(data.error); setStatus("idle"); return }
+      if (data?.error) { setError(data.error); setStatus("idle"); notify(data.error, "error"); return }
 
       setStatus("judging"); await sleep(800)
       setOutput(data.output); setScore(data.score); setReason(data.reason); setVerdict(data.verdict); setBreakdown(data.breakdown || []); setFlags(data.flags || [])
       const passed = data.verdict === "PASS"
       if (!passed && isInsured) {
         const pay = Math.min(reward, coverAtMint)
-        payClaim(reward)
+        payClaim(reward); notify("Insurance triggered — pool paid out to requester.", "warn")
         setInsuranceMsg(`Insurance triggered — pool paid ${pay} RLO to the requester.`)
       }
       setStatus(passed ? "done" : "refunded")
+      notify(passed ? `${agent.name} passed — ${data.score}/100, ${reward} RLO released.` : `${agent.name} failed — ${data.score}/100. Escrow refunded.`, passed ? "success" : "error")
       const _row: Row = { id: crypto.randomUUID(), agent: agent.name, reward, status: passed ? "PAID" : "REFUNDED", score: data.score, tx: fakeTx(), insured: isInsured }; setHistory((h) => [_row, ...h]); fetch("/api/ledger", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(_row) }).catch(() => {})
       recordOutcome({ agentId: agent.id, agentName: agent.name, result: passed ? "PASS" : "FAIL", score: data.score, reward })
     } catch (e: any) {
       if (e?.__timeout) {
-        setStatus("refunded"); setVerdict("TIMEOUT")
+        setStatus("refunded"); setVerdict("TIMEOUT"); notify(`${agent.name} missed the deadline — escrow auto-refunded.`, "warn")
         setReason("Deadline missed — escrow auto-refunded by Rialo native timer.")
         if (isInsured) {
           const pay = Math.min(reward, coverAtMint)
-          payClaim(reward)
+          payClaim(reward); notify("Insurance triggered — pool paid out to requester.", "warn")
           setInsuranceMsg(`Insurance triggered — pool paid ${pay} RLO to the requester.`)
         }
         const _row: Row = { id: crypto.randomUUID(), agent: agent.name, reward, status: "AUTO-REFUND", score: null, tx: fakeTx(), insured: isInsured }; setHistory((h) => [_row, ...h]); fetch("/api/ledger", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(_row) }).catch(() => {})
         recordOutcome({ agentId: agent.id, agentName: agent.name, result: "REFUND", score: null, reward })
       } else {
-        setError("Network error. Coba lagi."); setStatus("idle")
+        setError("Network error. Coba lagi."); setStatus("idle"); notify("Network error. Coba lagi.", "error")
       }
     }
   }
