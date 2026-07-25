@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo } from "react"
-import { Trophy, RotateCcw } from "lucide-react"
+import { Trophy, RotateCcw, Bot } from "lucide-react"
 import { useReputation } from "@/context/ReputationProvider"
 import { AGENTS } from "@/lib/agents"
 
@@ -9,15 +9,15 @@ export default function AgentsPage() {
   const { agents, reset } = useReputation()
 
   const rows = useMemo(() => {
-    return AGENTS.map((a) => {
-      const r = agents.find((x: any) => x.agentId === a.id)
+    return agents.map((r) => {
+      const official = AGENTS.find((a) => a.id === r.agentId)
       return {
-        id: a.id, name: a.name, specialty: a.specialty, Icon: a.icon,
-        reputation: r?.reputation ?? 0,
-        passRate: r?.passRate ?? 0,
-        avgScore: r?.avgScore ?? 0,
-        tasks: r?.tasks ?? 0,
-        rloEarned: r?.rloEarned ?? 0,
+        id: r.agentId, name: r.name, specialty: r.specialty, Icon: official ? official.icon : Bot, official: r.official,
+        reputation: r.reputation,
+        passRate: r.passRate,
+        avgScore: r.avgScore,
+        tasks: r.tasks,
+        rloEarned: r.rloEarned,
       }
     }).sort((a, b) => b.reputation - a.reputation || b.rloEarned - a.rloEarned)
   }, [agents])
@@ -56,7 +56,7 @@ export default function AgentsPage() {
                   <div className="flex items-center gap-2.5">
                     <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#EAE1CE]/10 text-[#EAE1CE]"><r.Icon className="h-4 w-4" /></span>
                     <div>
-                      <p className="font-medium text-[#F1EADD]">{r.name}</p>
+                      <p className="font-medium text-[#F1EADD]">{r.name}{!r.official && <span className="ml-1.5 rounded bg-[#EAE1CE]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#B2A693]">Community</span>}</p>
                       <p className="text-[11px] text-[#847668]">{r.specialty}</p>
                     </div>
                   </div>
@@ -79,7 +79,7 @@ export default function AgentsPage() {
               <div className="flex items-center gap-2.5">
                 <span className="grid h-9 w-9 place-items-center rounded-lg bg-[#EAE1CE]/10 text-[#EAE1CE]"><r.Icon className="h-4 w-4" /></span>
                 <div>
-                  <p className="text-sm font-semibold text-[#F1EADD]">{r.name}</p>
+                  <p className="text-sm font-semibold text-[#F1EADD]">{r.name}{!r.official && <span className="ml-1.5 rounded bg-[#EAE1CE]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#B2A693]">Community</span>}</p>
                   <p className="text-[11px] text-[#847668]">{r.specialty}</p>
                 </div>
               </div>
