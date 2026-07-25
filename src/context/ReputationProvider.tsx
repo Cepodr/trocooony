@@ -13,7 +13,7 @@ export type Outcome = {
 }
 
 export type AgentRep = {
-  id: string; agentId: string; name: string; agentName: string; specialty: string
+  id: string; agentId: string; name: string; agentName: string; specialty: string; official: boolean
   tasks: number; passes: number; fails: number; refunds: number
   avgScore: number; rloEarned: number; passRate: number; reputation: number
 }
@@ -69,7 +69,13 @@ export function ReputationProvider({ children }: { children: ReactNode }) {
   }
 
   const agents = useMemo<AgentRep[]>(() => {
-    const list = AGENTS.map((a) => {
+    const meta: { id: string; name: string; specialty: string; official: boolean }[] = AGENTS.map((a) => ({ id: a.id, name: a.name, specialty: a.specialty, official: true }))
+    for (const o of outcomes) {
+      if (!meta.some((m) => m.id === o.agentId)) {
+        meta.push({ id: o.agentId, name: o.agentName || "Community agent", specialty: "Community agent", official: false })
+      }
+    }
+    const list = meta.map((a) => {
       const os = outcomes.filter((o) => o.agentId === a.id)
       const tasks = os.length
       const passes = os.filter((o) => o.result === "PASS").length
@@ -80,7 +86,7 @@ export function ReputationProvider({ children }: { children: ReactNode }) {
       const rloEarned = os.filter((o) => o.result === "PASS").reduce((s, o) => s + o.reward, 0)
       const passRate = tasks ? Math.round((passes / tasks) * 100) : 0
       const reputation = tasks ? Math.round(0.5 * passRate + 0.5 * avgScore) : 0
-      return { id: a.id, agentId: a.id, name: a.name, agentName: a.name, specialty: a.specialty, tasks, passes, fails, refunds, avgScore, rloEarned, passRate, reputation }
+      return { id: a.id, agentId: a.id, name: a.name, agentName: a.name, specialty: a.specialty, official: a.official, tasks, passes, fails, refunds, avgScore, rloEarned, passRate, reputation }
     })
     return list.sort((a, b) => b.reputation - a.reputation || b.rloEarned - a.rloEarned)
   }, [outcomes])

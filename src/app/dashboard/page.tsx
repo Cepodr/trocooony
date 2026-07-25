@@ -21,7 +21,7 @@ type Row = { id: string; agent: string; reward: number; status: "PAID" | "REFUND
 export default function Dashboard() {
   const { identity } = useAuth()
   const { recordOutcome } = useReputation()
-  const { collectPremium, payClaim, poolBalance } = useMarketplace()
+  const { listings, collectPremium, payClaim, poolBalance } = useMarketplace()
 
   const [agentId, setAgentId] = useState("scribe")
   const [prompt, setPrompt] = useState("")
@@ -42,7 +42,9 @@ export default function Dashboard() {
   const [history, setHistory] = useState<Row[]>([])
   useEffect(() => { fetch("/api/ledger").then((r) => r.json()).then((d) => { if (Array.isArray(d.rows)) setHistory(d.rows as Row[]) }).catch(() => {}) }, [])
 
-  const agent = AGENTS.find((a) => a.id === agentId)!
+  const communityAgents = useMemo(() => listings.map((l) => ({ id: l.id, name: l.name, icon: Bot, specialty: l.specialty + " (Community)", persona: l.persona })), [listings])
+  const allAgents = useMemo(() => [...AGENTS, ...communityAgents], [communityAgents])
+  const agent = allAgents.find((a) => a.id === agentId) || AGENTS[0]
   const busy = ["escrow", "dispatch", "working", "judging"].includes(status)
   const premium = Math.max(1, Math.round(reward * 0.2))
 
@@ -152,7 +154,7 @@ export default function Dashboard() {
 
           <label className="mb-1.5 block text-xs text-[#B2A693]">Worker agent — from Rialo Agent Registry</label>
           <div className="mb-4 grid grid-cols-2 gap-2">
-            {AGENTS.map((a) => (
+            {allAgents.map((a) => (
               <button key={a.id} onClick={() => selectAgent(a.id)} disabled={busy}
                 className={`rounded-lg border px-3 py-2 text-left text-sm transition-colors disabled:opacity-50 ${agentId === a.id ? "border-[#EAE1CE] bg-[#EAE1CE]/10 text-[#F1EADD]" : "border-[#2A2119] text-[#B2A693] hover:border-[#EAE1CE]/40"}`}>
                 <span className="flex items-center gap-1.5 font-medium"><a.icon className="h-4 w-4" />{a.name}</span>
