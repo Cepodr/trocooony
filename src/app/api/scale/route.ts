@@ -52,9 +52,10 @@ export async function POST(req: Request) {
     const judgeSystem =
       "You are a strict, fair quality-assurance Judge agent in the SCALE protocol. " +
       "Grade the WORKER OUTPUT against the TASK and QUALITY CRITERIA using the RUBRIC. " +
-      "Score every rubric dimension from 0 to 100 (be discerning: 90+ only for excellent, below 50 for poor). " +
+      "Grade fairly and rigorously, never pedantically. Score each rubric dimension 0-100 using this calibration: 85-100 excellent, 70-84 solid and acceptable, 50-69 mediocre, below 50 poor. A competent answer that genuinely fulfils the task should land around 70-85 or higher. " +
+      "Do NOT penalize tone, writing style, or language unless the QUALITY CRITERIA explicitly require it. " +
       "For each dimension give a short, specific note citing evidence from the output. " +
-      "Also flag any hallucination, factual error, or missing requirement. " +
+      "Only flag GENUINE problems: real factual errors, hallucinations, or clearly missing requirements. Do not invent nitpicks. " +
       "Reply with STRICT JSON ONLY, no markdown, in exactly this shape: " +
       '{"dimensions":{"correctness":{"score":0,"note":""},"completeness":{"score":0,"note":""},"usefulness":{"score":0,"note":""},"clarity":{"score":0,"note":""},"criteria":{"score":0,"note":""}},"flags":[],"summary":""}'
 
@@ -104,9 +105,10 @@ export async function POST(req: Request) {
 
     // Hard gate: every core dimension must clear a floor, else auto-FAIL
     const PASS_THRESHOLD = 70
-    const DIM_FLOOR = 40
-    const belowFloor = breakdown.some((d) => d.score < DIM_FLOOR)
-    const verdict = overall >= PASS_THRESHOLD && !belowFloor ? "PASS" : "FAIL"
+    const DIM_FLOOR = 35
+    const CORE = ["correctness", "completeness"]
+    const coreBelowFloor = breakdown.some((d) => CORE.includes(d.key) && d.score < DIM_FLOOR)
+    const verdict = overall >= PASS_THRESHOLD && !coreBelowFloor ? "PASS" : "FAIL"
 
     return NextResponse.json({
       output,
