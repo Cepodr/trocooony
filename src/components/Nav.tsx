@@ -31,24 +31,24 @@ export default function Nav() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-[#2A2119] bg-[#0D0A07]/80 backdrop-blur">
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-        <Link href="/" className="flex items-center">
+      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5">
+        <Link href="/" className="flex shrink-0 items-center">
           <img src="/logo.png" alt="Trocooony" className="h-10 w-auto" />
         </Link>
 
-        <div className="hidden items-center gap-6 md:flex">
+        <div className="hidden items-center gap-4 xl:flex">
           {links.map((l) => {
             const active = pathname === l.href
             return (
-              <Link key={l.href} href={l.href} className={`text-sm transition-colors ${active ? "text-[#F1EADD]" : "text-[#B2A693] hover:text-[#F1EADD]"}`}>{l.label}</Link>
+              <Link key={l.href} href={l.href} className={`whitespace-nowrap text-sm transition-colors ${active ? "text-[#F1EADD]" : "text-[#B2A693] hover:text-[#F1EADD]"}`}>{l.label}</Link>
             )
           })}
         </div>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden shrink-0 items-center gap-3 xl:flex">
           {identity ? (
             <button onClick={signOutRialo} className="flex items-center gap-1.5 rounded-lg border border-[#2A2119] px-3 py-1.5 text-sm text-[#F1EADD] hover:border-[#EAE1CE]/50" title="Signed in with Rialo Identity">
-              <Check className="h-4 w-4 text-[#EAE1CE]" />{identity.handle}
+              <Check className="h-4 w-4 text-[#EAE1CE]" /><span className="max-w-[140px] truncate">{identity.handle}</span>
             </button>
           ) : (
             <button onClick={() => setSignInOpen(true)} className="rounded-lg bg-[#EAE1CE] px-3.5 py-1.5 text-sm font-medium text-[#0D0A07] hover:bg-[#F4EEDF]">Sign in with Rialo</button>
@@ -65,11 +65,11 @@ export default function Nav() {
           )}
         </div>
 
-        <button className="text-[#F1EADD] md:hidden" onClick={() => setOpen(!open)} aria-label="Menu">{open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}</button>
+        <button className="text-[#F1EADD] xl:hidden" onClick={() => setOpen(!open)} aria-label="Menu">{open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}</button>
       </nav>
 
       {open && (
-        <div className="border-t border-[#2A2119] bg-[#0D0A07] px-5 py-4 md:hidden">
+        <div className="border-t border-[#2A2119] bg-[#0D0A07] px-5 py-4 xl:hidden">
           <div className="flex flex-col gap-3">
             {links.map((l) => (<Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="text-sm text-[#B2A693]">{l.label}</Link>))}
             <div className="mt-2 flex flex-col gap-2">
