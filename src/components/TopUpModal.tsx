@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 import { X, Wallet, Loader2, CheckCircle2, Coins } from "lucide-react"
 import { useAuth } from "@/context/AuthProvider"
 import { useCredits } from "@/context/CreditsProvider"
@@ -27,7 +28,9 @@ export default function TopUpModal({ open, onClose }: { open: boolean; onClose: 
   const [msg, setMsg] = useState("")
   const [credited, setCredited] = useState(0)
 
-  if (!open) return null
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
+  if (!open || !mounted) return null
   const rlo = Math.floor((Number(amount || "0") / 0.001) * 300)
 
   async function pay() {
@@ -58,7 +61,7 @@ export default function TopUpModal({ open, onClose }: { open: boolean; onClose: 
     }
   }
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto bg-black/60 p-4" onClick={onClose}>
       <div className="my-auto max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[#2A2119] bg-[#16120D] p-6" onClick={(e) => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
@@ -105,5 +108,5 @@ export default function TopUpModal({ open, onClose }: { open: boolean; onClose: 
         )}
       </div>
     </div>
-  )
+  , document.body)
 }
