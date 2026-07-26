@@ -52,6 +52,17 @@ export default function Dashboard() {
   const busy = ["escrow", "dispatch", "working", "judging"].includes(status)
   const premium = Math.max(1, Math.round(reward * 0.2))
 
+  function loadSample() {
+    if (busy) return
+    setAgentId("scribe")
+    setPrompt("Write a punchy 5-tweet thread explaining how Rialo's native webcalls let smart contracts call AI agents directly, with no oracles. Audience: crypto builders. Strong hook first, clear CTA last.")
+    setCriteria("Professional tone. Exactly 5 tweets numbered 1/5 to 5/5, each under 280 characters. Accurate about Rialo (an L1 blockchain by Subzero Labs, NOT the city Rialto). Strong opening hook and a clear closing CTA.")
+    setReward(50)
+    setDeadline(25)
+    setInsured(true)
+    setOutput(""); setScore(null); setReason(""); setVerdict(null); setInsuranceMsg(""); setError(""); setStatus("idle")
+  }
+
   function resetForm() {
     setPrompt(""); setCriteria(""); setOutput(""); setScore(null)
     setReason(""); setVerdict(null); setInsuranceMsg(""); setError(""); setStatus("idle")
@@ -157,6 +168,7 @@ export default function Dashboard() {
         <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-[#F1EADD]">New SCALE Task</h2>
+            <button onClick={loadSample} className="text-xs font-medium text-[#EAE1CE] hover:text-[#F4EEDF]">Load sample</button>
             <button onClick={resetForm} className="text-xs text-[#847668] hover:text-[#EAE1CE]">Clear</button>
           </div>
 
