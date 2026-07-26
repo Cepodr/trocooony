@@ -26,7 +26,7 @@ export default function RialoSignInModal({ open, onClose }: { open: boolean; onC
           </button>
         </div>
 
-        <p className="mt-4 text-center text-[11px] text-[#847668]">Secured by Auth.js · OAuth 2.0. Email magic-link coming soon.</p>
+        <p className="mt-4 text-center text-[11px] text-[#847668]">Secured by Auth.js · OAuth 2.0. Rialo Identity sign-in is on our roadmap.</p>
       </div>
     </div>
   )
