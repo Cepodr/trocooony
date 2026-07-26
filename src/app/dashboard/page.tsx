@@ -22,7 +22,7 @@ type Row = { id: string; agent: string; reward: number; status: "PAID" | "REFUND
 
 export default function Dashboard() {
   const { identity } = useAuth()
-  const { recordOutcome } = useReputation()
+  const { recordOutcome, agents: repAgents } = useReputation()
   const { listings, collectPremium, payClaim, poolBalance } = useMarketplace()
   const { notify } = useToast()
   const { rlo, trlo, deposit, spendTrlo, earnTrlo } = useCredits()
@@ -50,7 +50,13 @@ export default function Dashboard() {
   const allAgents = useMemo(() => [...AGENTS, ...communityAgents], [communityAgents])
   const agent = allAgents.find((a) => a.id === agentId) || AGENTS[0]
   const busy = ["escrow", "dispatch", "working", "judging"].includes(status)
-  const premium = Math.max(1, Math.round(reward * 0.2))
+  const repRow = repAgents.find((r) => r.agentId === agentId)
+  const repTasks = repRow ? repRow.tasks : 0
+  const observedFail = repRow && repTasks > 0 ? 1 - repRow.passRate / 100 : 0.25
+  const credibility = repTasks / (repTasks + 5)
+  const expectedLoss = credibility * observedFail + (1 - credibility) * 0.25
+  const premiumRate = Math.min(0.4, Math.max(0.05, expectedLoss * 1.2))
+  const premium = Math.max(1, Math.round(reward * premiumRate))
 
   function loadSample() {
     if (busy) return
@@ -210,7 +216,7 @@ export default function Dashboard() {
             className={`mb-4 flex w-full items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors ${insured ? "border-[#EAE1CE] bg-[#EAE1CE]/10 text-[#F1EADD]" : "border-[#2A2119] text-[#B2A693] hover:border-[#EAE1CE]/40"}`}>
             <Umbrella className="h-4 w-4" />
             <span>Insure this task</span>
-            <span className="ml-auto text-xs text-[#847668]">Premium {premium} TRLO · Pool {poolBalance} TRLO</span>
+            <span className="ml-auto text-xs text-[#847668]">Premium {premium} TRLO ({Math.round(premiumRate * 100)}% risk-priced) · Pool {poolBalance} TRLO</span>
             <span className={`h-4 w-4 rounded border ${insured ? "border-[#EAE1CE] bg-[#EAE1CE]" : "border-[#847668]"}`} />
           </button>
 
