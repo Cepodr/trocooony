@@ -10,7 +10,7 @@ export default function RialoSignInModal({ open, onClose }: { open: boolean; onC
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" onClick={onClose}>
       <div className="w-full max-w-sm rounded-2xl border border-[#2A2119] bg-[#16120D] p-6" onClick={(e) => e.stopPropagation()}>
         <div className="mb-1 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-[#F1EADD]">Sign in with Rialo</h3>
+          <h3 className="text-lg font-semibold text-[#F1EADD]">Sign in to Trocooony</h3>
           <button onClick={onClose} className="text-[#847668] hover:text-[#F1EADD]"><X className="h-5 w-5" /></button>
         </div>
         <p className="mb-5 text-sm text-[#B2A693]">No seed phrase, no gas. Use your real-world identity as your Web3 passport. New here? You&apos;ll be guided to create an account.</p>

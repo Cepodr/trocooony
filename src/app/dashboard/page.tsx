@@ -221,7 +221,7 @@ export default function Dashboard() {
             )}
             {!identity && (
             <div className="mb-3 flex items-center gap-2 rounded-lg border border-[#F5B759]/30 bg-[#F5B759]/10 px-3 py-2 text-xs text-[#F5B759]">
-              <Lock className="h-3.5 w-3.5" /> Sign in with Rialo to mint a task (gasless).
+              <Lock className="h-3.5 w-3.5" /> Sign in to mint a task (gasless).
             </div>
           )}
 
