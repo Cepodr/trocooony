@@ -60,7 +60,14 @@ export function useMarketplace() {
   const depositToPool = useCallback((amount: number) => poolAction("deposit", amount), [poolAction])
   const withdrawFromPool = useCallback((amount: number) => poolAction("withdraw", amount), [poolAction])
   const collectPremium = useCallback((amount: number) => poolAction("premium", amount), [poolAction])
-  const payClaim = useCallback((amount: number) => poolAction("claim", amount), [poolAction])
+  const payClaim = useCallback(async (amount: number): Promise<number> => {
+    try {
+      const r = await fetch("/api/pool", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "claim", amount }) })
+      const d = await r.json()
+      if (d && d.pool) setPool(d.pool as Pool)
+      return typeof d?.paid === "number" ? d.paid : 0
+    } catch { return 0 }
+  }, [])
   const reset = useCallback(() => { setListings([]); poolAction("reset", 0) }, [poolAction])
 
   return {

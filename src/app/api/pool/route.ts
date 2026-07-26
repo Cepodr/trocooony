@@ -29,6 +29,7 @@ export async function POST(req: Request) {
   const action = b?.action
   const amount = Math.max(0, Number(b?.amount) || 0)
   const p = await readPool()
+  let paid = 0
 
   if (action === "deposit") {
     p.deposits += amount
@@ -40,8 +41,9 @@ export async function POST(req: Request) {
     p.policies += 1
   } else if (action === "claim") {
     const pay = Math.min(amount, balanceOf(p))
+    paid = pay
     p.payouts += pay
-    p.claims += 1
+    if (pay > 0) p.claims += 1
   } else if (action === "reset") {
     p.deposits = 0; p.premiums = 0; p.payouts = 0; p.policies = 0; p.claims = 0
   } else {
@@ -58,5 +60,5 @@ export async function POST(req: Request) {
     updated_at: new Date().toISOString(),
   })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ pool: p })
+  return NextResponse.json({ pool: p, paid })
 }

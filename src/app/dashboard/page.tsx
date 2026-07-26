@@ -120,7 +120,7 @@ export default function Dashboard() {
       const passed = data.verdict === "PASS"
       if (!passed && isInsured) {
         const pay = Math.min(reward, coverAtMint)
-        payClaim(reward); void earnTrlo(reward); notify("Insurance triggered — pool paid out to requester.", "warn")
+        void payClaim(reward).then((paidOut) => { if (paidOut > 0) void earnTrlo(paidOut) }); notify("Insurance triggered — pool paid out to requester.", "warn")
         setInsuranceMsg(`Insurance triggered — pool paid ${pay} RLO to the requester.`)
       }
       setStatus(passed ? "done" : "refunded"); if (!passed) void earnTrlo(reward)
@@ -133,7 +133,7 @@ export default function Dashboard() {
         setReason("Deadline missed — escrow auto-refunded by Rialo native timer.")
         if (isInsured) {
           const pay = Math.min(reward, coverAtMint)
-          payClaim(reward); void earnTrlo(reward); notify("Insurance triggered — pool paid out to requester.", "warn")
+          void payClaim(reward).then((paidOut) => { if (paidOut > 0) void earnTrlo(paidOut) }); notify("Insurance triggered — pool paid out to requester.", "warn")
           setInsuranceMsg(`Insurance triggered — pool paid ${pay} RLO to the requester.`)
         }
         const _row: Row = { id: crypto.randomUUID(), agent: agent.name, reward, status: "AUTO-REFUND", score: null, tx: fakeTx(), insured: isInsured }; setHistory((h) => [_row, ...h]); fetch("/api/ledger", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(_row) }).catch(() => {})
@@ -320,13 +320,14 @@ export default function Dashboard() {
 
       <div className="mt-6 rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
         <h2 className="mb-4 text-sm font-semibold text-[#F1EADD]">Task Ledger</h2>
+        <p className="mb-4 text-xs text-[#847668]">Settlement refs are simulated in this demo. On Rialo mainnet each row carries a real on-chain transaction hash.</p>
         {history.length === 0 ? (
           <p className="text-sm text-[#847668]">No settled tasks yet.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="text-xs text-[#847668]">
-                <tr><th className="pb-2">Agent</th><th className="pb-2">RLO</th><th className="pb-2">Score</th><th className="pb-2">Insured</th><th className="pb-2">Status</th><th className="pb-2">Tx</th></tr>
+                <tr><th className="pb-2">Agent</th><th className="pb-2">RLO</th><th className="pb-2">Score</th><th className="pb-2">Insured</th><th className="pb-2">Status</th><th className="pb-2">Settlement ref</th></tr>
               </thead>
               <tbody className="text-[#B2A693]">
                 {history.map((h) => (
