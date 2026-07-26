@@ -320,14 +320,14 @@ export default function Dashboard() {
 
       <div className="mt-6 rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
         <h2 className="mb-4 text-sm font-semibold text-[#F1EADD]">Task Ledger</h2>
-        <p className="mb-4 text-xs text-[#847668]">Settlement refs are simulated in this demo. On Rialo mainnet each row carries a real on-chain transaction hash.</p>
+        <p className="mb-4 max-w-2xl text-xs leading-relaxed text-[#847668]">Task content never enters the ledger, only its settlement does. On Rialo the judge runs inside a TEE, so an outcome can be verified without exposing the work. Settlement refs are simulated in this demo; on mainnet each row carries a real on-chain transaction hash.</p>
         {history.length === 0 ? (
           <p className="text-sm text-[#847668]">No settled tasks yet.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="text-xs text-[#847668]">
-                <tr><th className="pb-2">Agent</th><th className="pb-2">RLO</th><th className="pb-2">Score</th><th className="pb-2">Insured</th><th className="pb-2">Status</th><th className="pb-2">Settlement ref</th></tr>
+                <tr><th className="pb-2">Agent</th><th className="pb-2">RLO</th><th className="pb-2">Score</th><th className="pb-2">Insured</th><th className="pb-2">Status</th><th className="pb-2">Settlement ref</th><th className="pb-2">Task content</th></tr>
               </thead>
               <tbody className="text-[#B2A693]">
                 {history.map((h) => (
@@ -337,7 +337,7 @@ export default function Dashboard() {
                     <td className="py-2">{h.score ?? "—"}</td>
                     <td className="py-2">{h.insured ? <ShieldCheck className="inline h-3.5 w-3.5 text-[#EAE1CE]" /> : "—"}</td>
                     <td className="py-2"><span className={h.status === "PAID" ? "text-[#EAE1CE]" : "text-[#F5B759]"}>{h.status}</span></td>
-                    <td className="py-2 font-mono text-xs text-[#EAE1CE]">{h.tx}</td>
+                    <td className="py-2 font-mono text-xs text-[#EAE1CE]">{h.tx}</td><td className="py-2 text-xs text-[#847668]">Confidential</td>
                   </tr>
                 ))}
               </tbody>
