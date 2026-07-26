@@ -93,7 +93,7 @@ export default function Dashboard() {
     const coverAtMint = poolBalance
 
     setStatus("escrow"); await sleep(700)
-    if (isInsured) collectPremium(premium)
+    if (isInsured) { await spendTrlo(premium); collectPremium(premium) }
     setStatus("dispatch"); await sleep(600)
     setStatus("working")
 
@@ -114,7 +114,7 @@ export default function Dashboard() {
       const passed = data.verdict === "PASS"
       if (!passed && isInsured) {
         const pay = Math.min(reward, coverAtMint)
-        payClaim(reward); notify("Insurance triggered — pool paid out to requester.", "warn")
+        payClaim(reward); void earnTrlo(reward); notify("Insurance triggered — pool paid out to requester.", "warn")
         setInsuranceMsg(`Insurance triggered — pool paid ${pay} RLO to the requester.`)
       }
       setStatus(passed ? "done" : "refunded"); if (!passed) void earnTrlo(reward)
@@ -127,7 +127,7 @@ export default function Dashboard() {
         setReason("Deadline missed — escrow auto-refunded by Rialo native timer.")
         if (isInsured) {
           const pay = Math.min(reward, coverAtMint)
-          payClaim(reward); notify("Insurance triggered — pool paid out to requester.", "warn")
+          payClaim(reward); void earnTrlo(reward); notify("Insurance triggered — pool paid out to requester.", "warn")
           setInsuranceMsg(`Insurance triggered — pool paid ${pay} RLO to the requester.`)
         }
         const _row: Row = { id: crypto.randomUUID(), agent: agent.name, reward, status: "AUTO-REFUND", score: null, tx: fakeTx(), insured: isInsured }; setHistory((h) => [_row, ...h]); fetch("/api/ledger", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(_row) }).catch(() => {})
