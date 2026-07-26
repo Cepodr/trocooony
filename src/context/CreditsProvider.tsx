@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useCallback, useEffect, useState, ReactNode } from "react"
+import { createContext, useContext, useCallback, useEffect, useRef, useState, ReactNode } from "react"
 import { useAuth } from "@/context/AuthProvider"
 
 type CreditsCtx = {
@@ -44,7 +44,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { refresh() }, [refresh])
 
-  const act = useCallback(async (action: string, amount: number): Promise<{ ok: boolean; error?: string }> => {
+  const actRaw = useCallback(async (action: string, amount: number): Promise<{ ok: boolean; error?: string }> => {
     if (!userKey) return { ok: false, error: "Login dulu." }
     try {
       const r = await fetch("/api/credits", {
@@ -58,6 +58,14 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
       return { ok: true }
     } catch (e: any) { return { ok: false, error: e?.message || "Network error." } }
   }, [userKey, apply])
+
+  const chain = useRef<Promise<unknown>>(Promise.resolve())
+  const act = useCallback((action: string, amount: number): Promise<{ ok: boolean; error?: string }> => {
+    const run = () => actRaw(action, amount)
+    const next = chain.current.then(run, run)
+    chain.current = next.catch(() => ({ ok: false }))
+    return next
+  }, [actRaw])
 
   const deposit = useCallback((amount: number) => act("deposit", amount), [act])
   const withdraw = useCallback((amount: number) => act("withdraw", amount), [act])
