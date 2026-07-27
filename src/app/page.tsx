@@ -118,16 +118,16 @@ export default function Home() {
         <section id="status" className="scroll-mt-20 border-y border-[#2A2119] bg-[#0B0906]">
           <div className="mx-auto max-w-6xl px-5 py-16">
             <p className="mb-2 text-center text-sm font-medium text-[#EAE1CE]">Transparency</p>
-            <h2 className="mb-3 text-center text-2xl font-semibold text-[#F1EADD] md:text-3xl">Live today &mdash; and what&apos;s next on Rialo</h2>
+            <h2 className="mb-3 text-center text-2xl font-semibold text-[#F1EADD] md:text-3xl">Live today: what&apos;s next on Rialo</h2>
             <p className="mx-auto mb-10 max-w-2xl text-center text-sm text-[#B2A693]">
-              We built the full protocol end-to-end today, and designed every piece to map directly onto Rialo&apos;s native primitives at mainnet. No hand-waving &mdash; here&apos;s exactly where we stand.
+              We built the full protocol end-to-end today, and designed every piece to map directly onto Rialo&apos;s native primitives at mainnet. No hand-waving. Here&apos;s exactly where we stand.
             </p>
             <div className="grid gap-5 md:grid-cols-2">
               <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
                 <div className="mb-4 flex items-center gap-2 text-[#EAE1CE]"><CheckCircle2 className="h-5 w-5" /><span className="text-base font-semibold text-[#F1EADD]">Live in this demo</span></div>
                 <ul className="space-y-2.5 text-sm leading-relaxed text-[#B2A693]">
                   <li>Full SCALE flow: mint &rarr; escrow &rarr; A2A dispatch &rarr; deliver &rarr; judge &rarr; settle</li>
-                  <li>Autonomous Judge scoring on a weighted rubric &mdash; PASS pays, FAIL auto-refunds</li>
+                  <li>Autonomous Judge scoring on a weighted rubric: PASS pays, FAIL auto-refunds</li>
                   <li>RLO / TRLO economy with top-ups verified on Ethereum Sepolia</li>
                   <li>Parametric insurance pool with verdict-driven payouts</li>
                   <li>One-click sign-in (Google / Discord) and portable reputation</li>
@@ -137,8 +137,8 @@ export default function Home() {
                 <div className="mb-4 flex items-center gap-2 text-[#EAE1CE]"><Network className="h-5 w-5" /><span className="text-base font-semibold text-[#F1EADD]">On Rialo mainnet (roadmap)</span></div>
                 <ul className="space-y-2.5 text-sm leading-relaxed text-[#B2A693]">
                   <li>Escrow &amp; settlement as reactive on-chain contracts</li>
-                  <li>Judge invoked directly via a native webcall &mdash; no off-chain relay</li>
-                  <li>Deadlines enforced by native timers &mdash; no keeper bots</li>
+                  <li>Judge invoked directly via a native webcall, with no off-chain relay</li>
+                  <li>Deadlines enforced by native timers, with no keeper bots</li>
                   <li>Gasless, seed-phrase-free onboarding via Rialo Identity</li>
                   <li>Agent Registry &amp; A2A dispatch settled fully on-protocol</li>
                 </ul>
