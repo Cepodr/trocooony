@@ -55,9 +55,9 @@ export default function Dashboard() {
   const observedFail = repRow && repTasks > 0 ? 1 - repRow.passRate / 100 : 0.25
   const credibility = repTasks / (repTasks + 5)
   const expectedLoss = credibility * observedFail + (1 - credibility) * 0.25
-  const premiumRate = Math.min(0.95, Math.max(0.05, expectedLoss * 1.2))
+  const premiumRate = Math.min(0.36, Math.max(0.01, expectedLoss * 0.3 * 1.2))
   const premium = Math.max(1, Math.round(reward * premiumRate))
-  const COVERAGE = 0.7
+  const COVERAGE = 0.3
   const claimPayout = Math.max(1, Math.round(reward * COVERAGE))
   const insurable = repTasks >= 5
 
@@ -99,7 +99,7 @@ export default function Dashboard() {
     setError(""); setOutput(""); setScore(null); setReason(""); setVerdict(null); setInsuranceMsg("")
 
     const isInsured = insured && insurable
-    const coverAtMint = poolBalance
+    const coverAtMint = Math.min(claimPayout, poolBalance)
 
     setStatus("escrow"); await sleep(700)
     if (isInsured) { await spendTrlo(premium); collectPremium(premium) }
@@ -122,12 +122,12 @@ export default function Dashboard() {
       setOutput(data.output); setScore(data.score); setReason(data.reason); setVerdict(data.verdict); setBreakdown(data.breakdown || []); setFlags(data.flags || [])
       const passed = data.verdict === "PASS"
       if (!passed && isInsured) {
-        const pay = Math.min(reward, coverAtMint)
-        void payClaim(claimPayout).then((paidOut) => { if (paidOut > 0) void earnTrlo(paidOut) }); notify("Insurance triggered. The pool paid 70 percent coverage to the requester.", "warn")
-        setInsuranceMsg(`Insurance triggered. The pool paid ${pay} RLO to the requester.`)
+        const pay = coverAtMint
+        void payClaim(pay).then((paidOut) => { if (paidOut > 0) void earnTrlo(paidOut) }); notify("Insurance paid. You received your full reward back, minus the premium.", "warn")
+        setInsuranceMsg(`Insurance paid ${pay} RLO. Your reward came back in full, so you only paid the premium.`)
       }
-      setStatus(passed ? "done" : "refunded"); if (!passed) void earnTrlo(reward)
-      notify(passed ? `${agent.name} passed:  ${data.score}/100, ${reward} TRLO released.` : `${agent.name} failed: ${data.score}/100. Escrow refunded.`, passed ? "success" : "error")
+      setStatus(passed ? "done" : "refunded"); if (!passed) void earnTrlo(reward - claimPayout)
+      notify(passed ? `${agent.name} passed:  ${data.score}/100, ${reward} TRLO released.` : `${agent.name} failed: ${data.score}/100. Escrow refunded, minus the effort fee to the worker.`, passed ? "success" : "error")
       const _row: Row = { id: crypto.randomUUID(), agent: agent.name, reward, status: passed ? "PAID" : "REFUNDED", score: data.score, tx: fakeTx(), insured: isInsured }; setHistory((h) => [_row, ...h]); fetch("/api/ledger", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(_row) }).catch(() => {})
       recordOutcome({ agentId: agent.id, agentName: agent.name, result: passed ? "PASS" : "FAIL", score: data.score, reward })
     } catch (e: any) {
@@ -135,9 +135,9 @@ export default function Dashboard() {
         setStatus("refunded"); setVerdict("TIMEOUT"); void earnTrlo(reward); notify(`${agent.name} missed the deadline. Escrow auto-refunded.`, "warn")
         setReason("Deadline missed. Escrow auto-refunded by a Rialo native timer.")
         if (isInsured) {
-          const pay = Math.min(reward, coverAtMint)
+          const pay = coverAtMint
           notify("Deadline missed. The escrow auto-refunded in full. Insurance covers judged failure only.", "warn")
-          setInsuranceMsg(`Insurance triggered. The pool paid ${pay} RLO to the requester.`)
+          setInsuranceMsg(`No claim was paid. Insurance covers judged failure only, so the coverage of ${pay} RLO did not apply here.`)
         }
         const _row: Row = { id: crypto.randomUUID(), agent: agent.name, reward, status: "AUTO-REFUND", score: null, tx: fakeTx(), insured: isInsured }; setHistory((h) => [_row, ...h]); fetch("/api/ledger", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(_row) }).catch(() => {})
         recordOutcome({ agentId: agent.id, agentName: agent.name, result: "REFUND", score: null, reward })
@@ -219,7 +219,7 @@ export default function Dashboard() {
             className={`mb-4 flex w-full items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors ${insured ? "border-[#EAE1CE] bg-[#EAE1CE]/10 text-[#F1EADD]" : "border-[#2A2119] text-[#B2A693] hover:border-[#EAE1CE]/40"}`}>
             <Umbrella className="h-4 w-4" />
             <span>{insurable ? "Insure this task" : "Insurance locked"}</span>
-            <span className="ml-auto text-xs text-[#847668]">{insurable ? "Premium " + premium + " TRLO (" + Math.round(premiumRate * 100) + "% risk-priced) · Covers " + claimPayout + " TRLO on judged failure" : "Needs 5 settled tasks for this agent (" + repTasks + "/5)"} · Pool {poolBalance} TRLO</span>
+            <span className="ml-auto text-xs text-[#847668]">{insurable ? "Insurance " + premium + " TRLO (" + Math.round(premiumRate * 100) + "% of reward) · Pays back " + claimPayout + " TRLO if the judge fails the work" : "Needs 5 settled tasks for this agent (" + repTasks + "/5)"} · Pool {poolBalance} TRLO</span>
             <span className={`h-4 w-4 rounded border ${insured ? "border-[#EAE1CE] bg-[#EAE1CE]" : "border-[#847668]"}`} />
           </button>
 
