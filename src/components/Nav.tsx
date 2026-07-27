@@ -122,7 +122,7 @@ export default function Nav() {
                 injected ? (
                   <button onClick={connectWallet} className="rounded-lg border border-[#2A2119] px-3 py-2 text-sm text-[#F1EADD]">Connect Wallet (Sepolia)</button>
                 ) : (
-                  <a href="https://metamask.app.link/dapp/www.trocooony.tech" className="rounded-lg border border-[#2A2119] px-3 py-2 text-center text-sm text-[#F1EADD]">Open in MetaMask app</a>
+                  <a href="https://metamask.app.link/dapp/www.trocooony.tech" className="rounded-lg border border-[#2A2119] px-3 py-2 text-center text-sm text-[#F1EADD]">Connect Wallet (Sepolia)</a>
                 )
               )}
             </div>
