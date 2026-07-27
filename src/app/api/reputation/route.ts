@@ -39,12 +39,3 @@ export async function POST(req: Request) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
 }
-
-export async function DELETE() {
-  const { error } = await supabaseAdmin
-    .from("reputation_outcomes")
-    .delete()
-    .not("id", "is", null)
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ ok: true })
-}

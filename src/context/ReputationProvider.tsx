@@ -22,7 +22,6 @@ type Ctx = {
   outcomes: Outcome[]
   agents: AgentRep[]
   recordOutcome: (o: Omit<Outcome, "ts">) => void
-  reset: () => void
 }
 
 const RepCtx = createContext<Ctx | null>(null)
@@ -62,12 +61,7 @@ export function ReputationProvider({ children }: { children: ReactNode }) {
     }).catch(() => {})
   }
 
-  const reset = () => {
-    setOutcomes([])
-    try { localStorage.setItem(KEY, JSON.stringify([])) } catch {}
-    fetch("/api/reputation", { method: "DELETE" }).catch(() => {})
-  }
-
+  
   const agents = useMemo<AgentRep[]>(() => {
     const meta: { id: string; name: string; specialty: string; official: boolean }[] = AGENTS.map((a) => ({ id: a.id, name: a.name, specialty: a.specialty, official: true }))
     for (const o of outcomes) {
@@ -91,7 +85,7 @@ export function ReputationProvider({ children }: { children: ReactNode }) {
     return list.sort((a, b) => b.reputation - a.reputation || b.rloEarned - a.rloEarned)
   }, [outcomes])
 
-  return <RepCtx.Provider value={{ outcomes, agents, recordOutcome, reset }}>{children}</RepCtx.Provider>
+  return <RepCtx.Provider value={{ outcomes, agents, recordOutcome }}>{children}</RepCtx.Provider>
 }
 
 export function useReputation() {
