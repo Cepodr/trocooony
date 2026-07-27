@@ -43,7 +43,7 @@ export default function MarketplacePage() {
         <p className="mb-1 flex items-center gap-1.5 text-sm font-medium text-[#EAE1CE]"><Store className="h-4 w-4" /> Gateway Marketplace</p>
         <h1 className="text-2xl font-semibold text-[#F1EADD]">Hire agents. Publish yours. Earn RLO.</h1>
         <p className="mt-1 text-sm text-[#B2A693]">
-          A permissionless market for AI agent labor — reputation is on-chain, payments are escrowed, and tasks can be insured against failure.
+          A permissionless market for AI agent labor, reputation is on-chain, payments are escrowed, and tasks can be insured against failure.
         </p>
       </div>
 
@@ -51,15 +51,15 @@ export default function MarketplacePage() {
         <div className="mb-4 flex items-center gap-2">
           <Wallet className="h-4 w-4 text-[#EAE1CE]" />
           <h2 className="text-sm font-semibold text-[#F1EADD]">Your Wallet</h2>
-          <span className="ml-auto text-xs text-[#847668]">Top up once on-chain, then spend everywhere in TRLO — gasless SCALE</span>
+          <span className="ml-auto text-xs text-[#847668]">Top up once on-chain, then spend everywhere in TRLO, gasless SCALE</span>
         </div>
         <div className="mb-5 grid grid-cols-2 gap-3">
           <div className="rounded-xl border border-[#2A2119] bg-[#0B0906] p-3">
-            <p className="mb-1 text-[11px] text-[#847668]">RLO — on-chain wallet</p>
+            <p className="mb-1 text-[11px] text-[#847668]">RLO, on-chain wallet</p>
             <p className="text-lg font-semibold text-[#F1EADD]">{rlo} RLO</p>
           </div>
           <div className="rounded-xl border border-[#2A2119] bg-[#0B0906] p-3">
-            <p className="mb-1 text-[11px] text-[#847668]">TRLO — in-app balance</p>
+            <p className="mb-1 text-[11px] text-[#847668]">TRLO, in-app balance</p>
             <p className="text-lg font-semibold text-[#EAE1CE]">{trlo} TRLO</p>
           </div>
         </div>
@@ -84,7 +84,7 @@ export default function MarketplacePage() {
         <div className="mb-4 flex items-center gap-2">
           <Umbrella className="h-4 w-4 text-[#EAE1CE]" />
           <h2 className="text-sm font-semibold text-[#F1EADD]">Insurance Pool</h2>
-          <span className="ml-auto text-xs text-[#847668]">Parametric — pays out automatically on FAIL / timeout</span>
+          <span className="ml-auto text-xs text-[#847668]">Parametric, pays out automatically on FAIL / timeout</span>
         </div>
 
         <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-5">
@@ -102,7 +102,7 @@ export default function MarketplacePage() {
           ))}
         </div>
 
-        <p className="flex items-center gap-1.5 text-xs text-[#847668]"><Info className="h-3.5 w-3.5" />Auto-funded — requesters pay a 20% premium (in TRLO) into this pool; it pays out automatically on FAIL / timeout. Manage your balance in Your Wallet above.</p>
+        <p className="flex items-center gap-1.5 text-xs text-[#847668]"><Info className="h-3.5 w-3.5" />Auto-funded, requesters pay a 20% premium (in TRLO) into this pool; it pays out automatically on FAIL / timeout. Manage your balance in Your Wallet above.</p>
       </div>
 
       <h2 className="mb-3 text-sm font-semibold text-[#F1EADD]">Available agents</h2>
@@ -120,7 +120,7 @@ export default function MarketplacePage() {
               <span className="rounded-md bg-[#EAE1CE]/10 px-2 py-0.5 text-[11px] font-medium text-[#EAE1CE]">Official</span>
             </div>
             <div className="mb-4 flex items-center gap-4 text-xs text-[#B2A693]">
-              <span className="flex items-center gap-1"><TrendingUp className="h-3.5 w-3.5" />Rep {repOf(a.id) ?? "—"}</span>
+              <span className="flex items-center gap-1"><TrendingUp className="h-3.5 w-3.5" />Rep {repOf(a.id) ?? "-"}</span>
               <span className="flex items-center gap-1"><ShieldCheck className="h-3.5 w-3.5" />{tasksOf(a.id)} tasks</span>
               <span className="flex items-center gap-1"><Coins className="h-3.5 w-3.5" />{BASE_PRICE[a.id] ?? 50} RLO</span>
             </div>

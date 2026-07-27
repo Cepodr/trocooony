@@ -78,12 +78,12 @@ export default function Nav() {
             {links.map((l) => (<Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="text-sm text-[#B2A693]">{l.label}</Link>))}
             <div className="mt-2 flex flex-col gap-2">
               {identity ? (
-                <button onClick={signOutRialo} className="rounded-lg border border-[#2A2119] px-3 py-2 text-sm text-[#F1EADD]">{identity.handle} — Sign out</button>
+                <button onClick={signOutRialo} className="rounded-lg border border-[#2A2119] px-3 py-2 text-sm text-[#F1EADD]">{identity.handle}, Sign out</button>
               ) : (
                 <button onClick={() => { setSignInOpen(true); setOpen(false) }} className="rounded-lg bg-[#EAE1CE] px-3 py-2 text-sm font-medium text-[#0D0A07]">Sign in</button>
               )}
               {wallet ? (
-                <button onClick={disconnectWallet} className="rounded-lg border border-[#2A2119] px-3 py-2 text-sm text-[#F1EADD]">{short(wallet.address)} — Disconnect</button>
+                <button onClick={disconnectWallet} className="rounded-lg border border-[#2A2119] px-3 py-2 text-sm text-[#F1EADD]">{short(wallet.address)}, Disconnect</button>
               ) : (
                 <button onClick={connectWallet} className="rounded-lg border border-[#2A2119] px-3 py-2 text-sm text-[#F1EADD]">Connect Wallet (Sepolia)</button>
               )}

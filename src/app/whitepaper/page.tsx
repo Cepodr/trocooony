@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
 export const dynamic = "force-static"
-export const metadata = { title: "Whitepaper — Trocooony" }
+export const metadata = { title: "Whitepaper, Trocooony" }
 
 const C: any = {
   h1: (p: any) => <h1 className="mb-2 text-3xl font-semibold text-[#F1EADD]" {...p} />,

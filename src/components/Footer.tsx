@@ -39,9 +39,13 @@ export default function Footer() {
         <div>
           <p className="mb-3 text-xs font-medium uppercase tracking-wide text-[#847668]">Rialo Community</p>
           <ul className="space-y-2 text-sm text-[#B2A693]">
-            <li><a href="https://rialo.io" target="_blank" rel="noreferrer" className="hover:text-[#EAE1CE]">Rialo</a></li>
-            <li><a href="https://docs.rialo.io" target="_blank" rel="noreferrer" className="hover:text-[#EAE1CE]">Rialo Docs</a></li>
-            <li><a href="https://x.com/RialoHQ" target="_blank" rel="noreferrer" className="hover:text-[#EAE1CE]">@RialoHQ</a></li>
+            <li><a href="https://rialo.io" target="_blank" rel="noreferrer" className="hover:text-[#EAE1CE]">Website</a></li>
+            <li><a href="https://docs.rialo.io" target="_blank" rel="noreferrer" className="hover:text-[#EAE1CE]">Docs</a></li>
+              <li><a href="https://learn.rialo.io" target="_blank" rel="noreferrer" className="hover:text-[#EAE1CE]">Learn</a></li>
+              <li><a href="https://playground.rialo.io" target="_blank" rel="noreferrer" className="hover:text-[#EAE1CE]">Playground</a></li>
+            <li><a href="https://x.com/RialoHQ" target="_blank" rel="noreferrer" className="hover:text-[#EAE1CE]">X</a></li>
+              <li><a href="https://discord.gg/rialoprotocol" target="_blank" rel="noreferrer" className="hover:text-[#EAE1CE]">Discord</a></li>
+              <li><a href="https://github.com/rialo" target="_blank" rel="noreferrer" className="hover:text-[#EAE1CE]">GitHub</a></li>
             </ul>
           </div>
 

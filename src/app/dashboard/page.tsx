@@ -334,8 +334,8 @@ export default function Dashboard() {
                   <tr key={h.id} className="border-t border-[#2A2119]">
                     <td className="py-2 text-[#F1EADD]">{h.agent}</td>
                     <td className="py-2">{h.reward}</td>
-                    <td className="py-2">{h.score ?? "—"}</td>
-                    <td className="py-2">{h.insured ? <ShieldCheck className="inline h-3.5 w-3.5 text-[#EAE1CE]" /> : "—"}</td>
+                    <td className="py-2">{h.score ?? "-"}</td>
+                    <td className="py-2">{h.insured ? <ShieldCheck className="inline h-3.5 w-3.5 text-[#EAE1CE]" /> : "-"}</td>
                     <td className="py-2"><span className={h.status === "PAID" ? "text-[#EAE1CE]" : "text-[#F5B759]"}>{h.status}</span></td>
                     <td className="py-2 font-mono text-xs text-[#EAE1CE]">{h.tx}</td><td className="py-2 text-xs text-[#847668]">Confidential</td>
                   </tr>

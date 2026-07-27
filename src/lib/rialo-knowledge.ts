@@ -3,9 +3,9 @@ export type KbSection = { id: string; title: string; summary: string; points: st
 export const RIALO_KB: KbSection[] = [
   {
     id: "overview", title: "What is Rialo",
-    summary: "Rialo is a developer-first Layer 1 blockchain by Subzero Labs, built to give Web3 apps a Web2-like experience — fast, responsive, and connected to the real world. Tagline: 'Rethink. Rebuild. Rialo.'",
+    summary: "Rialo is a developer-first Layer 1 blockchain by Subzero Labs, built to give Web3 apps a Web2-like experience, fast, responsive, and connected to the real world. Tagline: 'Rethink. Rebuild. Rialo.'",
     points: [
-      "Positioned as 'infrastructure for the next generation of intelligent systems' — often called a 'Real World Chain'.",
+      "Positioned as 'infrastructure for the next generation of intelligent systems', often called a 'Real World Chain'.",
       "Makes real-world connectivity native to the protocol, aiming to render oracles, bridges, indexers, and keepers obsolete.",
       "Targets internet-scale apps: AI agents, prediction markets, and real-time onchain markets.",
       "Combines Web2-level UX (speed, usability, low cost) with Web3 decentralization and built-in privacy.",
@@ -27,7 +27,7 @@ export const RIALO_KB: KbSection[] = [
     points: [
       "Native webcalls let contracts fetch live data (prices, weather, feeds) and call external services directly.",
       "Enables native communication with AI agents, including protocols like Google's Agent2Agent (A2A).",
-      "Removes multi-hop overhead, bridging scripts, and external watchers — fewer trust assumptions, consistent security.",
+      "Removes multi-hop overhead, bridging scripts, and external watchers, fewer trust assumptions, consistent security.",
       "Can securely store and use credentials (e.g. API keys) without exposing them.",
     ],
   },
@@ -36,14 +36,14 @@ export const RIALO_KB: KbSection[] = [
     summary: "Also called conditional transactions: logic that executes automatically when a predicate becomes true, validated by the chain itself. No bots, keepers, or cron jobs.",
     points: [
       "Predicates can be time-based ('every 10 blocks'), value-based ('when balance > $1000'), or data-driven ('when BTC < $95K').",
-      "Supports long-running programs across many blocks — able to suspend, wait, and resume on future conditions.",
+      "Supports long-running programs across many blocks, able to suspend, wait, and resume on future conditions.",
       "A conditional transaction can spawn more conditional transactions, enabling multi-step workflows lasting hours or days.",
       "Flow: deploy predicate -> chain evaluates each block -> when matched, auto-execute. Trustless, no privileged operators.",
     ],
   },
   {
     id: "stream", title: "Rialo Stream (native data feeds)",
-    summary: "Native real-time data feeds for DeFi, RWAs, and more — advertised as over 40x faster than top oracles.",
+    summary: "Native real-time data feeds for DeFi, RWAs, and more, advertised as over 40x faster than top oracles.",
     points: [
       "Sub-100ms latency data with 100k+ tickers/second in Rialo's demos.",
       "Powers real-time onchain markets with no middleware or oracles.",
@@ -53,7 +53,7 @@ export const RIALO_KB: KbSection[] = [
     id: "ipc", title: "Rialo IPC (Identity, Privacy, Compliance)",
     summary: "Identity, privacy, and compliance are first-class native capabilities rather than app-layer add-ons.",
     points: [
-      "Privacy is native — not outsourced to the application layer.",
+      "Privacy is native, not outsourced to the application layer.",
       "Balances privacy with the verifiability needed for compliance.",
       "Seed-phrase-free identity reduces the key-management burden that causes permanent loss of funds.",
     ],
@@ -74,7 +74,7 @@ export const RIALO_KB: KbSection[] = [
     ],
   },
   {
-    id: "scale", title: "Product — SCALE (agent labor)",
+    id: "scale", title: "Product, SCALE (agent labor)",
     summary: "SCALE = Simple Contracts for Agent Labor Execution. Inspired by the YC SAFE note, it sets simple, enforceable terms for paying AI agents to do work.",
     points: [
       "Uses on-chain logic to enforce task deadlines and quality assurance, refunding on late or low-quality delivery.",
@@ -84,7 +84,7 @@ export const RIALO_KB: KbSection[] = [
     ],
   },
   {
-    id: "harness", title: "Product — Agentic Edge Harness & Gateway Marketplace",
+    id: "harness", title: "Product, Agentic Edge Harness & Gateway Marketplace",
     summary: "Trustless guard-rails for autonomous agent execution at scale, plus an open marketplace for agent services (gateways).",
     points: [
       "Gateways are services (payments, automation, web access, compute, confidential compute) shipped by third parties.",
@@ -104,9 +104,9 @@ export const RIALO_KB: KbSection[] = [
     id: "devtools", title: "Developer tooling",
     summary: "Rialo offers a Rust-based toolkit plus a browser playground and learning resources.",
     points: [
-      "rialo-cdk (Rust) — the primary library for building Rialo apps.",
-      "rialo-rex-evm — drive transactions on EVM chains from Rialo programs via REX WASM inside a TEE.",
-      "rialo-venus-dsl — the rialo! macro generates Solana program interfaces from high-level workflow definitions.",
+      "rialo-cdk (Rust), the primary library for building Rialo apps.",
+      "rialo-rex-evm, drive transactions on EVM chains from Rialo programs via REX WASM inside a TEE.",
+      "rialo-venus-dsl, the rialo! macro generates Solana program interfaces from high-level workflow definitions.",
       "Playground (playground.rialo.io), Learn (learn.rialo.io), Docs (rialo.io/docs), Dev Portal (rialo.io/for-devs), GitHub (github.com/rialo).",
     ],
   },

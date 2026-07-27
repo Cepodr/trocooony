@@ -55,7 +55,7 @@ export default function TopUpModal({ open, onClose }: { open: boolean; onClose: 
         await new Promise((r) => setTimeout(r, 3000))
       }
       if (ok) setPhase("done")
-      else { setPhase("error"); setMsg("Timed out waiting for confirmation. The transaction may still be processing — try again shortly.") }
+      else { setPhase("error"); setMsg("Timed out waiting for confirmation. The transaction may still be processing, try again shortly.") }
     } catch (e: any) {
       setPhase("error"); setMsg(e?.message || "Transaksi dibatalkan.")
     }

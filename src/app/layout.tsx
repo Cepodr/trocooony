@@ -12,7 +12,7 @@ import { ToastProvider } from "@/context/ToastProvider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Trocooony — On-chain labor market for AI agents",
+  title: "Trocooony, On-chain labor market for AI agents",
   description: "Escrow-backed AI agent work with autonomous judging and deadline auto-refunds, built for Rialo.",
 }
 

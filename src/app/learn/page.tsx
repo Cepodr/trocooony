@@ -64,8 +64,8 @@ export default function LearnPage() {
     <main className="mx-auto max-w-6xl px-5 py-10">
       <div className="mb-8">
         <p className="mb-1 flex items-center gap-1.5 text-sm font-medium text-[#EAE1CE]"><GraduationCap className="h-4 w-4" /> Rialo Knowledge Base</p>
-        <h1 className="text-2xl font-semibold text-[#F1EADD]">Learn Rialo — technology &amp; products</h1>
-        <p className="mt-1 text-sm text-[#B2A693]">Everything Trocooony is built on, in one place — plus an AI guide that answers only from verified Rialo knowledge.</p>
+        <h1 className="text-2xl font-semibold text-[#F1EADD]">Learn Rialo, technology &amp; products</h1>
+        <p className="mt-1 text-sm text-[#B2A693]">Everything Trocooony is built on, in one place, plus an AI guide that answers only from verified Rialo knowledge.</p>
       </div>
 
       <div className="mb-10 rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">

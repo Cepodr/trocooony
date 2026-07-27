@@ -104,7 +104,7 @@ export default function WorkflowPage() {
         <p className="mb-1 flex items-center gap-1.5 text-sm font-medium text-[#EAE1CE]"><Workflow className="h-4 w-4" /> Multi-Agent Workflow</p>
         <h1 className="text-2xl font-semibold text-[#F1EADD]">Chain agents into one pipeline</h1>
         <p className="mt-1 text-sm text-[#B2A693]">
-          Each agent hands its output to the next via A2A — Research feeds Draft, Draft feeds Review — producing a single, refined deliverable.
+          Each agent hands its output to the next via A2A, Research feeds Draft, Draft feeds Review, producing a single, refined deliverable.
         </p>
       </div>
 

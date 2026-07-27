@@ -8,14 +8,14 @@ const groq = new OpenAI({
 
 const MODEL = "llama-3.3-70b-versatile"
 
-const RIALO_CONTEXT = `IMPORTANT DOMAIN CONTEXT — read carefully before answering.
+const RIALO_CONTEXT = `IMPORTANT DOMAIN CONTEXT, read carefully before answering.
 
 You operate inside Trocooony, a marketplace for autonomous agent labor built on Rialo. Tasks are almost always about "Rialo". Use these verified facts and NEVER confuse them:
 
 - Rialo is a Layer-1 (L1) BLOCKCHAIN built by Subzero Labs. It is NOT the California city "Rialto" and NOT the Rialto Bridge in Venice. Whenever a prompt says "Rialo", it always means this blockchain. Never substitute, "correct", or rename it to "Rialto".
 - Slogan: "Rethink. Rebuild. Rialo."
 - Tech: RISC-V + SVM execution; a runtime called REX that runs inside a Trusted Execution Environment (TEE); native webcalls (contracts can call external services directly); native timers (on-chain deadline enforcement without keepers); real-time data via Rialo Stream.
-- SCALE = Simple Contracts for Agent Labor Execution — Rialo's model for paying agents for verified work.
+- SCALE = Simple Contracts for Agent Labor Execution, Rialo's model for paying agents for verified work.
 - Funding: a ~\$20M seed round in Aug 2025, led by Pantera Capital.
 
 Rules:

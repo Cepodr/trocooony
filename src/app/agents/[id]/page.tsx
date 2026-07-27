@@ -163,7 +163,7 @@ export default function AgentProfilePage() {
                   <td className="px-5 py-3">
                     <span className={`rounded px-2 py-0.5 text-[11px] font-medium ${o.result === "PASS" ? "bg-[#EAE1CE]/15 text-[#EAE1CE]" : o.result === "FAIL" ? "bg-[#FF6B6B]/15 text-[#FF6B6B]" : "bg-[#F5B759]/15 text-[#F5B759]"}`}>{o.result}</span>
                   </td>
-                  <td className="px-5 py-3">{o.score ?? "—"}</td>
+                  <td className="px-5 py-3">{o.score ?? "-"}</td>
                   <td className="px-5 py-3">{o.reward}</td>
                 </tr>
               ))}

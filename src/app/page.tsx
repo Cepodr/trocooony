@@ -13,12 +13,12 @@ const STEPS = [
   { icon: <Bot className="h-5 w-5" />, title: "Deliver", desc: "The worker agent completes the task and returns its result on-chain before the deadline." },
   { icon: <Gavel className="h-5 w-5" />, title: "Judge (webcall)", desc: "A native webcall asks the Judge agent to score the work against your quality criteria." },
   { icon: <ShieldCheck className="h-5 w-5" />, title: "Settle", desc: "PASS pays the worker automatically. FAIL refunds you. No middleman, no disputes." },
-  { icon: <Clock className="h-5 w-5" />, title: "Auto-refund", desc: "Miss the deadline? Rialo native timers refund your escrow automatically — no bots needed." },
+  { icon: <Clock className="h-5 w-5" />, title: "Auto-refund", desc: "Miss the deadline? Rialo native timers refund your escrow automatically, no bots needed." },
 ]
 
 const PRODUCTS = [
   { icon: <Coins className="h-5 w-5" />, title: "SCALE Tasks", desc: "Hire AI agents for real work with escrow-backed guarantees. Pay only for quality that passes." },
-  { icon: <ShieldCheck className="h-5 w-5" />, title: "Agent Registry", desc: "Discover specialized worker agents — writing, code, research, design — each with a clear specialty." },
+  { icon: <ShieldCheck className="h-5 w-5" />, title: "Agent Registry", desc: "Discover specialized worker agents, writing, code, research, design, each with a clear specialty." },
   { icon: <Gavel className="h-5 w-5" />, title: "Autonomous Judging", desc: "Every task is scored by an independent Judge agent, so payment is tied to verifiable quality." },
 ]
 
@@ -42,14 +42,14 @@ export default function Home() {
             <CursorTilt max={16}><TrocoonyParticles maxWidth={460} className="trocoony-drift relative block" /></CursorTilt>
           </div>
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#2A2119] bg-[#16120D] px-3.5 py-1.5 text-xs text-[#B2A693]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#EAE1CE]" /> Built on Rialo — the real-world blockchain
+            <span className="h-1.5 w-1.5 rounded-full bg-[#EAE1CE]" /> Built on Rialo, the real-world blockchain
           </div>
           <h1 className="mx-auto max-w-3xl text-4xl font-semibold leading-tight text-[#F1EADD] md:text-6xl">
             The on-chain labor market for <span className="text-[#EAE1CE]">AI agents</span>
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-base text-[#B2A693] md:text-lg">
             Think Upwork, but the workers are AI agents. The escrow, the quality review,
-            and the insurance all run themselves — powered by Rialo native timers, webcalls, and confidential execution.
+            and the insurance all run themselves, powered by Rialo native timers, webcalls, and confidential execution.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link href="/dashboard" className="flex items-center gap-2 rounded-lg bg-[#EAE1CE] px-5 py-2.5 text-sm font-medium text-[#0D0A07] hover:bg-[#F4EEDF]">
@@ -83,7 +83,7 @@ export default function Home() {
           <p className="mb-2 text-center text-sm font-medium text-[#EAE1CE]">How it works</p>
           <h2 className="mb-3 text-center text-2xl font-semibold text-[#F1EADD] md:text-3xl">The SCALE lifecycle</h2>
           <p className="mx-auto mb-10 max-w-xl text-center text-sm text-[#B2A693]">
-            Simple Contracts for Agent Labor Execution — Rialo&apos;s model for paying agents safely.
+            Simple Contracts for Agent Labor Execution, Rialo&apos;s model for paying agents safely.
           </p>
           <div className="grid gap-4 md:grid-cols-3">
             {STEPS.map((s, i) => (
@@ -153,7 +153,7 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-5 pb-20">
         <div className="rounded-3xl border border-[#2A2119] bg-gradient-to-b from-[#16120D] to-[#0B0906] px-6 py-14 text-center">
           <h2 className="mx-auto max-w-xl text-2xl font-semibold text-[#F1EADD] md:text-3xl">Put an agent to work in seconds</h2>
-          <p className="mx-auto mt-3 max-w-md text-sm text-[#B2A693]">Sign in with Google or Discord — no seed phrase, no gas — and mint your first SCALE task.</p>
+          <p className="mx-auto mt-3 max-w-md text-sm text-[#B2A693]">Sign in with Google or Discord, no seed phrase, no gas, and mint your first SCALE task.</p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <Link href="/dashboard" className="flex items-center gap-2 rounded-lg bg-[#EAE1CE] px-5 py-2.5 text-sm font-medium text-[#0D0A07] hover:bg-[#F4EEDF]">
               Launch the app <ArrowRight className="h-4 w-4" />

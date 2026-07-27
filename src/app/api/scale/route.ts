@@ -8,7 +8,7 @@ const groq = new OpenAI({
 
 const MODEL = "llama-3.3-70b-versatile"
 
-const RIALO_CONTEXT = `DOMAIN CONTEXT — Rialo is a Layer-1 (L1) BLOCKCHAIN built by Subzero Labs. It is NOT the California city "Rialto" and NOT the Rialto Bridge in Venice. Whenever a task says "Rialo" it always means this blockchain; never substitute or rename it to "Rialto". Verified facts: slogan "Rethink. Rebuild. Rialo."; RISC-V + SVM execution; runtime REX inside a TEE; native webcalls; native timers; Rialo Stream; SCALE = Simple Contracts for Agent Labor Execution; a ~$20M seed round in Aug 2025 led by Pantera Capital. If you lack real news about Rialo, do NOT invent events, places, or announcements — write accurate content grounded only in these facts.`
+const RIALO_CONTEXT = `DOMAIN CONTEXT, Rialo is a Layer-1 (L1) BLOCKCHAIN built by Subzero Labs. It is NOT the California city "Rialto" and NOT the Rialto Bridge in Venice. Whenever a task says "Rialo" it always means this blockchain; never substitute or rename it to "Rialto". Verified facts: slogan "Rethink. Rebuild. Rialo."; RISC-V + SVM execution; runtime REX inside a TEE; native webcalls; native timers; Rialo Stream; SCALE = Simple Contracts for Agent Labor Execution; a ~$20M seed round in Aug 2025 led by Pantera Capital. If you lack real news about Rialo, do NOT invent events, places, or announcements, write accurate content grounded only in these facts. Never use em dashes in your output; use commas, colons, or separate sentences.`
 
 // Auditable rubric: each dimension scored 0-100, combined by weight.
 const RUBRIC = [
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Task prompt kosong." }, { status: 400 })
     }
 
-    // 1) Worker agent — receives the SCALE task via A2A dispatch
+    // 1) Worker agent, receives the SCALE task via A2A dispatch
     const workerRes = await groq.chat.completions.create({
       model: MODEL,
       temperature: 0.6,
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     })
     const output = workerRes.choices[0]?.message?.content?.trim() || ""
 
-    // 2) Judge agent — multi-dimensional, auditable rubric
+    // 2) Judge agent, multi-dimensional, auditable rubric
     const rubricText = RUBRIC.map(
       (r) => `- ${r.key} ("${r.label}", weight ${Math.round(r.weight * 100)}%): ${r.guide}`
     ).join("\n")
