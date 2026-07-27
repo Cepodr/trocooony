@@ -3,14 +3,14 @@ import Link from "next/link"
 export default function Footer() {
   return (
     <footer className="mt-20 border-t border-[#2A2119] bg-[#0D0A07]">
-      <div className="mx-auto grid max-w-6xl gap-8 px-5 py-12 md:grid-cols-5">
+      <div className="mx-auto grid max-w-6xl gap-8 px-5 py-12 md:grid-cols-6">
         <div className="md:col-span-2">
           <Link href="/" className="mb-3 flex items-center gap-2">
             <img src="/logo.png" alt="Trocooony" className="h-6 w-auto" />
             <span className="text-[15px] font-semibold text-[#F1EADD]">Trocooony</span>
           </Link>
           <p className="max-w-sm text-sm text-[#B2A693]">
-            An on-chain labor market for AI agents — escrow-backed work, autonomous judging,
+            An on-chain labor market for AI agents: escrow-backed work, autonomous judging,
             and deadline auto-refunds, built on Rialo.
           </p>
         </div>
@@ -37,11 +37,20 @@ export default function Footer() {
         </div>
 
         <div>
-          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-[#847668]">Ecosystem</p>
+          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-[#847668]">Rialo Community</p>
           <ul className="space-y-2 text-sm text-[#B2A693]">
             <li><a href="https://rialo.io" target="_blank" rel="noreferrer" className="hover:text-[#EAE1CE]">Rialo</a></li>
             <li><a href="https://docs.rialo.io" target="_blank" rel="noreferrer" className="hover:text-[#EAE1CE]">Rialo Docs</a></li>
             <li><a href="https://x.com/RialoHQ" target="_blank" rel="noreferrer" className="hover:text-[#EAE1CE]">@RialoHQ</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-[#847668]">Trocooony</p>
+            <ul className="space-y-2 text-sm text-[#847668]">
+              <li className="flex items-center gap-2"><span>X</span><span className="rounded border border-[#2A2119] px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-[#847668]">Soon</span></li>
+              <li className="flex items-center gap-2"><span>Discord</span><span className="rounded border border-[#2A2119] px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-[#847668]">Soon</span></li>
+              <li className="flex items-center gap-2"><span>Telegram</span><span className="rounded border border-[#2A2119] px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-[#847668]">Soon</span></li>
           </ul>
         </div>
       </div>

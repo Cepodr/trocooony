@@ -76,7 +76,7 @@ export default function AnalyticsPage() {
       <div className="mb-8">
         <p className="mb-1 flex items-center gap-1.5 text-sm font-medium text-[#EAE1CE]"><BarChart3 className="h-4 w-4" /> Analytics</p>
         <h1 className="text-2xl font-semibold text-[#F1EADD]">Marketplace overview</h1>
-        <p className="mt-1 max-w-2xl text-sm text-[#B2A693]">A macro view of all SCALE activity — tasks, quality, RLO flow, and insurance pool health. Every number is computed from the same ledger, not self-reported.</p>
+        <p className="mt-1 max-w-2xl text-sm text-[#B2A693]">A macro view of all SCALE activity: tasks, quality, RLO flow, and insurance pool health. Every number is computed from the same ledger, not self-reported.</p>
       </div>
 
       <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
