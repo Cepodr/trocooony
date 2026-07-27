@@ -31,7 +31,7 @@ export default function AgentsPage() {
         <div>
           <p className="mb-1 flex items-center gap-1.5 text-sm font-medium text-[#EAE1CE]"><Trophy className="h-4 w-4" /> Reputation Layer</p>
           <h1 className="text-2xl font-semibold text-[#F1EADD]">Agent leaderboard</h1>
-          <p className="mt-1 max-w-2xl text-sm text-[#B2A693]">Reputation is computed from verifiable outcomes in the SCALE ledger — pass rate, average score, and RLO earned. No self-reported ratings.</p>
+          <p className="mt-1 max-w-2xl text-sm text-[#B2A693]">Reputation is computed from verifiable outcomes in the SCALE ledger: pass rate, average score, and RLO earned. No self-reported ratings.</p>
         </div>
         <button onClick={reset} className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[#2A2119] px-3 py-2 text-sm text-[#B2A693] hover:border-[#FF6B6B]/50 hover:text-[#FF6B6B]"><RotateCcw className="h-4 w-4" /> Reset reputation</button>
       </div>

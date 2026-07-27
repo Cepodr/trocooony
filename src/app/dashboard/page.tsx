@@ -92,7 +92,7 @@ export default function Dashboard() {
     if (!prompt.trim() || busy) return
     if (trlo < reward) { notify(`Saldo TRLO kurang (butuh ${reward}, punya ${trlo}). Deposit RLO into TRLO dulu di Marketplace.`, "error"); return }
     const escrowed = await spendTrlo(reward)
-    if (!escrowed) { notify("Could not lock escrow — insufficient balance.", "error"); return }
+    if (!escrowed) { notify("Could not lock escrow. Insufficient balance.", "error"); return }
     setError(""); setOutput(""); setScore(null); setReason(""); setVerdict(null); setInsuranceMsg("")
 
     const isInsured = insured
@@ -120,21 +120,21 @@ export default function Dashboard() {
       const passed = data.verdict === "PASS"
       if (!passed && isInsured) {
         const pay = Math.min(reward, coverAtMint)
-        void payClaim(reward).then((paidOut) => { if (paidOut > 0) void earnTrlo(paidOut) }); notify("Insurance triggered — pool paid out to requester.", "warn")
-        setInsuranceMsg(`Insurance triggered — pool paid ${pay} RLO to the requester.`)
+        void payClaim(reward).then((paidOut) => { if (paidOut > 0) void earnTrlo(paidOut) }); notify("Insurance triggered. The pool paid out to the requester.", "warn")
+        setInsuranceMsg(`Insurance triggered. The pool paid ${pay} RLO to the requester.`)
       }
       setStatus(passed ? "done" : "refunded"); if (!passed) void earnTrlo(reward)
-      notify(passed ? `${agent.name} passed — ${data.score}/100, ${reward} TRLO released.` : `${agent.name} failed — ${data.score}/100. Escrow refunded.`, passed ? "success" : "error")
+      notify(passed ? `${agent.name} passed:  ${data.score}/100, ${reward} TRLO released.` : `${agent.name} failed: ${data.score}/100. Escrow refunded.`, passed ? "success" : "error")
       const _row: Row = { id: crypto.randomUUID(), agent: agent.name, reward, status: passed ? "PAID" : "REFUNDED", score: data.score, tx: fakeTx(), insured: isInsured }; setHistory((h) => [_row, ...h]); fetch("/api/ledger", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(_row) }).catch(() => {})
       recordOutcome({ agentId: agent.id, agentName: agent.name, result: passed ? "PASS" : "FAIL", score: data.score, reward })
     } catch (e: any) {
       if (e?.__timeout) {
-        setStatus("refunded"); setVerdict("TIMEOUT"); void earnTrlo(reward); notify(`${agent.name} missed the deadline — escrow auto-refunded.`, "warn")
-        setReason("Deadline missed — escrow auto-refunded by Rialo native timer.")
+        setStatus("refunded"); setVerdict("TIMEOUT"); void earnTrlo(reward); notify(`${agent.name} missed the deadline. Escrow auto-refunded.`, "warn")
+        setReason("Deadline missed. Escrow auto-refunded by a Rialo native timer.")
         if (isInsured) {
           const pay = Math.min(reward, coverAtMint)
-          void payClaim(reward).then((paidOut) => { if (paidOut > 0) void earnTrlo(paidOut) }); notify("Insurance triggered — pool paid out to requester.", "warn")
-          setInsuranceMsg(`Insurance triggered — pool paid ${pay} RLO to the requester.`)
+          void payClaim(reward).then((paidOut) => { if (paidOut > 0) void earnTrlo(paidOut) }); notify("Insurance triggered. The pool paid out to the requester.", "warn")
+          setInsuranceMsg(`Insurance triggered. The pool paid ${pay} RLO to the requester.`)
         }
         const _row: Row = { id: crypto.randomUUID(), agent: agent.name, reward, status: "AUTO-REFUND", score: null, tx: fakeTx(), insured: isInsured }; setHistory((h) => [_row, ...h]); fetch("/api/ledger", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(_row) }).catch(() => {})
         recordOutcome({ agentId: agent.id, agentName: agent.name, result: "REFUND", score: null, reward })
@@ -152,7 +152,7 @@ export default function Dashboard() {
         <p className="mb-1 text-sm font-medium text-[#EAE1CE]">SCALE Console</p>
         <h1 className="text-2xl font-semibold text-[#F1EADD]">Mint an agent labor task</h1>
         <p className="mt-1 text-sm text-[#B2A693]">
-          Escrow-backed work with autonomous judging, deadline auto-refunds, and optional failure insurance — powered by Rialo native timers &amp; webcalls.
+          Escrow-backed work with autonomous judging, deadline auto-refunds, and optional failure insurance, powered by Rialo native timers and webcalls.
         </p>
       </div>
 
@@ -178,7 +178,7 @@ export default function Dashboard() {
             <button onClick={resetForm} className="text-xs text-[#847668] hover:text-[#EAE1CE]">Clear</button>
           </div>
 
-          <label className="mb-1.5 block text-xs text-[#B2A693]">Worker agent — from Rialo Agent Registry</label>
+          <label className="mb-1.5 block text-xs text-[#B2A693]">Worker agent from the Rialo Agent Registry</label>
           <div className="mb-4 grid grid-cols-2 gap-2">
             {allAgents.map((a) => (
               <button key={a.id} onClick={() => selectAgent(a.id)} disabled={busy}
@@ -262,7 +262,7 @@ export default function Dashboard() {
           {verdict && (
             <div className={`mb-3 flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${verdict === "PASS" ? "bg-[#EAE1CE]/10 text-[#EAE1CE]" : "bg-[#FF6B6B]/10 text-[#FF6B6B]"}`}>
               {verdict === "PASS" ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-              {verdict === "PASS" ? "PASS — worker paid" : verdict === "TIMEOUT" ? "AUTO-REFUND — deadline missed" : "FAIL — requester refunded"}
+              {verdict === "PASS" ? "PASS: worker paid" : verdict === "TIMEOUT" ? "AUTO-REFUND: deadline missed" : "FAIL: requester refunded"}
               {score != null && <span className="ml-auto font-semibold">{score}/100</span>}
             </div>
           )}
