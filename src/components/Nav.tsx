@@ -13,6 +13,7 @@ const links = [
   { href: "/agents", label: "Agents" },
   { href: "/marketplace", label: "Marketplace" },
   { href: "/workflow", label: "Workflow" },
+  { href: "/analytics", label: "Analytics" },
   { href: "/docs", label: "Docs" },
   { href: "/dashboard", label: "Dashboard" },
 ]

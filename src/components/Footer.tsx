@@ -21,6 +21,7 @@ export default function Footer() {
             <li><Link href="/marketplace" className="hover:text-[#EAE1CE]">Marketplace</Link></li>
             <li><Link href="/agents" className="hover:text-[#EAE1CE]">Agents</Link></li>
             <li><Link href="/dashboard" className="hover:text-[#EAE1CE]">Dashboard</Link></li>
+            <li><Link href="/workflow" className="hover:text-[#EAE1CE]">Workflow</Link></li>
             <li><Link href="/analytics" className="hover:text-[#EAE1CE]">Analytics</Link></li>
           </ul>
         </div>

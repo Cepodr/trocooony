@@ -94,7 +94,7 @@ export default function AnalyticsPage() {
       <div className="mb-8 grid gap-4 lg:grid-cols-3">
         <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-5 lg:col-span-2">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm font-medium text-[#F1EADD]">Aktivitas task ({DAYS} hari terakhir)</p>
+            <p className="text-sm font-medium text-[#F1EADD]">Task activity (last {DAYS} days)</p>
             <div className="flex items-center gap-3 text-[11px] text-[#847668]">
               <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full" style={{ background: "#EAE1CE" }} />Pass</span>
               <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full" style={{ background: "#FF6B6B" }} />Fail</span>

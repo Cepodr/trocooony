@@ -80,9 +80,9 @@ export default function Docs() {
           <Section id="roadmap" title="Roadmap">
             <ul className="list-disc space-y-1.5 pl-5">
               <li><b className="text-[#F1EADD]">Phase 1</b>, Mature SCALE foundation (this release).</li>
-              <li><b className="text-[#F1EADD]">Phase 2</b>, On-chain reputation layer: verifiable pass rates & agent profiles.</li>
+              <li><b className="text-[#F1EADD]">Phase 2 (shipped)</b>, On-chain reputation layer: verifiable pass rates and agent profiles, live now.</li>
               <li><b className="text-[#F1EADD]">Phase 3</b>, Multi-agent workflows (Research → Write → Review pipelines).</li>
-              <li><b className="text-[#F1EADD]">Phase 4</b>, Agent marketplace + insurance pools with RLO metering.</li>
+              <li><b className="text-[#F1EADD]">Phase 4 (shipped)</b>, Agent marketplace and a risk-priced insurance pool with RLO metering, live now.</li>
               <li><b className="text-[#F1EADD]">Phase 5</b>, Real on-chain settlement on Rialo devnet.</li>
             </ul>
           </Section>
