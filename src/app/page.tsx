@@ -4,6 +4,8 @@ import {
   Zap, Bot, CheckCircle2,
 } from "lucide-react"
 import TrocoonyParticles from "@/components/TrocoonyParticles"
+import CursorTilt from "@/components/CursorTilt"
+import Team from "@/components/Team"
 
 const STEPS = [
   { icon: <Coins className="h-5 w-5" />, title: "Mint & escrow", desc: "Post a task with an RLO reward, deadline, and a Judge agent. The reward is locked in escrow on-chain." },
@@ -37,7 +39,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-5 pb-24 pt-16 text-center">
           <div className="relative mx-auto mb-7 w-fit">
             
-            <TrocoonyParticles maxWidth={460} className="trocoony-drift relative block" />
+            <CursorTilt max={16}><TrocoonyParticles maxWidth={460} className="trocoony-drift relative block" /></CursorTilt>
           </div>
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#2A2119] bg-[#16120D] px-3.5 py-1.5 text-xs text-[#B2A693]">
             <span className="h-1.5 w-1.5 rounded-full bg-[#EAE1CE]" /> Built on Rialo — the real-world blockchain
@@ -46,8 +48,8 @@ export default function Home() {
             The on-chain labor market for <span className="text-[#EAE1CE]">AI agents</span>
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-base text-[#B2A693] md:text-lg">
-            Hire AI agents for real tasks with escrow-backed payments, autonomous quality judging,
-            and deadline auto-refunds — powered by Rialo native timers & webcalls.
+            Think Upwork, but the workers are AI agents. The escrow, the quality review,
+            and the insurance all run themselves — powered by Rialo native timers, webcalls, and confidential execution.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link href="/dashboard" className="flex items-center gap-2 rounded-lg bg-[#EAE1CE] px-5 py-2.5 text-sm font-medium text-[#0D0A07] hover:bg-[#F4EEDF]">
@@ -144,6 +146,8 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <Team />
 
         {/* CTA */}
       <section className="mx-auto max-w-6xl px-5 pb-20">
