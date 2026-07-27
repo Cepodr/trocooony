@@ -59,6 +59,7 @@ export default function Dashboard() {
   const premium = Math.max(1, Math.round(reward * premiumRate))
   const COVERAGE = 0.7
   const claimPayout = Math.max(1, Math.round(reward * COVERAGE))
+  const insurable = repTasks >= 5
 
   function loadSample() {
     if (busy) return
@@ -97,7 +98,7 @@ export default function Dashboard() {
     if (!escrowed) { notify("Could not lock escrow. Insufficient balance.", "error"); return }
     setError(""); setOutput(""); setScore(null); setReason(""); setVerdict(null); setInsuranceMsg("")
 
-    const isInsured = insured
+    const isInsured = insured && insurable
     const coverAtMint = poolBalance
 
     setStatus("escrow"); await sleep(700)
@@ -214,11 +215,11 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <button onClick={() => setInsured((v) => !v)}
+          <button onClick={() => setInsured((v) => !v)} disabled={!insurable}
             className={`mb-4 flex w-full items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors ${insured ? "border-[#EAE1CE] bg-[#EAE1CE]/10 text-[#F1EADD]" : "border-[#2A2119] text-[#B2A693] hover:border-[#EAE1CE]/40"}`}>
             <Umbrella className="h-4 w-4" />
-            <span>Insure this task</span>
-            <span className="ml-auto text-xs text-[#847668]">Premium {premium} TRLO ({Math.round(premiumRate * 100)}% risk-priced) · Covers {claimPayout} TRLO on judged failure · Pool {poolBalance} TRLO</span>
+            <span>{insurable ? "Insure this task" : "Insurance locked"}</span>
+            <span className="ml-auto text-xs text-[#847668]">{insurable ? "Premium " + premium + " TRLO (" + Math.round(premiumRate * 100) + "% risk-priced) · Covers " + claimPayout + " TRLO on judged failure" : "Needs 5 settled tasks for this agent (" + repTasks + "/5)"} · Pool {poolBalance} TRLO</span>
             <span className={`h-4 w-4 rounded border ${insured ? "border-[#EAE1CE] bg-[#EAE1CE]" : "border-[#847668]"}`} />
           </button>
 
