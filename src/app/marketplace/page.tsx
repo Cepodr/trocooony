@@ -66,7 +66,7 @@ export default function MarketplacePage() {
         <div className="flex flex-wrap items-end gap-3">
           <div>
             <label className="mb-1.5 block text-xs text-[#B2A693]">Amount</label>
-            <input type="number" min={1} value={depositAmt} onChange={(e) => setDepositAmt(Number(e.target.value))}
+            <input type="number" min={1} value={depositAmt === 0 ? "" : depositAmt} onChange={(e) => setDepositAmt(e.target.value === "" ? 0 : Number(e.target.value))} onFocus={(e) => e.target.select()}
               className="w-40 rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
           </div>
           <button onClick={() => deposit(depositAmt)}
@@ -173,7 +173,7 @@ export default function MarketplacePage() {
         <div className="mt-4 flex flex-wrap items-end gap-4">
           <div>
             <label className="mb-1.5 block text-xs text-[#B2A693]">Price / task (RLO)</label>
-            <input type="number" min={1} value={price} onChange={(e) => setPrice(Number(e.target.value))}
+            <input type="number" min={1} value={price === 0 ? "" : price} onChange={(e) => setPrice(e.target.value === "" ? 0 : Number(e.target.value))} onFocus={(e) => e.target.select()}
               className="w-32 rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
           </div>
           <button onClick={submit} className="rounded-lg bg-[#EAE1CE] px-4 py-2 text-sm font-medium text-[#0D0A07] hover:bg-[#F4EEDF]">Publish</button>

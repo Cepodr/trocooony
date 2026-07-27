@@ -202,12 +202,12 @@ export default function Dashboard() {
           <div className="mb-4 grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1.5 block text-xs text-[#B2A693]">Reward (TRLO)</label>
-              <input type="number" min={1} value={reward} onChange={(e) => setReward(Number(e.target.value))}
+              <input type="number" min={1} value={reward === 0 ? "" : reward} onChange={(e) => setReward(e.target.value === "" ? 0 : Number(e.target.value))} onFocus={(e) => e.target.select()}
                 className="w-full rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
             </div>
             <div>
               <label className="mb-1.5 block text-xs text-[#B2A693]">Deadline (seconds)</label>
-              <input type="number" min={1} value={deadline} onChange={(e) => setDeadline(Number(e.target.value))}
+              <input type="number" min={1} value={deadline === 0 ? "" : deadline} onChange={(e) => setDeadline(e.target.value === "" ? 0 : Number(e.target.value))} onFocus={(e) => e.target.select()}
                 className="w-full rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
             </div>
           </div>
