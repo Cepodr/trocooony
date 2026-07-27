@@ -40,7 +40,9 @@ export default function TopUpModal({ open, onClose }: { open: boolean; onClose: 
     if (!TREASURY) { setPhase("error"); setMsg("Treasury is not configured."); return }
     try {
       const accounts: string[] = await eth.request({ method: "eth_requestAccounts" })
-      try { await eth.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0xaa36a7" }] }) } catch {}
+      try { await eth.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0xaa36a7" }] }) } catch (se: any) { if (se && se.code === 4902) { try { await eth.request({ method: "wallet_addEthereumChain", params: [{ chainId: "0xaa36a7", chainName: "Sepolia", nativeCurrency: { name: "SepoliaETH", symbol: "ETH", decimals: 18 }, rpcUrls: ["https://ethereum-sepolia-rpc.publicnode.com"], blockExplorerUrls: ["https://sepolia.etherscan.io"] }] }) } catch { setPhase("error"); setMsg("Could not add the Sepolia network. Please add it manually in your wallet."); return } } else { setPhase("error"); setMsg("Please switch your wallet to Sepolia to continue."); return } }
+      const cid: string = await eth.request({ method: "eth_chainId" })
+      if (cid !== "0xaa36a7") { setPhase("error"); setMsg("Wrong network. Switch to Sepolia and try again."); return }
       const txHash: string = await eth.request({
         method: "eth_sendTransaction",
         params: [{ from: accounts[0], to: TREASURY, value: toWeiHex(amount) }],
@@ -57,7 +59,7 @@ export default function TopUpModal({ open, onClose }: { open: boolean; onClose: 
       if (ok) setPhase("done")
       else { setPhase("error"); setMsg("Timed out waiting for confirmation. The transaction may still be processing, try again shortly.") }
     } catch (e: any) {
-      setPhase("error"); setMsg(e?.message || "Transaksi dibatalkan.")
+      setPhase("error"); setMsg(e?.message || "Transaction cancelled.")
     }
   }
 
@@ -73,11 +75,11 @@ export default function TopUpModal({ open, onClose }: { open: boolean; onClose: 
           <div className="py-6 text-center">
             <CheckCircle2 className="mx-auto mb-3 h-10 w-10 text-[#EAE1CE]" />
             <p className="text-sm text-[#F1EADD]">Success! <span className="font-semibold">+{credited} RLO</span> added to your balance.</p>
-            <button onClick={onClose} className="mt-4 rounded-lg bg-[#EAE1CE] px-4 py-2 text-sm font-medium text-[#0D0A07] hover:bg-[#F4EEDF]">Selesai</button>
+            <button onClick={onClose} className="mt-4 rounded-lg bg-[#EAE1CE] px-4 py-2 text-sm font-medium text-[#0D0A07] hover:bg-[#F4EEDF]">Done</button>
           </div>
         ) : (
           <>
-            <p className="mb-4 text-xs text-[#B2A693]">Kurs: <span className="text-[#EAE1CE]">0.001 ETH = 300 RLO</span>. ETH dikirim ke treasury di Sepolia lalu diverifikasi on-chain.</p>
+            <p className="mb-4 text-xs text-[#B2A693]">Rate: <span className="text-[#EAE1CE]">0.001 ETH = 300 RLO</span>. ETH is sent to the treasury on Sepolia, then verified on-chain.</p>
             <div className="mb-4 grid grid-cols-3 gap-2">
               {PRESETS.map((pp) => (
                 <button key={pp.eth} onClick={() => setAmount(pp.eth)} disabled={phase !== "idle"}
@@ -87,20 +89,26 @@ export default function TopUpModal({ open, onClose }: { open: boolean; onClose: 
                 </button>
               ))}
             </div>
-            <label className="mb-1.5 block text-xs text-[#B2A693]">Jumlah ETH</label>
+            <label className="mb-1.5 block text-xs text-[#B2A693]">ETH amount</label>
             <input value={amount} onChange={(e) => setAmount(e.target.value)} disabled={phase !== "idle"}
               className="mb-1 w-full rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50 disabled:opacity-50" />
             <p className="mb-4 text-[11px] text-[#847668]">You will receive ~{rlo} RLO.</p>
 
+            {wallet && wallet.chainId !== "0xaa36a7" && (
+              <button onClick={connectWallet} className="mb-2 flex w-full items-center justify-center gap-2 rounded-lg border border-[#F5B759]/50 px-4 py-2.5 text-sm text-[#F5B759] hover:bg-[#F5B759]/10">
+                <Wallet className="h-4 w-4" /> Wrong network. Switch to Sepolia
+              </button>
+            )}
+
             {!wallet ? (
               <button onClick={connectWallet} className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#2A2119] px-4 py-2.5 text-sm text-[#F1EADD] hover:border-[#EAE1CE]/50">
-                <Wallet className="h-4 w-4" /> Connect Wallet dulu
+                <Wallet className="h-4 w-4" /> Connect Wallet first
               </button>
             ) : (
-              <button onClick={pay} disabled={phase === "sending" || phase === "verifying" || rlo < 1}
+              <button onClick={pay} disabled={phase === "sending" || phase === "verifying" || rlo < 1 || wallet.chainId !== "0xaa36a7"}
                 className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#EAE1CE] px-4 py-2.5 text-sm font-medium text-[#0D0A07] hover:bg-[#F4EEDF] disabled:opacity-50">
                 {(phase === "sending" || phase === "verifying") ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />}
-                {phase === "sending" ? "Menunggu MetaMask…" : phase === "verifying" ? "Verifikasi on-chain…" : `Bayar ${amount} ETH`}
+                {phase === "sending" ? "Waiting for MetaMask…" : phase === "verifying" ? "Verifying on-chain…" : `Pay ${amount} ETH`}
               </button>
             )}
             {msg && <p className={`mt-3 text-center text-xs ${phase === "error" ? "text-[#FF6B6B]" : "text-[#847668]"}`}>{msg}</p>}

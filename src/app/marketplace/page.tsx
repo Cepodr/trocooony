@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Store, ShieldCheck, TrendingUp, Coins, Plus, Trash2, ArrowRight, Umbrella, Info, Bot, Wallet } from "lucide-react"
+import { Store, ShieldCheck, TrendingUp, Coins, Plus, ArrowRight, Umbrella, Info, Bot, Wallet } from "lucide-react"
 import { AGENTS } from "@/lib/agents"
 import { useReputation } from "@/context/ReputationProvider"
 import { useMarketplace } from "@/lib/marketplace"
@@ -13,7 +13,7 @@ const BASE_PRICE: Record<string, number> = { scribe: 40, coda: 80, sage: 60, pix
 
 export default function MarketplacePage() {
   const { agents } = useReputation()
-  const { listings, pool, poolBalance, publishListing, removeListing } = useMarketplace()
+  const { listings, pool, poolBalance, publishListing } = useMarketplace()
   const { rlo, trlo, deposit, withdraw } = useCredits()
 
   const repOf = (id: string) => agents.find((a: any) => a.agentId === id)?.reputation ?? null
@@ -140,7 +140,7 @@ export default function MarketplacePage() {
                   <p className="text-[11px] text-[#847668]">{l.specialty}</p>
                 </div>
               </div>
-              <button onClick={() => removeListing(l.id)} className="text-[#847668] hover:text-[#FF6B6B]" title="Remove"><Trash2 className="h-4 w-4" /></button>
+              
             </div>
             <p className="mb-3 line-clamp-2 text-xs text-[#B2A693]">{l.persona}</p>
             <div className="flex items-center justify-between text-xs text-[#B2A693]">

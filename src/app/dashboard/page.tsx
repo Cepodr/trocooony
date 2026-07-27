@@ -90,7 +90,7 @@ export default function Dashboard() {
 
   async function runTask() {
     if (!prompt.trim() || busy) return
-    if (trlo < reward) { notify(`Saldo TRLO kurang (butuh ${reward}, punya ${trlo}). Deposit RLO into TRLO dulu di Marketplace.`, "error"); return }
+    if (trlo < reward) { notify(`Not enough TRLO (need ${reward}, have ${trlo}). Deposit RLO into TRLO in Marketplace first.`, "error"); return }
     const escrowed = await spendTrlo(reward)
     if (!escrowed) { notify("Could not lock escrow. Insufficient balance.", "error"); return }
     setError(""); setOutput(""); setScore(null); setReason(""); setVerdict(null); setInsuranceMsg("")

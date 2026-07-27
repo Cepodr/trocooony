@@ -38,14 +38,7 @@ export function useMarketplace() {
     }).catch(() => {})
   }, [])
 
-  const removeListing = useCallback((id: string) => {
-    setListings((prev) => prev.filter((x) => x.id !== id))
-    fetch("/api/marketplace", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    }).catch(() => {})
-  }, [])
+  
 
   const poolAction = useCallback((action: string, amount: number) => {
     fetch("/api/pool", {
@@ -73,7 +66,7 @@ export function useMarketplace() {
     listings,
     pool,
     poolBalance: poolBalanceOf(pool),
-    publishListing, removeListing,
+    publishListing,
     depositToPool, withdrawFromPool, collectPremium, payClaim,
   }
 }

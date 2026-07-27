@@ -40,12 +40,3 @@ export async function POST(req: Request) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ listing: toListing(data) })
 }
-
-export async function DELETE(req: Request) {
-  const b = await req.json().catch(() => ({}))
-  const id = b?.id
-  if (!id) return NextResponse.json({ error: "id required" }, { status: 400 })
-  const { error } = await supabaseAdmin.from("marketplace_listings").delete().eq("id", id)
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ ok: true })
-}

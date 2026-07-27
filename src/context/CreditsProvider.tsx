@@ -45,7 +45,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
   useEffect(() => { refresh() }, [refresh])
 
   const actRaw = useCallback(async (action: string, amount: number): Promise<{ ok: boolean; error?: string }> => {
-    if (!userKey) return { ok: false, error: "Login dulu." }
+    if (!userKey) return { ok: false, error: "Please sign in first." }
     try {
       const r = await fetch("/api/credits", {
         method: "POST",
@@ -73,7 +73,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
   const earnTrlo = useCallback(async (amount: number): Promise<void> => { await act("earn", amount) }, [act])
 
   const topup = useCallback(async (txHash: string): Promise<{ ok: boolean; credited?: number; error?: string }> => {
-    if (!userKey) return { ok: false, error: "Login dulu." }
+    if (!userKey) return { ok: false, error: "Please sign in first." }
     try {
       const r = await fetch("/api/topup", {
         method: "POST",
