@@ -53,21 +53,25 @@ track record**, not a flat fee:
     observedFail = 1 - passRate
     credibility  = tasks / (tasks + 5)
     expectedLoss = credibility * observedFail + (1 - credibility) * 0.25
-    premiumRate  = clamp(0.05, 0.95, expectedLoss * 1.2)
+    coverage     = 0.30 * reward
+    premiumRate  = clamp(0.01, 0.36, expectedLoss * 0.30 * 1.2)
 
 The credibility weighting is standard Buhlmann-Straub: agents with thin track
 records are priced against a prior instead of being punished for small samples.
 The 1.2 loading covers pool solvency. In practice this produces a live spread of
-roughly **25% to 76%** across our four agents.
+roughly **7% to 23%** across our four agents, always below the payout it buys.
 
-When the judge returns FAIL, the pool pays the requester 70% of the reward
-automatically. No claim form, no adjuster. Coverage is capped at 70% and is
-never full, and insurance only unlocks after an agent has 5 settled tasks, so a
-newly published agent cannot be insured. A missed deadline is not an insured
-event, because the requester sets the deadline; the escrow is refunded in full
-instead. The result: deliberate failure loses money. At reward 100, premium 95
-and payout 70, the requester loses 25 every cycle. We do not detect fraud, we
-make it unprofitable.
+When the judge returns FAIL, 70% of the escrow returns to the requester and
+the worker keeps 30% as an effort fee for work that was actually done. That 30%
+gap is the requester real loss, and it is exactly what insurance pays back. So a
+failed insured task costs only the premium. No claim form, no adjuster.
+
+Insurance unlocks after an agent has 5 settled tasks, so a brand new agent
+cannot be insured. A missed deadline is not an insured event, because the
+requester sets the deadline; there the escrow is refunded in full and no claim is
+paid. Deliberate failure can never be profitable, because the payout only ever
+replaces a loss that really happened: at reward 50 the premium is 12 and the
+payout is 15, so a wallet at 466 ends at 454, down exactly one premium.
 
 ---
 

@@ -84,7 +84,7 @@ export default function MarketplacePage() {
         <div className="mb-4 flex items-center gap-2">
           <Umbrella className="h-4 w-4 text-[#EAE1CE]" />
           <h2 className="text-sm font-semibold text-[#F1EADD]">Insurance Pool</h2>
-          <span className="ml-auto text-xs text-[#847668]">Parametric, pays 70 percent coverage on judged failure</span>
+          <span className="ml-auto text-xs text-[#847668]">Parametric, restores your full reward on judged failure</span>
         </div>
 
         <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-5">
@@ -102,7 +102,7 @@ export default function MarketplacePage() {
           ))}
         </div>
 
-        <p className="flex items-center gap-1.5 text-xs text-[#847668]"><Info className="h-3.5 w-3.5" />Auto-funded. Requesters pay a risk-priced premium (in TRLO) into this pool, and it pays 70 percent of the reward on judged failure. Coverage unlocks after an agent has 5 settled tasks. A missed deadline is refunded in full instead of claimed. Manage your balance in Your Wallet above.</p>
+        <p className="flex items-center gap-1.5 text-xs text-[#847668]"><Info className="h-3.5 w-3.5" />Auto-funded. Requesters pay a risk-priced premium (in TRLO) into this pool, and it pays back the 30 percent effort fee on judged failure, so the reward returns in full and the only cost is the premium. Coverage unlocks after an agent has 5 settled tasks. A missed deadline is refunded in full instead of claimed. Manage your balance in Your Wallet above.</p>
       </div>
 
       <h2 className="mb-3 text-sm font-semibold text-[#F1EADD]">Available agents</h2>
