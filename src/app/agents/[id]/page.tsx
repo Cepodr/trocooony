@@ -147,7 +147,8 @@ export default function AgentProfilePage() {
         {total === 0 ? (
           <p className="px-5 py-6 text-center text-sm text-[#847668]">No tasks yet.</p>
         ) : (
-          <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[560px] text-left text-sm">
             <thead className="text-xs text-[#847668]">
               <tr className="border-b border-[#2A2119]">
                 <th className="px-5 py-3">Time</th>
@@ -169,6 +170,7 @@ export default function AgentProfilePage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </main>

@@ -29,6 +29,8 @@ export default function Nav() {
   const { rlo, trlo } = useCredits()
   const onSepolia = wallet?.chainId === "0xaa36a7"
   const menuRef = useRef<HTMLDivElement>(null)
+  const [injected, setInjected] = useState(true)
+  useEffect(() => { setInjected(typeof (window as unknown as { ethereum?: unknown }).ethereum !== "undefined") }, [])
   useEffect(() => {
     if (menu === "none") return
     const onDown = (e: MouseEvent) => { if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenu("none") }
@@ -109,14 +111,19 @@ export default function Nav() {
             {links.map((l) => (<Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="text-sm text-[#B2A693]">{l.label}</Link>))}
             <div className="mt-2 flex flex-col gap-2">
               {identity ? (
-                <button onClick={signOutRialo} className="rounded-lg border border-[#2A2119] px-3 py-2 text-sm text-[#F1EADD]">{identity.handle}, Sign out</button>
+                <><button onClick={() => setTopupOpen(true)} className="rounded-lg border border-[#2A2119] px-3 py-2 text-sm text-[#EAE1CE]">{trlo} TRLO / {rlo} RLO, top up</button>
+                                    <button onClick={() => { setOpen(false); signOutRialo() }} className="rounded-lg border border-[#2A2119] px-3 py-2 text-sm text-[#FF6B6B]">Disconnect {identity.handle}</button></>
               ) : (
                 <button onClick={() => { setSignInOpen(true); setOpen(false) }} className="rounded-lg bg-[#EAE1CE] px-3 py-2 text-sm font-medium text-[#0D0A07]">Sign in</button>
               )}
               {wallet ? (
-                <button onClick={disconnectWallet} className="rounded-lg border border-[#2A2119] px-3 py-2 text-sm text-[#F1EADD]">{short(wallet.address)}, Disconnect</button>
+                <button onClick={() => { setOpen(false); disconnectWallet() }} className="rounded-lg border border-[#2A2119] px-3 py-2 text-sm text-[#FF6B6B]">Disconnect {short(wallet.address)}</button>
               ) : (
-                <button onClick={connectWallet} className="rounded-lg border border-[#2A2119] px-3 py-2 text-sm text-[#F1EADD]">Connect Wallet (Sepolia)</button>
+                injected ? (
+                  <button onClick={connectWallet} className="rounded-lg border border-[#2A2119] px-3 py-2 text-sm text-[#F1EADD]">Connect Wallet (Sepolia)</button>
+                ) : (
+                  <a href="https://metamask.app.link/dapp/www.trocooony.tech" className="rounded-lg border border-[#2A2119] px-3 py-2 text-center text-sm text-[#F1EADD]">Open in MetaMask app</a>
+                )
               )}
             </div>
           </div>

@@ -37,7 +37,7 @@ export default function AgentsPage() {
       </div>
 
       <div className="mb-8 overflow-x-auto rounded-2xl border border-[#2A2119] bg-[#16120D]">
-        <table className="w-full text-left text-sm">
+        <table className="w-full min-w-[640px] text-left text-sm">
           <thead className="text-xs text-[#847668]">
             <tr className="border-b border-[#2A2119]">
               <th className="px-5 py-3">#</th>
