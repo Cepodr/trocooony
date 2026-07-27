@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   try {
     const key = process.env.GROQ_API_KEY
     if (!key || key.includes("xxxx") || key.includes("TEMPEL")) {
-      return NextResponse.json({ error: "GROQ_API_KEY belum diisi di .env.local." }, { status: 400 })
+      return NextResponse.json({ error: "GROQ_API_KEY is not set in .env.local." }, { status: 400 })
     }
 
     const body = await req.json()

@@ -110,7 +110,7 @@ export default function AgentsPage() {
       </div>
 
       {!hasData && (
-        <p className="mt-6 text-center text-sm text-[#847668]">Belum ada hasil task — mint task di dashboard untuk membangun reputasi.</p>
+        <p className="mt-6 text-center text-sm text-[#847668]">No task results yet — mint a task in the dashboard to build reputation.</p>
       )}
     </main>
   )

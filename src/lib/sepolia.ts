@@ -16,24 +16,24 @@ export type VerifyResult =
   | { ok: false; reason: string }
 
 export async function verifyPayment(txHash: string, treasury: string): Promise<VerifyResult> {
-  if (!txHash || !/^0x[0-9a-fA-F]{64}$/.test(txHash)) return { ok: false, reason: "Tx hash tidak valid." }
-  if (!treasury) return { ok: false, reason: "Treasury belum dikonfigurasi." }
+  if (!txHash || !/^0x[0-9a-fA-F]{64}$/.test(txHash)) return { ok: false, reason: "Invalid tx hash." }
+  if (!treasury) return { ok: false, reason: "Treasury is not configured." }
 
   let tx: any, receipt: any
   try {
     tx = await rpc("eth_getTransactionByHash", [txHash])
     receipt = await rpc("eth_getTransactionReceipt", [txHash])
   } catch (e: any) {
-    return { ok: false, reason: e?.message || "Gagal query RPC." }
+    return { ok: false, reason: e?.message || "RPC query failed." }
   }
 
-  if (!tx) return { ok: false, reason: "Transaksi tidak ditemukan (mungkin belum tersebar)." }
-  if (!receipt) return { ok: false, reason: "Transaksi belum dikonfirmasi. Coba lagi sebentar." }
-  if (receipt.status !== "0x1") return { ok: false, reason: "Transaksi gagal on-chain." }
+  if (!tx) return { ok: false, reason: "Transaction not found (it may not have propagated yet)." }
+  if (!receipt) return { ok: false, reason: "Transaction is not confirmed yet. Try again shortly." }
+  if (receipt.status !== "0x1") return { ok: false, reason: "Transaction failed on-chain." }
   if (!tx.to || tx.to.toLowerCase() !== treasury.toLowerCase()) return { ok: false, reason: "Penerima bukan treasury." }
 
   let valueWei: bigint
-  try { valueWei = BigInt(tx.value) } catch { return { ok: false, reason: "Nilai transaksi tidak valid." } }
+  try { valueWei = BigInt(tx.value) } catch { return { ok: false, reason: "Invalid transaction value." } }
   if (valueWei <= 0n) return { ok: false, reason: "Nilai transaksi nol." }
 
   return { ok: true, valueWei, from: (tx.from || "").toLowerCase() }

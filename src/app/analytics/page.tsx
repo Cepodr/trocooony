@@ -76,7 +76,7 @@ export default function AnalyticsPage() {
       <div className="mb-8">
         <p className="mb-1 flex items-center gap-1.5 text-sm font-medium text-[#EAE1CE]"><BarChart3 className="h-4 w-4" /> Analytics</p>
         <h1 className="text-2xl font-semibold text-[#F1EADD]">Marketplace overview</h1>
-        <p className="mt-1 max-w-2xl text-sm text-[#B2A693]">Gambaran makro seluruh aktivitas SCALE — task, kualitas, aliran RLO, dan kesehatan insurance pool. Semua dihitung dari ledger yang sama, bukan angka yang dilaporkan sendiri.</p>
+        <p className="mt-1 max-w-2xl text-sm text-[#B2A693]">A macro view of all SCALE activity — tasks, quality, RLO flow, and insurance pool health. Every number is computed from the same ledger, not self-reported.</p>
       </div>
 
       <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
@@ -102,7 +102,7 @@ export default function AnalyticsPage() {
             </div>
           </div>
           {stats.total === 0 ? (
-            <p className="py-10 text-center text-sm text-[#847668]">Belum ada aktivitas task.</p>
+            <p className="py-10 text-center text-sm text-[#847668]">No task activity yet.</p>
           ) : (
             <div className="flex items-end gap-1.5">
               {buckets.map((b) => (
@@ -120,7 +120,7 @@ export default function AnalyticsPage() {
         </div>
 
         <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-5">
-          <p className="mb-4 text-sm font-medium text-[#F1EADD]">Distribusi hasil</p>
+          <p className="mb-4 text-sm font-medium text-[#F1EADD]">Outcome distribution</p>
           <div className="space-y-3">
             {dist.map((d) => (
               <div key={d.label}>
@@ -164,7 +164,7 @@ export default function AnalyticsPage() {
         <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-5 lg:col-span-2">
           <p className="mb-4 flex items-center gap-1.5 text-sm font-medium text-[#F1EADD]"><Trophy className="h-4 w-4 text-[#EAE1CE]" /> Top agents</p>
           {topAgents.length === 0 ? (
-            <p className="py-6 text-center text-sm text-[#847668]">Belum ada agent dengan task.</p>
+            <p className="py-6 text-center text-sm text-[#847668]">No agents with tasks yet.</p>
           ) : (
             <div className="space-y-2">
               {topAgents.map((a, i) => (

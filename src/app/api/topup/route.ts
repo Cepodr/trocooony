@@ -12,10 +12,10 @@ export async function POST(req: Request) {
   const b = await req.json().catch(() => ({}))
   const { user, txHash } = b ?? {}
   if (!user || !txHash) return NextResponse.json({ error: "user, txHash required" }, { status: 400 })
-  if (!TREASURY) return NextResponse.json({ error: "Treasury belum dikonfigurasi." }, { status: 500 })
+  if (!TREASURY) return NextResponse.json({ error: "Treasury is not configured." }, { status: 500 })
 
   const { data: existing } = await supabaseAdmin.from("topups").select("tx_hash").eq("tx_hash", txHash).maybeSingle()
-  if (existing) return NextResponse.json({ error: "Transaksi ini sudah pernah dipakai top up." }, { status: 400 })
+  if (existing) return NextResponse.json({ error: "This transaction has already been used for a top up." }, { status: 400 })
 
   const v = await verifyPayment(txHash, TREASURY)
   if (!v.ok) return NextResponse.json({ error: v.reason }, { status: 400 })

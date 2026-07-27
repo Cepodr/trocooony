@@ -25,13 +25,13 @@ function tokenIsGibberish(token: string) {
 }
 function validateObjective(raw: string): string | null {
   const t = raw.trim()
-  if (t.length < 15) return "Objective terlalu pendek. Tulis tujuan yang jelas dalam satu kalimat."
+  if (t.length < 15) return "Objective is too short. Write a clear goal in one sentence."
   const words = t.split(/\s+/).filter((w) => w.replace(/[^a-z]/gi, "").length >= 2)
-  if (words.length < 3) return "Tulis objective sebagai kalimat yang bermakna (min. 3 kata), bukan kata acak."
+  if (words.length < 3) return "Write the objective as a meaningful sentence (min. 3 words), not random words."
   const alphaTokens = t.split(/[\s,._/-]+/).filter((w) => /[a-z]/i.test(w))
   const bad = alphaTokens.filter(tokenIsGibberish).length
   if (bad > 0 && bad >= Math.ceil(alphaTokens.length / 2)) {
-    return "Objective sepertinya berisi teks acak. Masukkan tujuan yang jelas dan bermakna."
+    return "The objective looks like random text. Enter a clear, meaningful goal."
   }
   return null
 }

@@ -53,7 +53,7 @@ export default function LearnPage() {
       if (res?.error) { setError(res.error); setLoading(false); return }
       setMessages((m) => [...m, { role: "assistant", content: res.answer }])
     } catch {
-      setError("Network error. Coba lagi.")
+      setError("Network error. Please try again.")
     } finally {
       setLoading(false)
       setTimeout(() => scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: "smooth" }), 50)

@@ -53,7 +53,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ user: userKey, action, amount: Math.abs(amount) }),
       })
       const d = await r.json()
-      if (!r.ok || d.error) return { ok: false, error: d.error || "Gagal." }
+      if (!r.ok || d.error) return { ok: false, error: d.error || "Something went wrong." }
       apply(d)
       return { ok: true }
     } catch (e: any) { return { ok: false, error: e?.message || "Network error." } }
@@ -81,7 +81,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ user: userKey, txHash }),
       })
       const d = await r.json()
-      if (!r.ok || d.error) return { ok: false, error: d.error || "Gagal top up." }
+      if (!r.ok || d.error) return { ok: false, error: d.error || "Top up failed." }
       if (typeof d.balance === "number") setRlo(d.balance)
       if (typeof d.trlo === "number") setTrlo(d.trlo)
       return { ok: true, credited: d.credited }

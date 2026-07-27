@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   try {
     const key = process.env.GROQ_API_KEY
     if (!key || key.includes("xxxx") || key.includes("TEMPEL")) {
-      return NextResponse.json({ error: "GROQ_API_KEY belum diisi di .env.local." }, { status: 400 })
+      return NextResponse.json({ error: "GROQ_API_KEY is not set in .env.local." }, { status: 400 })
     }
     const body = await req.json()
     const question: string = (body.question || "").toString().slice(0, 500)
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
         { role: "user", content: question },
       ],
     })
-    const answer = res.choices[0]?.message?.content?.trim() || "Maaf, aku tidak punya jawabannya."
+    const answer = res.choices[0]?.message?.content?.trim() || "Sorry, I do not have an answer for that."
     return NextResponse.json({ answer })
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || "Unexpected error" }, { status: 500 })

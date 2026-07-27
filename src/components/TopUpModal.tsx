@@ -36,8 +36,8 @@ export default function TopUpModal({ open, onClose }: { open: boolean; onClose: 
   async function pay() {
     setMsg(""); setPhase("sending")
     const eth = (window as any).ethereum
-    if (!eth) { setPhase("error"); setMsg("MetaMask tidak ditemukan."); return }
-    if (!TREASURY) { setPhase("error"); setMsg("Treasury belum dikonfigurasi."); return }
+    if (!eth) { setPhase("error"); setMsg("MetaMask not found."); return }
+    if (!TREASURY) { setPhase("error"); setMsg("Treasury is not configured."); return }
     try {
       const accounts: string[] = await eth.request({ method: "eth_requestAccounts" })
       try { await eth.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0xaa36a7" }] }) } catch {}
@@ -46,16 +46,16 @@ export default function TopUpModal({ open, onClose }: { open: boolean; onClose: 
         params: [{ from: accounts[0], to: TREASURY, value: toWeiHex(amount) }],
       })
       setPhase("verifying")
-      setMsg("Menunggu konfirmasi on-chain… (bisa ~15 detik)")
+      setMsg("Waiting for on-chain confirmation… (can take ~15 seconds)")
       let ok = false
       for (let i = 0; i < 20; i++) {
         const res = await topup(txHash)
         if (res.ok) { ok = true; setCredited(res.credited || rlo); break }
-        if (res.error && !/belum|tidak ditemukan|dikonfirmasi/i.test(res.error)) { setPhase("error"); setMsg(res.error); return }
+        if (res.error && !/not found|not confirmed|not propagated/i.test(res.error)) { setPhase("error"); setMsg(res.error); return }
         await new Promise((r) => setTimeout(r, 3000))
       }
       if (ok) setPhase("done")
-      else { setPhase("error"); setMsg("Timeout menunggu konfirmasi. Transaksi mungkin masih diproses — coba lagi sebentar.") }
+      else { setPhase("error"); setMsg("Timed out waiting for confirmation. The transaction may still be processing — try again shortly.") }
     } catch (e: any) {
       setPhase("error"); setMsg(e?.message || "Transaksi dibatalkan.")
     }
@@ -72,7 +72,7 @@ export default function TopUpModal({ open, onClose }: { open: boolean; onClose: 
         {phase === "done" ? (
           <div className="py-6 text-center">
             <CheckCircle2 className="mx-auto mb-3 h-10 w-10 text-[#EAE1CE]" />
-            <p className="text-sm text-[#F1EADD]">Berhasil! <span className="font-semibold">+{credited} RLO</span> masuk ke saldomu.</p>
+            <p className="text-sm text-[#F1EADD]">Success! <span className="font-semibold">+{credited} RLO</span> added to your balance.</p>
             <button onClick={onClose} className="mt-4 rounded-lg bg-[#EAE1CE] px-4 py-2 text-sm font-medium text-[#0D0A07] hover:bg-[#F4EEDF]">Selesai</button>
           </div>
         ) : (
@@ -90,7 +90,7 @@ export default function TopUpModal({ open, onClose }: { open: boolean; onClose: 
             <label className="mb-1.5 block text-xs text-[#B2A693]">Jumlah ETH</label>
             <input value={amount} onChange={(e) => setAmount(e.target.value)} disabled={phase !== "idle"}
               className="mb-1 w-full rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50 disabled:opacity-50" />
-            <p className="mb-4 text-[11px] text-[#847668]">Kamu akan menerima ~{rlo} RLO.</p>
+            <p className="mb-4 text-[11px] text-[#847668]">You will receive ~{rlo} RLO.</p>
 
             {!wallet ? (
               <button onClick={connectWallet} className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#2A2119] px-4 py-2.5 text-sm text-[#F1EADD] hover:border-[#EAE1CE]/50">

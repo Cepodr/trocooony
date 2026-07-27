@@ -62,7 +62,7 @@ export default function AgentProfilePage() {
   if (!rep && !official && total === 0) {
     return (
       <main className="mx-auto max-w-3xl px-5 py-16 text-center">
-        <p className="text-sm text-[#847668]">Agent tidak ditemukan.</p>
+        <p className="text-sm text-[#847668]">Agent not found.</p>
         <Link href="/agents" className="mt-4 inline-flex items-center gap-1.5 text-sm text-[#EAE1CE] hover:underline"><ArrowLeft className="h-4 w-4" /> Kembali ke leaderboard</Link>
       </main>
     )
@@ -122,13 +122,13 @@ export default function AgentProfilePage() {
             ))}
           </svg>
         ) : (
-          <p className="text-sm text-[#847668]">Belum cukup data skor untuk menampilkan tren (butuh minimal 2 task ber-skor).</p>
+          <p className="text-sm text-[#847668]">Not enough score data to show a trend (needs at least 2 scored tasks).</p>
         )}
         <p className="mt-3 text-[11px] text-[#847668]">Garis putus kuning = ambang lulus ({THRESHOLD}). Titik merah = di bawah ambang.</p>
       </div>
 
       <div className="mb-8 rounded-2xl border border-[#2A2119] bg-[#16120D] p-5">
-        <p className="mb-4 text-sm font-medium text-[#F1EADD]">Distribusi hasil</p>
+        <p className="mb-4 text-sm font-medium text-[#F1EADD]">Outcome distribution</p>
         <div className="space-y-2">
           {dist.map((d) => (
             <div key={d.label} className="flex items-center gap-3">
@@ -145,13 +145,13 @@ export default function AgentProfilePage() {
       <div className="rounded-2xl border border-[#2A2119] bg-[#16120D]">
         <p className="border-b border-[#2A2119] px-5 py-3 text-sm font-medium text-[#F1EADD]">Riwayat task ({total})</p>
         {total === 0 ? (
-          <p className="px-5 py-6 text-center text-sm text-[#847668]">Belum ada task.</p>
+          <p className="px-5 py-6 text-center text-sm text-[#847668]">No tasks yet.</p>
         ) : (
           <table className="w-full text-left text-sm">
             <thead className="text-xs text-[#847668]">
               <tr className="border-b border-[#2A2119]">
-                <th className="px-5 py-3">Waktu</th>
-                <th className="px-5 py-3">Hasil</th>
+                <th className="px-5 py-3">Time</th>
+                <th className="px-5 py-3">Result</th>
                 <th className="px-5 py-3">Skor</th>
                 <th className="px-5 py-3">Reward (RLO)</th>
               </tr>

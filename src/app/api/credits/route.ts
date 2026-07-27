@@ -36,22 +36,22 @@ export async function POST(req: Request) {
   const user = body?.user, action = body?.action
   const amount = Math.abs(Number(body?.amount ?? 0))
   if (!user || !action) return NextResponse.json({ error: "user, action required" }, { status: 400 })
-  if (!amount || amount <= 0) return NextResponse.json({ error: "amount tidak valid." }, { status: 400 })
+  if (!amount || amount <= 0) return NextResponse.json({ error: "Invalid amount." }, { status: 400 })
   try {
     const b = await getOrCreate(user)
     if (action === "deposit") {
-      if (b.rlo < amount) return NextResponse.json({ error: "Saldo RLO tidak cukup." }, { status: 400 })
+      if (b.rlo < amount) return NextResponse.json({ error: "Insufficient RLO balance." }, { status: 400 })
       b.rlo -= amount; b.trlo += amount
     } else if (action === "withdraw") {
-      if (b.trlo < amount) return NextResponse.json({ error: "Saldo TRLO tidak cukup." }, { status: 400 })
+      if (b.trlo < amount) return NextResponse.json({ error: "Insufficient TRLO balance." }, { status: 400 })
       b.trlo -= amount; b.rlo += amount
     } else if (action === "spend") {
-      if (b.trlo < amount) return NextResponse.json({ error: "Saldo TRLO tidak cukup." }, { status: 400 })
+      if (b.trlo < amount) return NextResponse.json({ error: "Insufficient TRLO balance." }, { status: 400 })
       b.trlo -= amount
     } else if (action === "earn") {
       b.trlo += amount
     } else {
-      return NextResponse.json({ error: "action tidak dikenal." }, { status: 400 })
+      return NextResponse.json({ error: "Unknown action." }, { status: 400 })
     }
     const err = await save(user, b)
     if (err) return NextResponse.json({ error: err.message }, { status: 500 })

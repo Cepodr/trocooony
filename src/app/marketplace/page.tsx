@@ -29,7 +29,7 @@ export default function MarketplacePage() {
 
   function submit() {
     if (name.trim().length < 3 || specialty.trim().length < 3 || persona.trim().length < 15) {
-      setFormErr("Lengkapi nama, spesialisasi, dan persona (min. 15 karakter) yang jelas.")
+      setFormErr("Provide a clear name, specialty, and persona (min. 15 characters).")
       return
     }
     setFormErr("")

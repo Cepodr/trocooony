@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const connectWallet = async () => {
     setWalletError(null)
     const eth = (window as any).ethereum
-    if (!eth) { setWalletError("Wallet tidak ditemukan. Pasang MetaMask dulu."); return }
+    if (!eth) { setWalletError("Wallet not found. Install MetaMask first."); return }
     try {
       const accounts: string[] = await eth.request({ method: "eth_requestAccounts" })
       try {
@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const chainId: string = await eth.request({ method: "eth_chainId" })
       setWallet({ address: accounts[0], chainId })
     } catch (e: any) {
-      setWalletError(e?.message || "Gagal connect wallet")
+      setWalletError(e?.message || "Failed to connect wallet")
     }
   }
   const disconnectWallet = () => setWallet(null)

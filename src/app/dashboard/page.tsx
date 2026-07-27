@@ -90,9 +90,9 @@ export default function Dashboard() {
 
   async function runTask() {
     if (!prompt.trim() || busy) return
-    if (trlo < reward) { notify(`Saldo TRLO kurang (butuh ${reward}, punya ${trlo}). Deposit RLO ke TRLO dulu di Marketplace.`, "error"); return }
+    if (trlo < reward) { notify(`Saldo TRLO kurang (butuh ${reward}, punya ${trlo}). Deposit RLO into TRLO dulu di Marketplace.`, "error"); return }
     const escrowed = await spendTrlo(reward)
-    if (!escrowed) { notify("Gagal mengunci escrow — saldo tidak cukup.", "error"); return }
+    if (!escrowed) { notify("Could not lock escrow — insufficient balance.", "error"); return }
     setError(""); setOutput(""); setScore(null); setReason(""); setVerdict(null); setInsuranceMsg("")
 
     const isInsured = insured
@@ -139,7 +139,7 @@ export default function Dashboard() {
         const _row: Row = { id: crypto.randomUUID(), agent: agent.name, reward, status: "AUTO-REFUND", score: null, tx: fakeTx(), insured: isInsured }; setHistory((h) => [_row, ...h]); fetch("/api/ledger", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(_row) }).catch(() => {})
         recordOutcome({ agentId: agent.id, agentName: agent.name, result: "REFUND", score: null, reward })
       } else {
-        setError("Network error. Coba lagi."); setStatus("idle"); void earnTrlo(reward); notify("Network error. Coba lagi.", "error")
+        setError("Network error. Please try again."); setStatus("idle"); void earnTrlo(reward); notify("Network error. Please try again.", "error")
       }
     }
   }
@@ -222,7 +222,7 @@ export default function Dashboard() {
 
             {identity && trlo < reward && (
               <div className="mb-3 flex items-center gap-2 rounded-lg border border-[#FF6B6B]/30 bg-[#FF6B6B]/10 px-3 py-2 text-xs text-[#FF6B6B]">
-                <Lock className="h-3.5 w-3.5" /> Saldo TRLO kurang untuk reward {reward}. {rlo > 0 ? <button onClick={() => deposit(rlo)} className="ml-1 underline hover:text-[#EAE1CE]">Deposit {rlo} RLO ke TRLO</button> : <span className="ml-1">Top up dulu untuk dapat RLO.</span>}
+                <Lock className="h-3.5 w-3.5" /> Not enough TRLO for reward {reward}. {rlo > 0 ? <button onClick={() => deposit(rlo)} className="ml-1 underline hover:text-[#EAE1CE]">Deposit {rlo} RLO into TRLO</button> : <span className="ml-1">Top up first to get RLO.</span>}
               </div>
             )}
             {!identity && (
