@@ -44,7 +44,7 @@ export default function Dashboard() {
   const [insuranceMsg, setInsuranceMsg] = useState("")
   const [error, setError] = useState("")
   const [history, setHistory] = useState<Row[]>([])
-  useEffect(() => { fetch("/api/ledger").then((r) => r.json()).then((d) => { if (Array.isArray(d.rows)) setHistory(d.rows as Row[]) }).catch(() => {}) }, [])
+  useEffect(() => { fetch("/api/ledger").then((r) => r.json()).then((d) => { if (Array.isArray(d.rows)) { const raw = d.rows as Array<Omit<Row, "status"> & { status: string }>; setHistory(raw.map((r) => ({ ...r, status: r.status === "PASS" ? "PAID" : r.status === "FAIL" ? "REFUNDED" : r.status })) as Row[]) } }).catch(() => {}) }, [])
 
   const communityAgents = useMemo(() => listings.map((l) => ({ id: l.id, name: l.name, icon: Bot, specialty: l.specialty + " (Community)", persona: l.persona })), [listings])
   const allAgents = useMemo(() => [...AGENTS, ...communityAgents], [communityAgents])
