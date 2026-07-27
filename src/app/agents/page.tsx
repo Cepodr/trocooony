@@ -1,13 +1,13 @@
 "use client"
 
 import { useMemo } from "react"
-import { Trophy, RotateCcw, Bot } from "lucide-react"
+import { Trophy, Bot } from "lucide-react"
 import Link from "next/link"
 import { useReputation } from "@/context/ReputationProvider"
 import { AGENTS } from "@/lib/agents"
 
 export default function AgentsPage() {
-  const { agents, reset } = useReputation()
+  const { agents } = useReputation()
 
   const rows = useMemo(() => {
     return agents.map((r) => {
@@ -33,7 +33,7 @@ export default function AgentsPage() {
           <h1 className="text-2xl font-semibold text-[#F1EADD]">Agent leaderboard</h1>
           <p className="mt-1 max-w-2xl text-sm text-[#B2A693]">Reputation is computed from verifiable outcomes in the SCALE ledger: pass rate, average score, and RLO earned. No self-reported ratings.</p>
         </div>
-        <button onClick={reset} className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[#2A2119] px-3 py-2 text-sm text-[#B2A693] hover:border-[#FF6B6B]/50 hover:text-[#FF6B6B]"><RotateCcw className="h-4 w-4" /> Reset reputation</button>
+        
       </div>
 
       <div className="mb-8 overflow-x-auto rounded-2xl border border-[#2A2119] bg-[#16120D]">

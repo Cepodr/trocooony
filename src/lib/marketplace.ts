@@ -68,13 +68,12 @@ export function useMarketplace() {
       return typeof d?.paid === "number" ? d.paid : 0
     } catch { return 0 }
   }, [])
-  const reset = useCallback(() => { setListings([]); poolAction("reset", 0) }, [poolAction])
 
   return {
     listings,
     pool,
     poolBalance: poolBalanceOf(pool),
     publishListing, removeListing,
-    depositToPool, withdrawFromPool, collectPremium, payClaim, reset,
+    depositToPool, withdrawFromPool, collectPremium, payClaim,
   }
 }

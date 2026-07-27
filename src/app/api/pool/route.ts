@@ -44,8 +44,6 @@ export async function POST(req: Request) {
     paid = pay
     p.payouts += pay
     if (pay > 0) p.claims += 1
-  } else if (action === "reset") {
-    p.deposits = 0; p.premiums = 0; p.payouts = 0; p.policies = 0; p.claims = 0
   } else {
     return NextResponse.json({ error: "unknown action" }, { status: 400 })
   }
