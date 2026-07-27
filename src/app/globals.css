@@ -89,3 +89,18 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 @media (prefers-reduced-motion: reduce) {
   .trocoony-reveal, .trocoony-shine { animation: none; }
 }
+
+/* Clickable affordance: Tailwind preflight sets buttons to default cursor */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+summary,
+label[for],
+select,
+a[href] {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
