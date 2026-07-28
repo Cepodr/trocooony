@@ -137,6 +137,7 @@ export default function WorkflowPage() {
           setSteps([...updated]); refund = updated.slice(i).reduce((sum, st) => sum + priceOf(st.agentId), 0); break
         }
         const passed = res.verdict === "PASS" || (typeof res.score === "number" && res.score >= 70)
+          void fetch("/api/reputation", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ agentId: agent.id, agentName: agent.name, result: passed ? "PASS" : "FAIL", score: typeof res.score === "number" ? res.score : 0, reward: priceOf(step.agentId) }) })
         updated = updated.map((s, idx) => (idx === i ? { ...s, status: passed ? "done" : "failed", output: res.output, score: typeof res.score === "number" ? res.score : null, reason: String(res.reason || "") } : s))
         if (!passed) {
           setSteps([...updated])

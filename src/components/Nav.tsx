@@ -43,7 +43,7 @@ export default function Nav() {
   }, [menu])
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[#2A2119] bg-[#0D0A07]/80 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-[#2A2119] bg-[#0D0A07]/80 backdrop-blur">
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5">
         <Link href="/" className="flex shrink-0 items-center">
           <img src="/logo.png" alt="Trocooony" className="h-10 w-auto" />
@@ -60,7 +60,7 @@ export default function Nav() {
 
         <div className="relative hidden shrink-0 items-center gap-3 xl:flex" ref={menuRef}>
           {menu !== "none" && (
-            <div className="absolute right-0 top-full z-50 mt-2 max-h-[70vh] w-72 overflow-y-auto rounded-xl panel panel-grid p-3 shadow-2xl">
+            <div className="absolute right-0 top-full z-[60] mt-2 max-h-[calc(100vh-5.5rem)] w-72 overflow-y-auto rounded-xl panel panel-grid p-3 shadow-2xl">
               {menu === "acct" && identity && (
                 <div>
                   <p className="text-xs text-[#847668]">Signed in as</p>
