@@ -29,6 +29,7 @@ export default function Nav() {
   const { identity, wallet, connectWallet, disconnectWallet, signOutRialo, walletError } = useAuth()
   const { rlo, trlo } = useCredits()
   const onSepolia = wallet?.chainId === "0xaa36a7"
+  const [copied, setCopied] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const [injected, setInjected] = useState(true)
   useEffect(() => { setInjected(typeof (window as unknown as { ethereum?: unknown }).ethereum !== "undefined") }, [])
@@ -59,7 +60,7 @@ export default function Nav() {
 
         <div className="relative hidden shrink-0 items-center gap-3 xl:flex" ref={menuRef}>
           {menu !== "none" && (
-            <div className="absolute right-0 top-full z-50 mt-2 w-64 rounded-xl panel panel-grid p-3 shadow-2xl">
+            <div className="absolute right-0 top-full z-50 mt-2 max-h-[70vh] w-72 overflow-y-auto rounded-xl panel panel-grid p-3 shadow-2xl">
               {menu === "acct" && identity && (
                 <div>
                   <p className="text-xs text-[#847668]">Signed in as</p>
@@ -72,7 +73,10 @@ export default function Nav() {
               {menu === "wallet" && wallet && (
                 <div>
                   <p className="text-xs text-[#847668]">Wallet</p>
-                  <p className="mt-0.5 break-all text-sm text-[#F1EADD]">{wallet.address}</p>
+                  <div className="mt-0.5 flex items-center justify-between gap-2">
+                    <p className="font-mono text-sm text-[#F1EADD]">{short(wallet.address)}</p>
+                    <button onClick={() => { void navigator.clipboard.writeText(wallet.address); setCopied(true); setTimeout(() => setCopied(false), 1500) }} className="shrink-0 rounded-md border border-[#2A2119] px-2 py-0.5 text-[11px] text-[#B2A693] hover:border-[#EAE1CE]/50 hover:text-[#EAE1CE]">{copied ? "Copied" : "Copy"}</button>
+                  </div>
                   <p className="mt-1 text-xs text-[#B2A693]">{onSepolia ? "Ethereum Sepolia" : "Wrong network"}</p>
                   <button onClick={() => { setMenu("none"); disconnectWallet() }} className="mt-3 w-full rounded-lg border border-[#2A2119] px-3 py-2 text-left text-sm text-[#FF6B6B] hover:border-[#FF6B6B]/50">Disconnect wallet</button>
                 </div>
