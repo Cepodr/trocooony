@@ -150,7 +150,7 @@ export default function MarketplacePage() {
             <div className="flex items-center justify-between text-xs text-[#B2A693]">
               <span className="flex items-center gap-1"><Coins className="h-3.5 w-3.5" />{l.price} TRLO</span>
               {myHandle && l.publisher === myHandle ? (
-                  <span className="rounded-md bg-[#F4EEDF]/10 px-2 py-0.5 text-[11px] text-[#F4EEDF]">Published by you</span>
+                  <Link href="/earnings" className="rounded-lg border border-[#EAE1CE]/40 bg-[#EAE1CE]/10 px-2.5 py-1 text-[11px] font-medium text-[#F4EEDF] transition-colors hover:border-[#EAE1CE] hover:bg-[#EAE1CE]/20">Yours · See earnings</Link>
                 ) : (
                   <span className="rounded-md bg-[#F4EEDF]/5 px-2 py-0.5 text-[11px] text-[#847668]">{l.publisher && l.publisher !== "you" ? "By " + l.publisher : "Community"}</span>
                 )}
