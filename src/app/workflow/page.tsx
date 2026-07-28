@@ -3,7 +3,11 @@
 import { useState } from "react"
 import { Workflow, Play, Loader2, CheckCircle2, XCircle, ArrowDown, Lock, Sparkles, RotateCcw, AlertTriangle } from "lucide-react"
 import { useAuth } from "@/context/AuthProvider"
-import { AGENTS } from "@/lib/agents"
+import { AGENTS, BASE_PRICE } from "@/lib/agents"
+import { useCredits } from "@/context/CreditsProvider"
+import { useToast } from "@/context/ToastProvider"
+import { useReputation } from "@/context/ReputationProvider"
+import { WORKFLOW_SAMPLES } from "@/lib/workflow-samples"
 
 type StepStatus = "idle" | "running" | "done" | "error" | "failed"
 type Step = { id: string; role: string; agentId: string; instruction: string; criteria: string; status: StepStatus; output: string; score: number | null; reason: string }
@@ -38,6 +42,9 @@ function validateObjective(raw: string): string | null {
 
 export default function WorkflowPage() {
   const { identity } = useAuth()
+  const { trlo, spendTrlo, earnTrlo } = useCredits()
+  const { notify } = useToast()
+  const { outcomes } = useReputation()
   const [objective, setObjective] = useState("")
   const [steps, setSteps] = useState<Step[]>(freshSteps())
   const [running, setRunning] = useState(false)
@@ -45,6 +52,27 @@ export default function WorkflowPage() {
 
   const updateStep = (id: string, patch: Partial<Step>) =>
     setSteps((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)))
+
+  const priceOf = (agentId: string) => BASE_PRICE[agentId] ?? 50
+  const totalPrice = steps.reduce((sum, s) => sum + priceOf(s.agentId), 0)
+
+  // Reliability compounds rather than averages: three agents that each pass
+  // four times in five finish a three-step chain barely half the time. The
+  // prior keeps a brand-new agent from looking perfect after one lucky task.
+  const rateOf = (agentId: string) => {
+    const rows = outcomes.filter((o) => o.agentId === agentId)
+    const passes = rows.filter((o) => o.result === "PASS").length
+    return (passes + 3) / (rows.length + 5)
+  }
+  const chainReliability = steps.reduce((p, s) => p * rateOf(s.agentId), 1)
+
+  const loadSample = () => {
+    if (running) return
+    const pick = WORKFLOW_SAMPLES[Math.floor(Math.random() * WORKFLOW_SAMPLES.length)]
+    setError("")
+    setObjective(pick.objective)
+    setSteps(pick.steps.map((st) => ({ ...st, status: "idle" as StepStatus, output: "", score: null, reason: "" })))
+  }
 
   const resetAll = () => {
     if (running) return
@@ -56,6 +84,12 @@ export default function WorkflowPage() {
     const problem = validateObjective(objective)
     if (problem) { setError(problem); return }
     setError(""); setRunning(true)
+
+    if (trlo < totalPrice) { setError("This pipeline costs " + totalPrice + " TRLO and your balance is " + trlo + "."); setRunning(false); return }
+    const escrowed = await spendTrlo(totalPrice)
+    if (!escrowed) { setError("Could not lock escrow for " + totalPrice + " TRLO."); setRunning(false); return }
+    notify(totalPrice + " TRLO escrowed across " + steps.length + " steps.", "info")
+    let refund = 0
 
     let updated = steps.map((s) => ({ ...s, status: "idle" as StepStatus, output: "", score: null, reason: "" }))
     setSteps([...updated])
@@ -81,19 +115,26 @@ export default function WorkflowPage() {
 
         if (res?.error) {
           updated = updated.map((s, idx) => (idx === i ? { ...s, status: "error", output: res.error } : s))
-          setSteps([...updated]); break
+          setSteps([...updated]); refund = updated.slice(i).reduce((sum, st) => sum + priceOf(st.agentId), 0); break
         }
         const passed = res.verdict === "PASS" || (typeof res.score === "number" && res.score >= 70)
         updated = updated.map((s, idx) => (idx === i ? { ...s, status: passed ? "done" : "failed", output: res.output, score: typeof res.score === "number" ? res.score : null, reason: String(res.reason || "") } : s))
-        if (!passed) { setSteps([...updated]); break }
+        if (!passed) {
+          setSteps([...updated])
+          const unrun = updated.slice(i + 1).reduce((sum, st) => sum + priceOf(st.agentId), 0)
+          refund = unrun + Math.round(priceOf(step.agentId) * 0.7)
+          break
+        }
         setSteps([...updated])
         prevRole = step.role
         prevOutput = res.output
       } catch {
         updated = updated.map((s, idx) => (idx === i ? { ...s, status: "error", output: "Network error." } : s))
-        setSteps([...updated]); break
+        setSteps([...updated]); refund = updated.slice(i).reduce((sum, st) => sum + priceOf(st.agentId), 0); break
       }
     }
+    if (refund > 0) { await earnTrlo(refund); notify(refund + " TRLO refunded for work that was never performed.", "warn") }
+    else notify("Pipeline complete. Escrow released to the agents.", "success")
     setRunning(false)
   }
 
@@ -128,11 +169,26 @@ export default function WorkflowPage() {
           </div>
         )}
 
-        <div className="mt-2 flex gap-2">
-          <button onClick={runWorkflow} disabled={running || !objective.trim() || !identity}
+        <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-[#847668]">
+            <span>Pipeline cost <span className="font-semibold text-[#B2A693]">{totalPrice} TRLO</span>, the sum of every agent rate</span>
+            <span>Estimated chain reliability <span className="font-semibold text-[#B2A693]">{Math.round(chainReliability * 100)}%</span></span>
+          </div>
+
+          {identity && trlo < totalPrice && (
+            <div className="mb-3 flex items-center gap-2 rounded-lg border border-[#F5B759]/30 bg-[#F5B759]/10 px-3 py-2 text-xs text-[#F5B759]">
+              <Lock className="h-3.5 w-3.5" /> This pipeline costs {totalPrice} TRLO and your balance is {trlo}.
+            </div>
+          )}
+
+          <div className="mt-2 flex flex-wrap gap-2">
+          <button onClick={runWorkflow} disabled={running || !objective.trim() || !identity || trlo < totalPrice}
             className="flex items-center justify-center gap-2 rounded-lg bg-[#EAE1CE] px-4 py-2.5 text-sm font-medium text-[#0D0A07] transition-colors hover:bg-[#F4EEDF] disabled:cursor-not-allowed disabled:opacity-40">
             {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
-            {running ? "Running pipeline…" : "Run workflow"}
+            {running ? "Running pipeline…" : "Run workflow · " + totalPrice + " TRLO"}
+          </button>
+          <button onClick={loadSample} disabled={running}
+            className="flex items-center gap-1.5 rounded-lg border border-[#2A2119] px-3 py-2.5 text-sm text-[#B2A693] transition-colors hover:border-[#EAE1CE]/50 hover:text-[#F1EADD] disabled:opacity-40">
+            <Sparkles className="h-4 w-4" /> Load sample pipeline
           </button>
           <button onClick={resetAll} disabled={running}
             className="flex items-center gap-1.5 rounded-lg border border-[#2A2119] px-3 py-2.5 text-sm text-[#B2A693] transition-colors hover:border-[#FF6B6B]/50 hover:text-[#FF6B6B] disabled:opacity-40">
@@ -152,7 +208,7 @@ export default function WorkflowPage() {
                   </span>
                   <div>
                     <p className="text-sm font-semibold text-[#F1EADD]">{step.role}</p>
-                    <p className="text-[11px] text-[#847668]">Step {i + 1} of {steps.length}</p>
+                    <p className="text-[11px] text-[#847668]">Step {i + 1} of {steps.length} · {priceOf(step.agentId)} TRLO</p>
                   </div>
                 </div>
                 <select value={step.agentId} onChange={(e) => updateStep(step.id, { agentId: e.target.value })} disabled={running}
