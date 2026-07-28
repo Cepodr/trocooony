@@ -29,6 +29,7 @@ export default function MarketplacePage() {
   const [formErr, setFormErr] = useState("")
   const [depositAmt, setDepositAmt] = useState(100)
   const [topupOpen, setTopupOpen] = useState(false)
+  const [walletMsg, setWalletMsg] = useState<{ text: string; bad: boolean } | null>(null)
 
   async function submit() {
     if (name.trim().length < 3 || specialty.trim().length < 3 || persona.trim().length < 15) {
@@ -73,13 +74,16 @@ export default function MarketplacePage() {
             <input type="number" min={1} value={depositAmt === 0 ? "" : depositAmt} onChange={(e) => setDepositAmt(e.target.value === "" ? 0 : Number(e.target.value))} onFocus={(e) => e.target.select()}
               className="w-40 rounded-lg panel px-3 py-2 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
           </div>
-          <button onClick={() => deposit(depositAmt)}
+          <button onClick={async () => { const r = await deposit(depositAmt); setWalletMsg(r.ok ? { text: depositAmt + " RLO converted into " + depositAmt + " TRLO.", bad: false } : { text: r.error || "The conversion did not go through.", bad: true }) }}
             className="rounded-lg bg-[#EAE1CE] px-4 py-2 text-sm font-medium text-[#0D0A07] hover:bg-[#F4EEDF]">Deposit RLO to TRLO</button>
-          <button onClick={() => withdraw(depositAmt)}
+          <button onClick={async () => { const r = await withdraw(depositAmt); setWalletMsg(r.ok ? { text: depositAmt + " TRLO moved back into RLO.", bad: false } : { text: r.error || "The withdrawal did not go through.", bad: true }) }}
             className="rounded-lg border border-[#2A2119] px-4 py-2 text-sm text-[#B2A693] hover:border-[#EAE1CE]/50 hover:text-[#EAE1CE]">Withdraw to RLO</button>
           <button onClick={() => setTopupOpen(true)}
             className="rounded-lg border border-[#EAE1CE]/40 px-4 py-2 text-sm font-medium text-[#EAE1CE] hover:bg-[#EAE1CE]/10">Top up (ETH to RLO)</button>
           <p className="flex items-center gap-1.5 text-xs text-[#847668]"><Info className="h-3.5 w-3.5" />1 RLO = 1 TRLO. Deposit converts to spendable TRLO; withdraw converts back.</p>
+          {walletMsg && (
+            <p className={"w-full text-xs " + (walletMsg.bad ? "text-[#F5B759]" : "text-[#B2A693]")}>{walletMsg.text}</p>
+          )}
         </div>
         <TopUpModal open={topupOpen} onClose={() => setTopupOpen(false)} />
       </div>

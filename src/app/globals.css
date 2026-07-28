@@ -138,3 +138,14 @@ button:disabled,
   -webkit-mask-image: radial-gradient(90% 70% at 50% 0%, #000 25%, transparent 100%);
   mask-image: radial-gradient(90% 70% at 50% 0%, #000 25%, transparent 100%);
 }
+
+select option {
+  background-color: #16120D;
+  color: #F1EADD;
+}
+
+select option:checked,
+select option:hover {
+  background-color: #1B1610;
+  color: #F4EEDF;
+}

@@ -67,8 +67,20 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
     return next
   }, [actRaw])
 
-  const deposit = useCallback((amount: number) => act("deposit", amount), [act])
-  const withdraw = useCallback((amount: number) => act("withdraw", amount), [act])
+  const deposit = useCallback(async (amount: number) => {
+    const amt = Math.floor(Number(amount) || 0)
+    if (amt <= 0) return { ok: false, error: "Enter how much RLO you want to convert into TRLO." }
+    if (rlo <= 0) return { ok: false, error: "You have no RLO to convert. Top up from the treasury first, then convert it into TRLO." }
+    if (amt > rlo) return { ok: false, error: "You only have " + rlo + " RLO to convert." }
+    return act("deposit", amt)
+  }, [act, rlo])
+  const withdraw = useCallback(async (amount: number) => {
+    const amt = Math.floor(Number(amount) || 0)
+    if (amt <= 0) return { ok: false, error: "Enter how much TRLO you want to move back into RLO." }
+    if (trlo <= 0) return { ok: false, error: "You have no TRLO to withdraw. Convert RLO into TRLO first." }
+    if (amt > trlo) return { ok: false, error: "You only have " + trlo + " TRLO to withdraw." }
+    return act("withdraw", amt)
+  }, [act, trlo])
   const spendTrlo = useCallback(async (amount: number): Promise<boolean> => (await act("spend", amount)).ok, [act])
   const earnTrlo = useCallback(async (amount: number): Promise<void> => { await act("earn", amount) }, [act])
 
