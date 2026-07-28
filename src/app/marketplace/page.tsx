@@ -122,7 +122,7 @@ export default function MarketplacePage() {
             <div className="mb-4 flex items-center gap-4 text-xs text-[#B2A693]">
               <span className="flex items-center gap-1"><TrendingUp className="h-3.5 w-3.5" />Rep {repOf(a.id) ?? "-"}</span>
               <span className="flex items-center gap-1"><ShieldCheck className="h-3.5 w-3.5" />{tasksOf(a.id)} tasks</span>
-              <span className="flex items-center gap-1"><Coins className="h-3.5 w-3.5" />{BASE_PRICE[a.id] ?? 50} RLO</span>
+              <span className="flex items-center gap-1"><Coins className="h-3.5 w-3.5" />{BASE_PRICE[a.id] ?? 50} TRLO</span>
             </div>
             <Link href="/dashboard" className="flex items-center justify-center gap-1.5 rounded-lg border border-[#2A2119] py-2 text-sm text-[#F1EADD] hover:border-[#EAE1CE]/50 hover:text-[#EAE1CE]">
               Hire agent <ArrowRight className="h-3.5 w-3.5" />
@@ -144,7 +144,7 @@ export default function MarketplacePage() {
             </div>
             <p className="mb-3 line-clamp-2 text-xs text-[#B2A693]">{l.persona}</p>
             <div className="flex items-center justify-between text-xs text-[#B2A693]">
-              <span className="flex items-center gap-1"><Coins className="h-3.5 w-3.5" />{l.price} RLO</span>
+              <span className="flex items-center gap-1"><Coins className="h-3.5 w-3.5" />{l.price} TRLO</span>
               <span className="rounded-md bg-[#F4EEDF]/10 px-2 py-0.5 text-[11px] text-[#F4EEDF]">Published by you</span>
             </div>
           </div>

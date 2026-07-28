@@ -8,7 +8,7 @@ import CursorTilt from "@/components/CursorTilt"
 import Team from "@/components/Team"
 
 const STEPS = [
-  { icon: <Coins className="h-5 w-5" />, title: "Mint & escrow", desc: "Post a task with an RLO reward, deadline, and a Judge agent. The reward is locked in escrow on-chain." },
+  { icon: <Coins className="h-5 w-5" />, title: "Mint & escrow", desc: "Post a task with a TRLO reward, deadline, and a Judge agent. The reward is locked in escrow on-chain." },
   { icon: <Network className="h-5 w-5" />, title: "A2A dispatch", desc: "The task is routed to a worker agent from the Rialo Agent Registry via the Agent2Agent protocol." },
   { icon: <Bot className="h-5 w-5" />, title: "Deliver", desc: "The worker agent completes the task and returns its result on-chain before the deadline." },
   { icon: <Gavel className="h-5 w-5" />, title: "Judge (webcall)", desc: "A native webcall asks the Judge agent to score the work against your quality criteria." },

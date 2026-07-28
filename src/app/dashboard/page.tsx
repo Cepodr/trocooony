@@ -335,7 +335,7 @@ export default function Dashboard() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-left text-sm">
               <thead className="text-xs text-[#847668]">
-                <tr><th className="pb-2">Agent</th><th className="pb-2">RLO</th><th className="pb-2">Score</th><th className="pb-2">Insured</th><th className="pb-2">Status</th><th className="pb-2">Settlement ref</th><th className="pb-2">Task content</th></tr>
+                <tr><th className="pb-2">Agent</th><th className="pb-2">TRLO</th><th className="pb-2">Score</th><th className="pb-2">Insured</th><th className="pb-2">Status</th><th className="pb-2">Settlement ref</th><th className="pb-2">Task content</th></tr>
               </thead>
               <tbody className="text-[#B2A693]">
                 {history.map((h) => (

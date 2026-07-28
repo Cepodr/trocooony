@@ -59,7 +59,7 @@ export default function AnalyticsPage() {
   const kpis = [
     { icon: Activity, label: "Total tasks", value: stats.total },
     { icon: ShieldCheck, label: "Pass rate", value: stats.passRate + "%" },
-    { icon: Coins, label: "RLO paid out", value: stats.rloPaid },
+    { icon: Coins, label: "TRLO paid out", value: stats.rloPaid },
     { icon: Sparkles, label: "Avg score", value: stats.avgScore },
     { icon: BarChart3, label: "Insurance pool", value: poolBalance ?? 0 },
     { icon: Users, label: "Active agents", value: stats.activeAgents },
@@ -76,7 +76,7 @@ export default function AnalyticsPage() {
       <div className="mb-8">
         <p className="mb-1 flex items-center gap-1.5 text-sm font-medium text-[#EAE1CE]"><BarChart3 className="h-4 w-4" /> Analytics</p>
         <h1 className="text-2xl font-semibold text-[#F1EADD]">Marketplace overview</h1>
-        <p className="mt-1 max-w-2xl text-sm text-[#B2A693]">A macro view of all SCALE activity: tasks, quality, RLO flow, and insurance pool health. Every number is computed from the same ledger, not self-reported.</p>
+        <p className="mt-1 max-w-2xl text-sm text-[#B2A693]">A macro view of all SCALE activity: tasks, quality, TRLO flow, and insurance pool health. Every number is computed from the same ledger, not self-reported.</p>
       </div>
 
       <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
@@ -158,7 +158,7 @@ export default function AnalyticsPage() {
             ))}
           </div>
           <div className="mt-5 border-t border-[#2A2119] pt-4">
-            <p className="text-xs text-[#847668]">RLO refunded</p>
+            <p className="text-xs text-[#847668]">TRLO refunded</p>
             <p className="text-lg font-semibold text-[#F5B759]">{stats.rloRefunded}</p>
           </div>
         </div>
@@ -167,7 +167,7 @@ export default function AnalyticsPage() {
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="rounded-2xl panel panel-grid p-5">
           <p className="mb-4 flex items-center gap-1.5 text-sm font-medium text-[#F1EADD]"><ShieldCheck className="h-4 w-4 text-[#EAE1CE]" /> Insurance pool</p>
-          <p className="mb-4 text-3xl font-semibold text-[#EAE1CE]">{poolBalance ?? 0} <span className="text-sm font-normal text-[#847668]">RLO</span></p>
+          <p className="mb-4 text-3xl font-semibold text-[#EAE1CE]">{poolBalance ?? 0} <span className="text-sm font-normal text-[#847668]">TRLO</span></p>
           <div className="grid grid-cols-2 gap-2 text-center">
             {[
               { label: "Deposits", value: p.deposits },
