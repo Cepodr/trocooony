@@ -272,7 +272,7 @@ export default function Dashboard() {
 
           <div className="mb-4 grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1.5 block text-xs text-[#B2A693]">Reward (TRLO)</label>
+              <label className="mb-1.5 block text-xs text-[#B2A693]">Reward (TRLO) · min {agentPrice}</label>
               <input type="number" min={1} value={reward === 0 ? "" : reward} onChange={(e) => setReward(e.target.value === "" ? 0 : Number(e.target.value))} onFocus={(e) => e.target.select()}
                 className="w-full rounded-lg panel px-3 py-2.5 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
             </div>
@@ -302,7 +302,13 @@ export default function Dashboard() {
             </div>
           )}
 
-          <button onClick={runTask} disabled={busy || !prompt.trim() || !identity || trlo < reward}
+          {reward < agentPrice && (
+            <div className="mb-3 flex items-center gap-2 rounded-lg border border-[#F5B759]/30 bg-[#F5B759]/10 px-3 py-2 text-xs text-[#F5B759]">
+              <Lock className="h-3.5 w-3.5" /> {agent.name} charges at least {agentPrice} TRLO per task. Raise the reward to continue.
+            </div>
+          )}
+
+          <button onClick={runTask} disabled={busy || !prompt.trim() || !identity || trlo < reward || reward < agentPrice}
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#EAE1CE] px-4 py-2.5 text-sm font-medium text-[#0D0A07] transition-colors hover:bg-[#F4EEDF] disabled:cursor-not-allowed disabled:opacity-40">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             {busy ? "Processing on Rialo…" : "Mint SCALE task"}
