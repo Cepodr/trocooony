@@ -22,6 +22,12 @@ const VISION_JUDGE = true
 const ROYALTY_RATE = 0.05
 const PROTOCOL_FEE_RATE = 0.05
 
+// A judge sometimes formats its own flags as a list. The UI already draws a
+// bullet, so strip any leading marker instead of showing two.
+function cleanFlag(s: string) {
+  return String(s).replace(/^[\s\u2022\u00b7\u2013\u2014\-*]+/, "").trim()
+}
+
 const STEPS = ["Mint", "Escrow TRLO", "A2A Dispatch", "Deliver", "Judge (webcall)", "Settle"]
 const STEP_INDEX: Record<string, number> = { idle: 0, escrow: 1, dispatch: 2, working: 3, judging: 4, done: 5, refunded: 5 }
 
@@ -169,7 +175,7 @@ export default function Dashboard() {
         }
       }
       setStatus("judging"); await sleep(800)
-      setOutput(data.output); setScore(data.score); setReason(data.reason); setVerdict(data.verdict); setBreakdown(data.breakdown || []); setFlags(data.flags || [])
+      setOutput(data.output); setScore(data.score); setReason(data.reason); setVerdict(data.verdict); setBreakdown(data.breakdown || []); setFlags(((data.flags || []) as string[]).map(cleanFlag).filter(Boolean))
       const passed = data.verdict === "PASS"
       if (passed) {
         const royalty = Math.max(1, Math.round(reward * ROYALTY_RATE))
