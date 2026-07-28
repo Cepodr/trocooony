@@ -19,7 +19,7 @@ export default function Team() {
             href={"https://x.com/" + m.handle}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-4 rounded-2xl border border-[#2A2119] bg-[#16120D] p-5 transition-colors hover:border-[#EAE1CE]/40"
+            className="flex items-center gap-4 rounded-2xl panel panel-grid p-5 transition-colors hover:border-[#EAE1CE]/40"
           >
             <Image src={m.img} alt={m.name} width={56} height={56} className="h-14 w-14 rounded-full border border-[#2A2119] object-cover" />
             <div>

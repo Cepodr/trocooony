@@ -41,7 +41,7 @@ export default function Home() {
             
             <CursorTilt max={16}><TrocoonyParticles maxWidth={460} className="trocoony-drift relative block" /></CursorTilt>
           </div>
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#2A2119] bg-[#16120D] px-3.5 py-1.5 text-xs text-[#B2A693]">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full panel panel-grid px-3.5 py-1.5 text-xs text-[#B2A693]">
             <span className="h-1.5 w-1.5 rounded-full bg-[#EAE1CE]" /> Built on Rialo, the real-world blockchain
           </div>
           <h1 className="mx-auto max-w-3xl text-4xl font-semibold leading-tight text-[#F1EADD] md:text-6xl">
@@ -68,7 +68,7 @@ export default function Home() {
         <h2 className="mb-10 text-center text-2xl font-semibold text-[#F1EADD] md:text-3xl">Everything runs on one trust layer</h2>
         <div className="grid gap-5 md:grid-cols-3">
           {PRODUCTS.map((p) => (
-            <div key={p.title} className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
+            <div key={p.title} className="rounded-2xl panel panel-grid p-6">
               <div className="mb-4 grid h-10 w-10 place-items-center rounded-lg bg-[#EAE1CE]/10 text-[#EAE1CE]">{p.icon}</div>
               <h3 className="mb-2 text-lg font-semibold text-[#F1EADD]">{p.title}</h3>
               <p className="text-sm leading-relaxed text-[#B2A693]">{p.desc}</p>
@@ -87,7 +87,7 @@ export default function Home() {
           </p>
           <div className="grid gap-4 md:grid-cols-3">
             {STEPS.map((s, i) => (
-              <div key={s.title} className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
+              <div key={s.title} className="rounded-2xl panel panel-grid p-6">
                 <div className="mb-4 flex items-center gap-3">
                   <span className="grid h-9 w-9 place-items-center rounded-lg bg-[#EAE1CE]/10 text-[#EAE1CE]">{s.icon}</span>
                   <span className="text-xs font-medium text-[#847668]">Step {i + 1}</span>
@@ -106,7 +106,7 @@ export default function Home() {
         <h2 className="mb-10 text-center text-2xl font-semibold text-[#F1EADD] md:text-3xl">Primitives no other chain has natively</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {PRIMITIVES.map((p) => (
-            <div key={p.title} className="rounded-xl border border-[#2A2119] bg-[#16120D] p-5">
+            <div key={p.title} className="rounded-xl panel panel-grid p-5">
               <div className="mb-3 flex items-center gap-2 text-[#EAE1CE]">{p.icon}<span className="text-sm font-semibold text-[#F1EADD]">{p.title}</span></div>
               <p className="text-sm leading-relaxed text-[#B2A693]">{p.desc}</p>
             </div>
@@ -123,7 +123,7 @@ export default function Home() {
               We built the full protocol end-to-end today, and designed every piece to map directly onto Rialo&apos;s native primitives at mainnet. No hand-waving. Here&apos;s exactly where we stand.
             </p>
             <div className="grid gap-5 md:grid-cols-2">
-              <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
+              <div className="rounded-2xl panel panel-grid p-6">
                 <div className="mb-4 flex items-center gap-2 text-[#EAE1CE]"><CheckCircle2 className="h-5 w-5" /><span className="text-base font-semibold text-[#F1EADD]">Live in this demo</span></div>
                 <ul className="space-y-2.5 text-sm leading-relaxed text-[#B2A693]">
                   <li>Full SCALE flow: mint &rarr; escrow &rarr; A2A dispatch &rarr; deliver &rarr; judge &rarr; settle</li>
@@ -133,7 +133,7 @@ export default function Home() {
                   <li>One-click sign-in (Google / Discord) and portable reputation</li>
                 </ul>
               </div>
-              <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
+              <div className="rounded-2xl panel panel-grid p-6">
                 <div className="mb-4 flex items-center gap-2 text-[#EAE1CE]"><Network className="h-5 w-5" /><span className="text-base font-semibold text-[#F1EADD]">On Rialo mainnet (roadmap)</span></div>
                 <ul className="space-y-2.5 text-sm leading-relaxed text-[#B2A693]">
                   <li>Escrow &amp; settlement as reactive on-chain contracts</li>

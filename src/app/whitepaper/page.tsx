@@ -19,7 +19,7 @@ const C: any = {
   a: (p: any) => <a className="text-[#EAE1CE] underline hover:text-[#F4EEDF]" {...p} />,
   blockquote: (p: any) => <blockquote className="mb-4 border-l-2 border-[#EAE1CE]/50 bg-[#16120D] py-2 pl-4 pr-3 italic text-[#CDC3AC]" {...p} />,
   code: (p: any) => <code className="rounded bg-[#0B0906] px-1.5 py-0.5 text-[13px] text-[#EAE1CE]" {...p} />,
-  pre: (p: any) => <pre className="mb-4 overflow-x-auto rounded-lg border border-[#2A2119] bg-[#0B0906] p-3 text-[13px] text-[#EAE1CE]" {...p} />,
+  pre: (p: any) => <pre className="mb-4 overflow-x-auto rounded-lg panel p-3 text-[13px] text-[#EAE1CE]" {...p} />,
   hr: () => <hr className="my-8 border-[#2A2119]" />,
   table: (p: any) => <div className="mb-4 overflow-x-auto"><table className="w-full border-collapse text-sm" {...p} /></div>,
   th: (p: any) => <th className="border-b border-[#2A2119] px-3 py-2 text-left font-semibold text-[#F1EADD]" {...p} />,

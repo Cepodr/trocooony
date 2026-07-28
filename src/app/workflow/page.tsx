@@ -108,7 +108,7 @@ export default function WorkflowPage() {
         </p>
       </div>
 
-      <div className="mb-6 rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
+      <div className="mb-6 rounded-2xl panel panel-grid p-6">
         <label className="mb-1.5 block text-xs text-[#B2A693]">Objective</label>
         <textarea value={objective} onChange={(e) => { setObjective(e.target.value); if (error) setError("") }} rows={2}
           placeholder="e.g. Create a launch announcement for Trocooony aimed at the Rialo community."
@@ -154,13 +154,13 @@ export default function WorkflowPage() {
                   </div>
                 </div>
                 <select value={step.agentId} onChange={(e) => updateStep(step.id, { agentId: e.target.value })} disabled={running}
-                  className="rounded-lg border border-[#2A2119] bg-[#0B0906] px-2.5 py-1.5 text-xs text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50 disabled:opacity-50">
+                  className="rounded-lg panel px-2.5 py-1.5 text-xs text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50 disabled:opacity-50">
                   {AGENTS.map((a) => (<option key={a.id} value={a.id}>{a.name}</option>))}
                 </select>
               </div>
 
               <textarea value={step.instruction} onChange={(e) => updateStep(step.id, { instruction: e.target.value })} rows={2} disabled={running}
-                className="w-full resize-none rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2 text-xs text-[#B2A693] outline-none focus:border-[#EAE1CE]/50 disabled:opacity-60" />
+                className="w-full resize-none rounded-lg panel px-3 py-2 text-xs text-[#B2A693] outline-none focus:border-[#EAE1CE]/50 disabled:opacity-60" />
 
               {step.output && (
                 <div className={`mt-3 max-h-48 overflow-auto rounded-lg border p-3 text-sm whitespace-pre-wrap ${step.status === "error" ? "border-[#FF6B6B]/30 bg-[#FF6B6B]/5 text-[#FF6B6B]" : "border-[#2A2119] bg-[#0B0906] text-[#F1EADD]"}`}>

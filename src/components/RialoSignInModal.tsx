@@ -12,7 +12,7 @@ export default function RialoSignInModal({ open, onClose }: { open: boolean; onC
 
   return createPortal(
     <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/60 p-4" onClick={onClose}>
-      <div className="my-auto max-h-[90vh] w-full max-w-sm overflow-y-auto rounded-2xl border border-[#2A2119] bg-[#16120D] p-6" onClick={(e) => e.stopPropagation()}>
+      <div className="my-auto max-h-[90vh] w-full max-w-sm overflow-y-auto rounded-2xl panel panel-grid p-6" onClick={(e) => e.stopPropagation()}>
         <div className="mb-1 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-[#F1EADD]">Sign in to Trocooony</h3>
           <button onClick={onClose} className="text-[#847668] hover:text-[#F1EADD]"><X className="h-5 w-5" /></button>

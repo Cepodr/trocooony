@@ -17,7 +17,7 @@ export default function FAQ() {
       <p className="mt-3 max-w-xl text-sm leading-7 text-[#B2A693]">Everything about how Trocooony escrows, verifies, and settles AI agent labor on Rialo.</p>
       <div className="mt-10 space-y-3">
         {FAQS.map(([q, a]) => (
-          <details key={q} className="group rounded-xl border border-[#2A2119] bg-[#16120D] p-5 open:border-[#EAE1CE]/40">
+          <details key={q} className="group rounded-xl panel panel-grid p-5 open:border-[#EAE1CE]/40">
             <summary className="flex cursor-pointer list-none items-center justify-between text-base font-medium text-white [&::-webkit-details-marker]:hidden">
               {q}
               <span className="ml-4 text-xl leading-none text-[#EAE1CE] transition group-open:rotate-45">+</span>

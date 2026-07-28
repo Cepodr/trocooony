@@ -23,7 +23,7 @@ type Row = { id: string; agent: string; reward: number; status: "PAID" | "REFUND
 export default function Dashboard() {
   const { identity } = useAuth()
   const { recordOutcome, agents: repAgents } = useReputation()
-  const { listings, collectPremium, payClaim, poolBalance } = useMarketplace()
+  const { listings, collectPremium, payClaim, releaseCoverage, poolBalance } = useMarketplace()
   const { notify } = useToast()
   const { rlo, trlo, deposit, spendTrlo, earnTrlo } = useCredits()
 
@@ -105,7 +105,7 @@ export default function Dashboard() {
     const coverAtMint = Math.min(claimPayout, poolBalance)
 
     setStatus("escrow"); await sleep(700)
-    if (isInsured) { await spendTrlo(premium); collectPremium(premium) }
+    if (isInsured) { await spendTrlo(premium); collectPremium(premium, coverAtMint) }
     setStatus("dispatch"); await sleep(600)
     setStatus("working")
 
@@ -124,6 +124,7 @@ export default function Dashboard() {
       setStatus("judging"); await sleep(800)
       setOutput(data.output); setScore(data.score); setReason(data.reason); setVerdict(data.verdict); setBreakdown(data.breakdown || []); setFlags(data.flags || [])
       const passed = data.verdict === "PASS"
+      if (passed && isInsured) releaseCoverage(coverAtMint)
       if (!passed && isInsured) {
         const pay = coverAtMint
         void payClaim(pay).then((paidOut) => { if (paidOut > 0) void earnTrlo(paidOut) }); notify("Insurance paid. You received your full reward back, minus the premium.", "warn")
@@ -137,6 +138,7 @@ export default function Dashboard() {
       if (e?.__timeout) {
         setStatus("refunded"); setVerdict("TIMEOUT"); void earnTrlo(reward); notify(`${agent.name} missed the deadline. Escrow auto-refunded.`, "warn")
         setReason("Deadline missed. Escrow auto-refunded by a Rialo native timer.")
+        if (isInsured) releaseCoverage(coverAtMint)
         if (isInsured) {
           const pay = coverAtMint
           notify("Deadline missed. The escrow auto-refunded in full. Insurance covers judged failure only.", "warn")
@@ -169,7 +171,7 @@ export default function Dashboard() {
           { icon: <ShieldCheck className="h-4 w-4" />, label: "Pass rate", value: metrics.passRate + "%" },
           { icon: <Sparkles className="h-4 w-4" />, label: "Avg. score", value: metrics.avg },
         ].map((m) => (
-          <div key={m.label} className="rounded-xl border border-[#2A2119] bg-[#16120D] p-4">
+          <div key={m.label} className="rounded-xl panel panel-grid p-4">
             <div className="mb-2 flex items-center gap-1.5 text-[#847668]">{m.icon}<span className="text-xs">{m.label}</span></div>
             <div className="text-2xl font-semibold text-[#F1EADD]">{m.value}</div>
           </div>
@@ -177,7 +179,7 @@ export default function Dashboard() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
+        <div className="rounded-2xl panel panel-grid p-6">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-[#F1EADD]">New SCALE Task</h2>
             <button onClick={loadSample} className="text-xs font-medium text-[#EAE1CE] hover:text-[#F4EEDF]">Load sample</button>
@@ -198,23 +200,23 @@ export default function Dashboard() {
           <label className="mb-1.5 block text-xs text-[#B2A693]">Task prompt</label>
           <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} rows={3}
             placeholder="Describe the task for this agent…"
-            className="mb-4 w-full resize-none rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5 text-sm text-[#F1EADD] outline-none placeholder:text-[#847668] focus:border-[#EAE1CE]/50" />
+            className="mb-4 w-full resize-none rounded-lg panel px-3 py-2.5 text-sm text-[#F1EADD] outline-none placeholder:text-[#847668] focus:border-[#EAE1CE]/50" />
 
           <label className="mb-1.5 block text-xs text-[#B2A693]">Quality criteria (Judge agent checks this)</label>
           <input value={criteria} onChange={(e) => setCriteria(e.target.value)}
             placeholder="What must the result satisfy to pass?"
-            className="mb-4 w-full rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5 text-sm text-[#F1EADD] outline-none placeholder:text-[#847668] focus:border-[#EAE1CE]/50" />
+            className="mb-4 w-full rounded-lg panel px-3 py-2.5 text-sm text-[#F1EADD] outline-none placeholder:text-[#847668] focus:border-[#EAE1CE]/50" />
 
           <div className="mb-4 grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1.5 block text-xs text-[#B2A693]">Reward (TRLO)</label>
               <input type="number" min={1} value={reward === 0 ? "" : reward} onChange={(e) => setReward(e.target.value === "" ? 0 : Number(e.target.value))} onFocus={(e) => e.target.select()}
-                className="w-full rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
+                className="w-full rounded-lg panel px-3 py-2.5 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
             </div>
             <div>
               <label className="mb-1.5 block text-xs text-[#B2A693]">Deadline (seconds)</label>
               <input type="number" min={1} value={deadline === 0 ? "" : deadline} onChange={(e) => setDeadline(e.target.value === "" ? 0 : Number(e.target.value))} onFocus={(e) => e.target.select()}
-                className="w-full rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
+                className="w-full rounded-lg panel px-3 py-2.5 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
             </div>
           </div>
 
@@ -246,7 +248,7 @@ export default function Dashboard() {
           {error && <p className="mt-3 text-center text-xs text-[#FF6B6B]">{error}</p>}
         </div>
 
-        <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
+        <div className="rounded-2xl panel panel-grid p-6">
           <h2 className="mb-4 text-sm font-semibold text-[#F1EADD]">Task lifecycle</h2>
 
           <div className="mb-6 space-y-2.5">
@@ -286,7 +288,7 @@ export default function Dashboard() {
           )}
           {reason && <p className="mb-4 flex items-start gap-1.5 text-xs text-[#B2A693]"><Gavel className="mt-0.5 h-3.5 w-3.5 shrink-0" />{reason}</p>}
           {breakdown.length > 0 && verdict !== "TIMEOUT" && (
-            <div className="mb-4 rounded-lg border border-[#2A2119] bg-[#0B0906] p-3">
+            <div className="mb-4 rounded-lg panel p-3">
               <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-[#B2A693]"><Gavel className="h-3.5 w-3.5" />Judge rubric</p>
               <div className="space-y-2">
                 {breakdown.map((d) => (
@@ -316,7 +318,7 @@ export default function Dashboard() {
           )}
 
           {output && (
-            <div className="max-h-56 overflow-auto rounded-lg border border-[#2A2119] bg-[#0B0906] p-3 text-sm text-[#F1EADD] whitespace-pre-wrap">{output}</div>
+            <div className="max-h-56 overflow-auto rounded-lg panel p-3 text-sm text-[#F1EADD] whitespace-pre-wrap">{output}</div>
           )}
           {!output && !busy && !verdict && (
             <p className="flex items-center gap-2 text-sm text-[#847668]"><Bot className="h-4 w-4" />Mint a task to dispatch it to a worker agent.</p>
@@ -324,7 +326,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
+      <div className="mt-6 rounded-2xl panel panel-grid p-6">
         <h2 className="mb-4 text-sm font-semibold text-[#F1EADD]">Task Ledger</h2>
         <p className="mb-4 max-w-2xl text-xs leading-relaxed text-[#847668]">Task content never enters the ledger, only its settlement does. On Rialo the judge runs inside a TEE, so an outcome can be verified without exposing the work. Settlement refs are simulated in this demo; on mainnet each row carries a real on-chain transaction hash.</p>
         {history.length === 0 ? (

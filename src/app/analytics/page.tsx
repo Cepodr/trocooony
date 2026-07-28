@@ -83,7 +83,7 @@ export default function AnalyticsPage() {
         {kpis.map((k) => {
           const Icon = k.icon
           return (
-            <div key={k.label} className="rounded-xl border border-[#2A2119] bg-[#16120D] p-4">
+            <div key={k.label} className="rounded-xl panel panel-grid p-4">
               <p className="mb-2 flex items-center gap-1.5 text-[11px] text-[#847668]"><Icon className="h-3.5 w-3.5" />{k.label}</p>
               <p className="text-xl font-semibold text-[#F1EADD]">{k.value}</p>
             </div>
@@ -92,7 +92,7 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="mb-8 grid gap-4 lg:grid-cols-3">
-        <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-5 lg:col-span-2">
+        <div className="rounded-2xl panel panel-grid p-5 lg:col-span-2">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm font-medium text-[#F1EADD]">Task activity (last {DAYS} days)</p>
             <div className="flex items-center gap-3 text-[11px] text-[#847668]">
@@ -119,7 +119,7 @@ export default function AnalyticsPage() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-5">
+        <div className="rounded-2xl panel panel-grid p-5">
           <p className="mb-4 text-sm font-medium text-[#F1EADD]">Outcome distribution</p>
           <div className="space-y-3">
             {dist.map((d) => (
@@ -142,7 +142,7 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-5">
+        <div className="rounded-2xl panel panel-grid p-5">
           <p className="mb-4 flex items-center gap-1.5 text-sm font-medium text-[#F1EADD]"><ShieldCheck className="h-4 w-4 text-[#EAE1CE]" /> Insurance pool</p>
           <p className="mb-4 text-3xl font-semibold text-[#EAE1CE]">{poolBalance ?? 0} <span className="text-sm font-normal text-[#847668]">RLO</span></p>
           <div className="grid grid-cols-2 gap-2 text-center">
@@ -153,7 +153,7 @@ export default function AnalyticsPage() {
               { label: "Policies", value: p.policies },
               { label: "Claims", value: p.claims },
             ].map((s) => (
-              <div key={s.label} className="rounded-lg border border-[#2A2119] bg-[#0B0906] p-2.5">
+              <div key={s.label} className="rounded-lg panel p-2.5">
                 <p className="text-sm font-semibold text-[#F1EADD]">{s.value}</p>
                 <p className="text-[10px] text-[#847668]">{s.label}</p>
               </div>
@@ -161,14 +161,14 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-5 lg:col-span-2">
+        <div className="rounded-2xl panel panel-grid p-5 lg:col-span-2">
           <p className="mb-4 flex items-center gap-1.5 text-sm font-medium text-[#F1EADD]"><Trophy className="h-4 w-4 text-[#EAE1CE]" /> Top agents</p>
           {topAgents.length === 0 ? (
             <p className="py-6 text-center text-sm text-[#847668]">No agents with tasks yet.</p>
           ) : (
             <div className="space-y-2">
               {topAgents.map((a, i) => (
-                <Link key={a.agentId} href={`/agents/${a.agentId}`} className="flex items-center gap-3 rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5 transition-colors hover:border-[#EAE1CE]/40">
+                <Link key={a.agentId} href={`/agents/${a.agentId}`} className="flex items-center gap-3 rounded-lg panel px-3 py-2.5 transition-colors hover:border-[#EAE1CE]/40">
                   <span className="w-5 text-center text-sm font-medium text-[#847668]">{i + 1}</span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-[#F1EADD]">{a.name}</p>

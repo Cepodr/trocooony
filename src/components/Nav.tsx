@@ -59,7 +59,7 @@ export default function Nav() {
 
         <div className="relative hidden shrink-0 items-center gap-3 xl:flex" ref={menuRef}>
           {menu !== "none" && (
-            <div className="absolute right-0 top-full z-50 mt-2 w-64 rounded-xl border border-[#2A2119] bg-[#16120D] p-3 shadow-2xl">
+            <div className="absolute right-0 top-full z-50 mt-2 w-64 rounded-xl panel panel-grid p-3 shadow-2xl">
               {menu === "acct" && identity && (
                 <div>
                   <p className="text-xs text-[#847668]">Signed in as</p>

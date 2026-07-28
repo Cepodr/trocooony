@@ -65,7 +65,7 @@ export default function TopUpModal({ open, onClose }: { open: boolean; onClose: 
 
   return createPortal(
     <div className="fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto bg-black/60 p-4" onClick={onClose}>
-      <div className="my-auto max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[#2A2119] bg-[#16120D] p-6" onClick={(e) => e.stopPropagation()}>
+      <div className="my-auto max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl panel panel-grid p-6" onClick={(e) => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
           <h3 className="flex items-center gap-1.5 text-sm font-semibold text-[#F1EADD]"><Coins className="h-4 w-4 text-[#EAE1CE]" /> Top up RLO with Sepolia</h3>
           <button onClick={onClose} className="text-[#847668] hover:text-[#F1EADD]"><X className="h-5 w-5" /></button>
@@ -91,7 +91,7 @@ export default function TopUpModal({ open, onClose }: { open: boolean; onClose: 
             </div>
             <label className="mb-1.5 block text-xs text-[#B2A693]">ETH amount</label>
             <input value={amount} onChange={(e) => setAmount(e.target.value)} disabled={phase !== "idle"}
-              className="mb-1 w-full rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50 disabled:opacity-50" />
+              className="mb-1 w-full rounded-lg panel px-3 py-2.5 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50 disabled:opacity-50" />
             <p className="mb-4 text-[11px] text-[#847668]">You will receive ~{rlo} RLO.</p>
 
             {wallet && wallet.chainId !== "0xaa36a7" && (

@@ -36,7 +36,7 @@ export default function AgentsPage() {
         
       </div>
 
-      <div className="mb-8 overflow-x-auto rounded-2xl border border-[#2A2119] bg-[#16120D]">
+      <div className="mb-8 overflow-x-auto rounded-2xl panel panel-grid">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead className="text-xs text-[#847668]">
             <tr className="border-b border-[#2A2119]">
@@ -75,7 +75,7 @@ export default function AgentsPage() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         {rows.map((r) => (
-          <div key={r.id} className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-5">
+          <div key={r.id} className="rounded-2xl panel panel-grid p-5">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <span className="grid h-9 w-9 place-items-center rounded-lg bg-[#EAE1CE]/10 text-[#EAE1CE]"><r.Icon className="h-4 w-4" /></span>
@@ -99,7 +99,7 @@ export default function AgentsPage() {
                 { label: "Tasks", value: r.tasks },
                 { label: "RLO", value: r.rloEarned },
               ].map((s) => (
-                <div key={s.label} className="rounded-lg border border-[#2A2119] bg-[#0B0906] p-2">
+                <div key={s.label} className="rounded-lg panel p-2">
                   <p className="text-sm font-semibold text-[#F1EADD]">{s.value}</p>
                   <p className="text-[10px] text-[#847668]">{s.label}</p>
                 </div>

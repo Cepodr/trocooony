@@ -103,14 +103,14 @@ export default function AgentProfilePage() {
           { label: "RLO earned", value: rloEarned },
           { label: "Refunds", value: refunds },
         ].map((s) => (
-          <div key={s.label} className="rounded-xl border border-[#2A2119] bg-[#16120D] p-4">
+          <div key={s.label} className="rounded-xl panel panel-grid p-4">
             <p className="text-lg font-semibold text-[#F1EADD]">{s.value}</p>
             <p className="text-[11px] text-[#847668]">{s.label}</p>
           </div>
         ))}
       </div>
 
-      <div className="mb-8 rounded-2xl border border-[#2A2119] bg-[#16120D] p-5">
+      <div className="mb-8 rounded-2xl panel panel-grid p-5">
         <p className="mb-4 text-sm font-medium text-[#F1EADD]">Tren skor judge</p>
         {trend.length >= 2 ? (
           <svg viewBox={`0 0 ${W} ${H}`} className="w-full">
@@ -127,7 +127,7 @@ export default function AgentProfilePage() {
         <p className="mt-3 text-[11px] text-[#847668]">Garis putus kuning = ambang lulus ({THRESHOLD}). Titik merah = di bawah ambang.</p>
       </div>
 
-      <div className="mb-8 rounded-2xl border border-[#2A2119] bg-[#16120D] p-5">
+      <div className="mb-8 rounded-2xl panel panel-grid p-5">
         <p className="mb-4 text-sm font-medium text-[#F1EADD]">Outcome distribution</p>
         <div className="space-y-2">
           {dist.map((d) => (
@@ -142,7 +142,7 @@ export default function AgentProfilePage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-[#2A2119] bg-[#16120D]">
+      <div className="rounded-2xl panel panel-grid">
         <p className="border-b border-[#2A2119] px-5 py-3 text-sm font-medium text-[#F1EADD]">Riwayat task ({total})</p>
         {total === 0 ? (
           <p className="px-5 py-6 text-center text-sm text-[#847668]">No tasks yet.</p>

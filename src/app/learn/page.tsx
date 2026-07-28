@@ -68,7 +68,7 @@ export default function LearnPage() {
         <p className="mt-1 text-sm text-[#B2A693]">Everything Trocooony is built on, in one place, plus an AI guide that answers only from verified Rialo knowledge.</p>
       </div>
 
-      <div className="mb-10 rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
+      <div className="mb-10 rounded-2xl panel panel-grid p-6">
         <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#F1EADD]"><Sparkles className="h-4 w-4 text-[#EAE1CE]" /> Ask Rialo</h2>
 
         <div ref={scroller} className="mb-4 max-h-80 space-y-3 overflow-auto">
@@ -78,7 +78,7 @@ export default function LearnPage() {
           {messages.map((m, i) => (
             <div key={i} className={`flex gap-2 ${m.role === "user" ? "justify-end" : "justify-start"}`}>
               {m.role === "assistant" && <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#EAE1CE]/15 text-[#EAE1CE]"><Bot className="h-3.5 w-3.5" /></span>}
-              <div className={`max-w-[80%] whitespace-pre-wrap rounded-xl px-3 py-2 text-sm ${m.role === "user" ? "bg-[#EAE1CE] text-[#0D0A07]" : "border border-[#2A2119] bg-[#0B0906] text-[#F1EADD]"}`}>{m.content}</div>
+              <div className={`max-w-[80%] whitespace-pre-wrap rounded-xl px-3 py-2 text-sm ${m.role === "user" ? "bg-[#EAE1CE] text-[#0D0A07]" : "panel text-[#F1EADD]"}`}>{m.content}</div>
               {m.role === "user" && <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#2A2119] text-[#B2A693]"><User className="h-3.5 w-3.5" /></span>}
             </div>
           ))}
@@ -95,7 +95,7 @@ export default function LearnPage() {
         <div className="flex gap-2">
           <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") ask(input) }}
             placeholder="Tanya tentang Rialo…"
-            className="flex-1 rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2.5 text-sm text-[#F1EADD] outline-none placeholder:text-[#847668] focus:border-[#EAE1CE]/50" />
+            className="flex-1 rounded-lg panel px-3 py-2.5 text-sm text-[#F1EADD] outline-none placeholder:text-[#847668] focus:border-[#EAE1CE]/50" />
           <button onClick={() => ask(input)} disabled={loading || !input.trim()}
             className="flex items-center gap-1.5 rounded-lg bg-[#EAE1CE] px-4 py-2.5 text-sm font-medium text-[#0D0A07] hover:bg-[#F4EEDF] disabled:opacity-40">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Ask
@@ -109,7 +109,7 @@ export default function LearnPage() {
         {RIALO_KB.map((s) => {
           const Icon = ICONS[s.id] ?? Globe
           return (
-            <div key={s.id} className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-5">
+            <div key={s.id} className="rounded-2xl panel panel-grid p-5">
               <div className="mb-2 flex items-center gap-2.5">
                 <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#EAE1CE]/10 text-[#EAE1CE]"><Icon className="h-4 w-4" /></span>
                 <h3 className="text-sm font-semibold text-[#F1EADD]">{s.title}</h3>
@@ -125,7 +125,7 @@ export default function LearnPage() {
         })}
       </div>
 
-      <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
+      <div className="rounded-2xl panel panel-grid p-6">
         <h2 className="mb-3 text-sm font-semibold text-[#F1EADD]">Official Rialo resources</h2>
         <div className="flex flex-wrap gap-2">
           {LINKS.map((l) => (

@@ -47,18 +47,18 @@ export default function MarketplacePage() {
         </p>
       </div>
 
-      <div className="mb-8 rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
+      <div className="mb-8 rounded-2xl panel panel-grid p-6">
         <div className="mb-4 flex items-center gap-2">
           <Wallet className="h-4 w-4 text-[#EAE1CE]" />
           <h2 className="text-sm font-semibold text-[#F1EADD]">Your Wallet</h2>
           <span className="ml-auto text-xs text-[#847668]">Top up once on-chain, then spend everywhere in TRLO, gasless SCALE</span>
         </div>
         <div className="mb-5 grid grid-cols-2 gap-3">
-          <div className="rounded-xl border border-[#2A2119] bg-[#0B0906] p-3">
+          <div className="rounded-xl panel p-3">
             <p className="mb-1 text-[11px] text-[#847668]">RLO, on-chain wallet</p>
             <p className="text-lg font-semibold text-[#F1EADD]">{rlo} RLO</p>
           </div>
-          <div className="rounded-xl border border-[#2A2119] bg-[#0B0906] p-3">
+          <div className="rounded-xl panel p-3">
             <p className="mb-1 text-[11px] text-[#847668]">TRLO, in-app balance</p>
             <p className="text-lg font-semibold text-[#EAE1CE]">{trlo} TRLO</p>
           </div>
@@ -67,7 +67,7 @@ export default function MarketplacePage() {
           <div>
             <label className="mb-1.5 block text-xs text-[#B2A693]">Amount</label>
             <input type="number" min={1} value={depositAmt === 0 ? "" : depositAmt} onChange={(e) => setDepositAmt(e.target.value === "" ? 0 : Number(e.target.value))} onFocus={(e) => e.target.select()}
-              className="w-40 rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
+              className="w-40 rounded-lg panel px-3 py-2 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
           </div>
           <button onClick={() => deposit(depositAmt)}
             className="rounded-lg bg-[#EAE1CE] px-4 py-2 text-sm font-medium text-[#0D0A07] hover:bg-[#F4EEDF]">Deposit RLO to TRLO</button>
@@ -80,7 +80,7 @@ export default function MarketplacePage() {
         <TopUpModal open={topupOpen} onClose={() => setTopupOpen(false)} />
       </div>
 
-      <div className="mb-8 rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
+      <div className="mb-8 rounded-2xl panel panel-grid p-6">
         <div className="mb-4 flex items-center gap-2">
           <Umbrella className="h-4 w-4 text-[#EAE1CE]" />
           <h2 className="text-sm font-semibold text-[#F1EADD]">Insurance Pool</h2>
@@ -95,7 +95,7 @@ export default function MarketplacePage() {
             { label: "Claims paid", value: `${pool.payouts} RLO` },
             { label: "Policies / Claims", value: `${pool.policies} / ${pool.claims}` },
           ].map((m) => (
-            <div key={m.label} className="rounded-xl border border-[#2A2119] bg-[#0B0906] p-3">
+            <div key={m.label} className="rounded-xl panel p-3">
               <p className="mb-1 text-[11px] text-[#847668]">{m.label}</p>
               <p className={`text-lg font-semibold ${m.accent ? "text-[#EAE1CE]" : "text-[#F1EADD]"}`}>{m.value}</p>
             </div>
@@ -108,7 +108,7 @@ export default function MarketplacePage() {
       <h2 className="mb-3 text-sm font-semibold text-[#F1EADD]">Available agents</h2>
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {AGENTS.map((a) => (
-          <div key={a.id} className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-5">
+          <div key={a.id} className="rounded-2xl panel panel-grid p-5">
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <span className="grid h-9 w-9 place-items-center rounded-lg bg-[#EAE1CE]/10 text-[#EAE1CE]"><a.icon className="h-4 w-4" /></span>
@@ -131,7 +131,7 @@ export default function MarketplacePage() {
         ))}
 
         {listings.map((l) => (
-          <div key={l.id} className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-5">
+          <div key={l.id} className="rounded-2xl panel panel-grid p-5">
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <span className="grid h-9 w-9 place-items-center rounded-lg bg-[#F4EEDF]/10 text-[#F4EEDF]"><Bot className="h-4 w-4" /></span>
@@ -151,30 +151,30 @@ export default function MarketplacePage() {
         ))}
       </div>
 
-      <div className="rounded-2xl border border-[#2A2119] bg-[#16120D] p-6">
+      <div className="rounded-2xl panel panel-grid p-6">
         <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#F1EADD]"><Plus className="h-4 w-4 text-[#EAE1CE]" /> Publish your agent</h2>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-xs text-[#B2A693]">Agent name</label>
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Atlas"
-              className="w-full rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
+              className="w-full rounded-lg panel px-3 py-2 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
           </div>
           <div>
             <label className="mb-1.5 block text-xs text-[#B2A693]">Specialty</label>
             <input value={specialty} onChange={(e) => setSpecialty(e.target.value)} placeholder="e.g. Data analysis"
-              className="w-full rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
+              className="w-full rounded-lg panel px-3 py-2 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
           </div>
         </div>
         <div className="mt-4">
           <label className="mb-1.5 block text-xs text-[#B2A693]">Persona / system prompt</label>
           <textarea value={persona} onChange={(e) => setPersona(e.target.value)} rows={2} placeholder="You are a meticulous data analyst who…"
-            className="w-full resize-none rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
+            className="w-full resize-none rounded-lg panel px-3 py-2 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
         </div>
         <div className="mt-4 flex flex-wrap items-end gap-4">
           <div>
             <label className="mb-1.5 block text-xs text-[#B2A693]">Price / task (RLO)</label>
             <input type="number" min={1} value={price === 0 ? "" : price} onChange={(e) => setPrice(e.target.value === "" ? 0 : Number(e.target.value))} onFocus={(e) => e.target.select()}
-              className="w-32 rounded-lg border border-[#2A2119] bg-[#0B0906] px-3 py-2 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
+              className="w-32 rounded-lg panel px-3 py-2 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
           </div>
           <button onClick={submit} className="rounded-lg bg-[#EAE1CE] px-4 py-2 text-sm font-medium text-[#0D0A07] hover:bg-[#F4EEDF]">Publish</button>
         </div>
