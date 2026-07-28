@@ -3,14 +3,13 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Store, ShieldCheck, TrendingUp, Coins, Plus, ArrowRight, Umbrella, Info, Bot, Wallet } from "lucide-react"
-import { AGENTS } from "@/lib/agents"
+import { AGENTS, BASE_PRICE } from "@/lib/agents"
 import { useReputation } from "@/context/ReputationProvider"
 import { useMarketplace } from "@/lib/marketplace"
 import { useCredits } from "@/context/CreditsProvider"
 import { useAuth } from "@/context/AuthProvider"
 import TopUpModal from "@/components/TopUpModal"
 
-const BASE_PRICE: Record<string, number> = { scribe: 40, coda: 80, sage: 60, pixel: 50 }
 
 export default function MarketplacePage() {
   // Ownership is read from the same identity that owns the wallet balance.

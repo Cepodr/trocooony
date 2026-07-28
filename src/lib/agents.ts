@@ -19,3 +19,8 @@ export const AGENTS: Agent[] = [
   { id: "pixel", name: "Pixel", icon: Palette, specialty: "Design & ideation",
     persona: "You are Pixel, a product designer who thinks in systems, proposing clean, modern, accessible design and clear visual direction." },
 ]
+
+
+// Base rate for official agents, in TRLO per task. Community agents carry
+// their own price, chosen by the publisher who listed them.
+export const BASE_PRICE: Record<string, number> = { scribe: 40, coda: 80, sage: 60, pixel: 50 }

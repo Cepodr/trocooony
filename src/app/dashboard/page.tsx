@@ -9,7 +9,7 @@ import {
 import { useAuth } from "@/context/AuthProvider"
 import { useReputation } from "@/context/ReputationProvider"
 import { useMarketplace } from "@/lib/marketplace"
-import { AGENTS } from "@/lib/agents"
+import { AGENTS, BASE_PRICE } from "@/lib/agents"
 import { useCredits } from "@/context/CreditsProvider"
 import { svgToPngBase64 } from "@/lib/svg-to-png"
 
@@ -57,9 +57,11 @@ export default function Dashboard() {
   const [history, setHistory] = useState<Row[]>([])
   useEffect(() => { fetch("/api/ledger").then((r) => r.json()).then((d) => { if (Array.isArray(d.rows)) { const raw = d.rows as Array<Omit<Row, "status"> & { status: string }>; setHistory(raw.map((r) => ({ ...r, status: r.status === "PASS" ? "PAID" : r.status === "FAIL" ? "REFUNDED" : r.status })) as Row[]) } }).catch(() => {}) }, [])
 
-  const communityAgents = useMemo(() => listings.map((l) => ({ id: l.id, name: l.name, icon: Bot, specialty: l.specialty + " (Community)", persona: l.persona, publisher: l.publisher })), [listings])
+  const communityAgents = useMemo(() => listings.map((l) => ({ id: l.id, name: l.name, icon: Bot, specialty: l.specialty + " (Community)", persona: l.persona, publisher: l.publisher, price: l.price })), [listings])
   const allAgents = useMemo(() => [...AGENTS, ...communityAgents], [communityAgents])
   const agent = allAgents.find((a) => a.id === agentId) || AGENTS[0]
+  // A published agent sets its own rate. Official agents use the base rate.
+  const agentPrice = (agent as { price?: number }).price ?? BASE_PRICE[agent.id] ?? 50
   const busy = ["escrow", "dispatch", "working", "judging"].includes(status)
   const repRow = repAgents.find((r) => r.agentId === agentId)
   const repTasks = repRow ? repRow.tasks : 0
@@ -93,6 +95,8 @@ export default function Dashboard() {
   function selectAgent(id: string) {
     if (busy) return
     setAgentId(id); resetForm()
+    const next = allAgents.find((a) => a.id === id)
+    setReward((next as { price?: number } | undefined)?.price ?? BASE_PRICE[id] ?? 50)
   }
 
   const metrics = useMemo(() => {
@@ -111,6 +115,11 @@ export default function Dashboard() {
     const escrowed = await spendTrlo(reward)
     if (!escrowed) { notify("Could not lock escrow. Insufficient balance.", "error"); return }
     setError(""); setOutput(""); setScore(null); setReason(""); setVerdict(null); setInsuranceMsg("")
+    // The listed rate is a floor, not a suggestion. Paying more is allowed.
+    if (reward < agentPrice) {
+      const msg = agent.name + " charges at least " + agentPrice + " TRLO per task."
+      setError(msg); notify(msg, "error"); return
+    }
 
     const isInsured = insured && insurable
     // Pool data loads asynchronously. Selling a policy before the pool balance is
