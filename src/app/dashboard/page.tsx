@@ -11,6 +11,10 @@ import { useReputation } from "@/context/ReputationProvider"
 import { useMarketplace } from "@/lib/marketplace"
 import { AGENTS } from "@/lib/agents"
 import { useCredits } from "@/context/CreditsProvider"
+import { svgToPngBase64 } from "@/lib/svg-to-png"
+
+// Set to false to fall back to the text judge everywhere.
+const VISION_JUDGE = true
 
 const STEPS = ["Mint", "Escrow TRLO", "A2A Dispatch", "Deliver", "Judge (webcall)", "Settle"]
 const STEP_INDEX: Record<string, number> = { idle: 0, escrow: 1, dispatch: 2, working: 3, judging: 4, done: 5, refunded: 5 }
@@ -102,6 +106,13 @@ export default function Dashboard() {
     setError(""); setOutput(""); setScore(null); setReason(""); setVerdict(null); setInsuranceMsg("")
 
     const isInsured = insured && insurable
+    // Pool data loads asynchronously. Selling a policy before the pool balance is
+    // known would underwrite coverage the pool has not confirmed it can pay.
+    if (isInsured && !(poolBalance > 0)) {
+      notify("Pool data is still loading. Please try again in a moment.", "warn")
+      setStatus("idle")
+      return
+    }
     const coverAtMint = Math.min(claimPayout, poolBalance)
 
     setStatus("escrow"); await sleep(700)
@@ -118,9 +129,25 @@ export default function Dashboard() {
     const timeoutP = new Promise((_, rej) => setTimeout(() => rej({ __timeout: true }), deadline * 1000))
 
     try {
-      const data: any = await Promise.race([fetchP, timeoutP])
+      let data: any = await Promise.race([fetchP, timeoutP])
       if (data?.error) { setError(data.error); setStatus("idle"); notify(data.error, "error"); void earnTrlo(reward); return }
 
+      // A text model cannot see a drawing, so the rendered artifact goes to a vision judge.
+      // If that judge is unavailable for any reason, the text verdict already in hand still stands.
+      if (VISION_JUDGE && data?.outputType === "svg" && typeof data.output === "string" && data.output.trim().startsWith("<svg")) {
+        const png = await svgToPngBase64(data.output)
+        if (png) {
+          try {
+            const vres = await fetch("/api/judge-vision", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ prompt, criteria, image: png }),
+            })
+            const vjson = await vres.json()
+            if (!vjson?.error && typeof vjson.score === "number") data = { ...data, ...vjson }
+          } catch {}
+        }
+      }
       setStatus("judging"); await sleep(800)
       setOutput(data.output); setScore(data.score); setReason(data.reason); setVerdict(data.verdict); setBreakdown(data.breakdown || []); setFlags(data.flags || [])
       const passed = data.verdict === "PASS"
@@ -320,11 +347,26 @@ export default function Dashboard() {
           {output && (
             <>
               {output.trim().startsWith("<svg") && (
-                <div className="mb-2 flex justify-center rounded-lg panel p-4">
+                <div className="mb-2 flex flex-col items-center gap-3 rounded-lg panel p-4">
                   <div
                     className="w-full max-w-[240px] [&>svg]:h-auto [&>svg]:w-full"
                     dangerouslySetInnerHTML={{ __html: output }}
                   />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const blob = new Blob([output], { type: "image/svg+xml" })
+                      const href = URL.createObjectURL(blob)
+                      const a = document.createElement("a")
+                      a.href = href
+                      a.download = "scale-artifact.svg"
+                      a.click()
+                      URL.revokeObjectURL(href)
+                    }}
+                    className="rounded-lg border border-[#2A2119] px-3 py-1.5 text-xs text-[#B2A693] hover:border-[#3A2F23]"
+                  >
+                    Download SVG
+                  </button>
                 </div>
               )}
               <div className="max-h-56 overflow-auto rounded-lg panel p-3 text-sm text-[#F1EADD] whitespace-pre-wrap">{output}</div>

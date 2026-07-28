@@ -157,10 +157,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Task prompt kosong." }, { status: 400 })
     }
 
+    // The artifact type comes from the task, not from who performs it.
+    const VISUAL_TASK = /\b(svg|draw|drawing|icon|logo|illustration|illustrate|diagram|chart|wireframe|badge|emblem)\b/i
     const svgMode =
       body.mode === "svg" ||
-      /design|visual|logo|icon|illustrat|brand|ui\b|ux\b/i.test(persona) ||
-      /\bsvg\b/i.test(prompt) || /\bsvg\b/i.test(criteria)
+      VISUAL_TASK.test(prompt) ||
+      VISUAL_TASK.test(criteria)
 
     const workerRes = await groq.chat.completions.create({
       model: MODEL,
