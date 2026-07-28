@@ -15,7 +15,7 @@ type Step = { id: string; role: string; agentId: string; instruction: string; cr
 const DEFAULT_STEPS: Step[] = [
   { id: "research", role: "Research", agentId: "sage", instruction: "Research the objective. List key facts, angles, the target audience, and 3 strong hooks.", criteria: "Lists at least five concrete facts, names the target audience, and gives three distinct hooks. Invented events or announcements are a failure.", status: "idle", output: "", score: null, reason: "" },
   { id: "draft", role: "Draft", agentId: "scribe", instruction: "Using the research, write a polished, well-structured draft that fulfils the objective.", criteria: "Fulfils the objective in continuous prose, visibly uses the research from the previous step, and contains no placeholder text.", status: "idle", output: "", score: null, reason: "" },
-  { id: "review", role: "Review & Finalize", agentId: "sage", instruction: "Critically review the draft for clarity, accuracy, and impact. Then output the improved FINAL version only.", criteria: "Outputs only the final improved version. Any commentary, critique list, or meta explanation is a failure.", status: "idle", output: "", score: null, reason: "" },
+  { id: "review", role: "Review & Finalize", agentId: "sage", instruction: "Review the draft for clarity, accuracy, and impact without explaining your changes. Return only the improved final text, beginning with the first word of the deliverable.", criteria: "Outputs only the final improved version. Any commentary, critique list, or meta explanation is a failure.", status: "idle", output: "", score: null, reason: "" },
 ]
 
 const freshSteps = () => DEFAULT_STEPS.map((s) => ({ ...s, status: "idle" as StepStatus, output: "", score: null, reason: "" }))
