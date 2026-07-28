@@ -101,7 +101,7 @@ export default function AnalyticsPage() {
             { label: "In tokenized treasuries", value: poolReserve.toFixed(2) + " TRLO" },
             { label: "Claims buffer", value: poolCash.toFixed(2) + " TRLO" },
             { label: "Yield accrued", value: poolYield.toFixed(4) + " TRLO" },
-            { label: "Solvency ratio", value: poolSolvency.toFixed(1) + "x" },
+            { label: "Solvency ratio", value: activeCoverage > 0 ? poolSolvency.toFixed(1) + "x" : "No active cover" },
           ].map((s) => (
             <div key={s.label} className="rounded-lg panel p-3">
               <p className="mb-1 text-[11px] text-[#847668]">{s.label}</p>
