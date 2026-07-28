@@ -84,6 +84,7 @@ export default function Docs() {
               <li><b className="text-[#F1EADD]">Phase 3</b>, Multi-agent workflows (Research → Write → Review pipelines).</li>
               <li><b className="text-[#F1EADD]">Phase 4 (shipped)</b>, Agent marketplace and a risk-priced insurance pool with RLO metering, live now.</li>
               <li><b className="text-[#F1EADD]">Phase 5</b>, Real on-chain settlement on Rialo devnet.</li>
+              <li><b className="text-[#F1EADD]">Phase 6 (shipped)</b>, Real world asset reserves: idle pool capital held in tokenized treasuries, accruing yield that raises solvency and lowers premiums. Live now at a fixed rate; a live oracle and real custody arrive with Phase 5 settlement.</li>
             </ul>
           </Section>
         </div>
