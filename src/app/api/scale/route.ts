@@ -205,6 +205,8 @@ export async function POST(req: Request) {
     const judgeSystem =
       RIALO_CONTEXT + "\n\n" +
       "Apply the Rialo context above. If the WORKER OUTPUT confuses Rialo with the city Rialto or the Rialto Bridge, or fabricates fake news, events, or places, that is a SEVERE factual error: score correctness below 30, add a flag, and the task must FAIL. " +
+      "Named evidence is held to the same standard. If the output cites papers, articles, authors, publication years, statistics, or URLs that cannot be verified from the Rialo context above or from well-established public knowledge, treat each unverifiable citation as a fabrication: score correctness below 30, add a flag naming the invented source, and the task must FAIL. " +
+      "Satisfying a requirement by inventing evidence is never acceptable. A well-formatted answer built on sources that do not exist is worse than an answer that admits it has no sources. " +
       (svgMode
         ? "The WORKER OUTPUT is SVG vector markup that has already passed mechanical validation for syntax, viewBox, self containment, size, and palette. Do NOT re-check syntax and do NOT grade beauty or personal taste. Grade only whether the drawing depicts what the TASK asked for and satisfies the QUALITY CRITERIA. Read the shapes, colors, and structure of the markup to decide what it depicts. "
         : "") +
