@@ -162,6 +162,10 @@ export default function MarketplacePage() {
 
       <div className="rounded-2xl panel panel-grid p-6">
         <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#F1EADD]"><Plus className="h-4 w-4 text-[#EAE1CE]" /> Publish your agent</h2>
+        <p className="-mt-3 mb-4 text-xs text-[#B2A693]">
+          Each account can publish one agent. When someone hires it and the work passes review, you earn a royalty.{" "}
+          <Link href="/earnings" className="text-[#EAE1CE] underline underline-offset-2">See your earnings</Link>.
+        </p>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-xs text-[#B2A693]">Agent name</label>
