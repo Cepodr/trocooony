@@ -58,7 +58,7 @@ export default function Nav() {
           })}
         </div>
 
-        <div className="relative hidden shrink-0 items-center gap-3 xl:flex" ref={menuRef}>
+        <div className="relative hidden h-16 shrink-0 items-center gap-3 xl:flex" ref={menuRef}>
           {menu !== "none" && (
             <div className="absolute right-0 top-full z-[60] mt-2 max-h-[calc(100vh-5.5rem)] w-72 overflow-y-auto rounded-xl panel panel-grid p-3 shadow-2xl">
               {menu === "acct" && identity && (
