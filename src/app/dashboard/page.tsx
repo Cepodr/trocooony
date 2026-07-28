@@ -10,6 +10,7 @@ import { useAuth } from "@/context/AuthProvider"
 import { useReputation } from "@/context/ReputationProvider"
 import { useMarketplace } from "@/lib/marketplace"
 import { AGENTS, BASE_PRICE } from "@/lib/agents"
+import { SAMPLES, GENERIC } from "@/lib/samples"
 import { useCredits } from "@/context/CreditsProvider"
 import { svgToPngBase64 } from "@/lib/svg-to-png"
 
@@ -77,13 +78,16 @@ export default function Dashboard() {
   const insurable = repTasks >= 5 && rawRate <= MAX_RATE
   const tooRisky = repTasks >= 5 && rawRate > MAX_RATE
 
+  // The sample follows the agent you picked, so the task always suits the
+  // specialty and the reward always clears that agent rate.
   function loadSample() {
     if (busy) return
-    setAgentId("scribe")
-    setPrompt("Write a punchy 5-tweet thread explaining how Rialo's native webcalls let smart contracts call AI agents directly, with no oracles. Audience: crypto builders. Strong hook first, clear CTA last.")
-    setCriteria("Professional tone. Exactly 5 tweets numbered 1/5 to 5/5, each under 280 characters. Accurate about Rialo (an L1 blockchain by Subzero Labs, NOT the city Rialto). Strong opening hook and a clear closing CTA.")
-    setReward(50)
-    setDeadline(25)
+    const pool = SAMPLES[agentId] ?? GENERIC
+    const pick = pool[Math.floor(Math.random() * pool.length)]
+    setPrompt(pick.prompt)
+    setCriteria(pick.criteria)
+    setReward(agentPrice)
+    setDeadline(agentId === "coda" || agentId === "pixel" ? 45 : 25)
     setInsured(true)
     setOutput(""); setScore(null); setReason(""); setVerdict(null); setInsuranceMsg(""); setError(""); setStatus("idle")
   }
@@ -245,7 +249,7 @@ export default function Dashboard() {
         <div className="rounded-2xl panel panel-grid p-6">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-[#F1EADD]">New SCALE Task</h2>
-            <button onClick={loadSample} className="text-xs font-medium text-[#EAE1CE] hover:text-[#F4EEDF]">Load sample</button>
+            <button onClick={loadSample} className="rounded-lg border border-[#EAE1CE]/40 bg-[#EAE1CE]/10 px-2.5 py-1 text-xs font-medium text-[#F4EEDF] transition-colors hover:border-[#EAE1CE] hover:bg-[#EAE1CE]/20">Load sample task</button>
             <button onClick={resetForm} className="text-xs text-[#847668] hover:text-[#EAE1CE]">Clear</button>
           </div>
 
