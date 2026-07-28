@@ -55,11 +55,14 @@ export default function Dashboard() {
   const observedFail = repRow && repTasks > 0 ? 1 - repRow.passRate / 100 : 0.25
   const credibility = repTasks / (repTasks + 5)
   const expectedLoss = credibility * observedFail + (1 - credibility) * 0.25
-  const premiumRate = Math.min(0.36, Math.max(0.01, expectedLoss * 0.3 * 1.2))
+  const rawRate = expectedLoss * 0.3 * 1.2
+  const MAX_RATE = 0.24
+  const premiumRate = Math.min(MAX_RATE, Math.max(0.01, rawRate))
   const premium = Math.max(1, Math.round(reward * premiumRate))
   const COVERAGE = 0.3
   const claimPayout = Math.max(1, Math.round(reward * COVERAGE))
-  const insurable = repTasks >= 5
+  const insurable = repTasks >= 5 && rawRate <= MAX_RATE
+  const tooRisky = repTasks >= 5 && rawRate > MAX_RATE
 
   function loadSample() {
     if (busy) return
@@ -218,8 +221,8 @@ export default function Dashboard() {
           <button onClick={() => setInsured((v) => !v)} disabled={!insurable}
             className={`mb-4 flex w-full items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors ${insured ? "border-[#EAE1CE] bg-[#EAE1CE]/10 text-[#F1EADD]" : "border-[#2A2119] text-[#B2A693] hover:border-[#EAE1CE]/40"}`}>
             <Umbrella className="h-4 w-4" />
-            <span>{insurable ? "Insure this task" : "Insurance locked"}</span>
-            <span className="ml-auto text-xs text-[#847668]">{insurable ? "Insurance " + premium + " TRLO (" + Math.round(premiumRate * 100) + "% of reward) · Pays back " + claimPayout + " TRLO if the judge fails the work" : "Needs 5 settled tasks for this agent (" + repTasks + "/5)"} · Pool {poolBalance} TRLO</span>
+            <span>{insurable ? "Insure this task" : tooRisky ? "Too risky to insure" : "Insurance locked"}</span>
+            <span className="ml-auto text-xs text-[#847668]">{insurable ? "Insurance " + premium + " TRLO (" + Math.round(premiumRate * 100) + "% of reward) · Pays back " + claimPayout + " TRLO if the judge fails the work" : tooRisky ? "This agent fails too often to insure. The premium would exceed the payout." : "Needs 5 settled tasks for this agent (" + repTasks + "/5)"} · Pool {poolBalance} TRLO</span>
             <span className={`h-4 w-4 rounded border ${insured ? "border-[#EAE1CE] bg-[#EAE1CE]" : "border-[#847668]"}`} />
           </button>
 
