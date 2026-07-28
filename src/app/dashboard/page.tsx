@@ -16,6 +16,11 @@ import { svgToPngBase64 } from "@/lib/svg-to-png"
 // Set to false to fall back to the text judge everywhere.
 const VISION_JUDGE = true
 
+// Settlement split on a passing task. The reward is divided, never inflated,
+// so the requester pays the same price they agreed to.
+const ROYALTY_RATE = 0.05
+const PROTOCOL_FEE_RATE = 0.05
+
 const STEPS = ["Mint", "Escrow TRLO", "A2A Dispatch", "Deliver", "Judge (webcall)", "Settle"]
 const STEP_INDEX: Record<string, number> = { idle: 0, escrow: 1, dispatch: 2, working: 3, judging: 4, done: 5, refunded: 5 }
 
@@ -27,7 +32,9 @@ type Row = { id: string; agent: string; reward: number; status: "PAID" | "REFUND
 export default function Dashboard() {
   const { identity } = useAuth()
   const { recordOutcome, agents: repAgents } = useReputation()
-  const { listings, collectPremium, payClaim, releaseCoverage, poolBalance, poolLoading } = useMarketplace()
+  const { listings, collectPremium, collectFee, payClaim, releaseCoverage, poolBalance, poolLoading } = useMarketplace()
+  const { identity: royaltyIdentity } = useAuth()
+  const myHandle = royaltyIdentity?.handle ?? null
   const { notify } = useToast()
   const { rlo, trlo, deposit, spendTrlo, earnTrlo } = useCredits()
 
@@ -50,7 +57,7 @@ export default function Dashboard() {
   const [history, setHistory] = useState<Row[]>([])
   useEffect(() => { fetch("/api/ledger").then((r) => r.json()).then((d) => { if (Array.isArray(d.rows)) { const raw = d.rows as Array<Omit<Row, "status"> & { status: string }>; setHistory(raw.map((r) => ({ ...r, status: r.status === "PASS" ? "PAID" : r.status === "FAIL" ? "REFUNDED" : r.status })) as Row[]) } }).catch(() => {}) }, [])
 
-  const communityAgents = useMemo(() => listings.map((l) => ({ id: l.id, name: l.name, icon: Bot, specialty: l.specialty + " (Community)", persona: l.persona })), [listings])
+  const communityAgents = useMemo(() => listings.map((l) => ({ id: l.id, name: l.name, icon: Bot, specialty: l.specialty + " (Community)", persona: l.persona, publisher: l.publisher })), [listings])
   const allAgents = useMemo(() => [...AGENTS, ...communityAgents], [communityAgents])
   const agent = allAgents.find((a) => a.id === agentId) || AGENTS[0]
   const busy = ["escrow", "dispatch", "working", "judging"].includes(status)
@@ -151,6 +158,26 @@ export default function Dashboard() {
       setStatus("judging"); await sleep(800)
       setOutput(data.output); setScore(data.score); setReason(data.reason); setVerdict(data.verdict); setBreakdown(data.breakdown || []); setFlags(data.flags || [])
       const passed = data.verdict === "PASS"
+      if (passed) {
+        const royalty = Math.max(1, Math.round(reward * ROYALTY_RATE))
+        const protocolFee = Math.max(1, Math.round(reward * PROTOCOL_FEE_RATE))
+        const owner = (agent as { publisher?: string }).publisher
+        const ownedBySomeone = !!owner && owner !== "community"
+        // No royalty is paid to the requester for hiring their own agent.
+        const selfDealt = ownedBySomeone && !!myHandle && owner === myHandle
+        if (ownedBySomeone && !selfDealt) {
+          void fetch("/api/credits", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user: owner, action: "earn", amount: royalty }),
+          }).catch(() => {})
+          notify("Creator royalty of " + royalty + " TRLO paid to " + owner + ".", "success")
+        } else {
+          // Official agents and self-dealt tasks send that slice to the pool instead.
+          collectFee(royalty)
+        }
+        collectFee(protocolFee)
+      }
       if (passed && isInsured) releaseCoverage(coverAtMint)
       if (!passed && isInsured) {
         const pay = coverAtMint

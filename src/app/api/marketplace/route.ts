@@ -4,6 +4,10 @@ import { supabaseAdmin } from "@/lib/supabase"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
+// Listings published before ownership was tracked carry this placeholder.
+// It identifies nobody, so it can never be used to claim or block a slot.
+const UNOWNED = "community"
+
 function toListing(r: Record<string, unknown>) {
   return {
     id: r.id as string,
@@ -32,9 +36,30 @@ export async function POST(req: Request) {
   if (!name || !specialty || !persona) {
     return NextResponse.json({ error: "name, specialty, persona required" }, { status: 400 })
   }
+
+  const owner = typeof publisher === "string" ? publisher.trim() : ""
+  if (!owner || owner === UNOWNED) {
+    return NextResponse.json({ error: "Please sign in before publishing an agent." }, { status: 401 })
+  }
+
+  // One agent per account. This is enforced here rather than in the browser,
+  // because a hidden form is a suggestion and a server check is a rule.
+  const { data: existing, error: lookupError } = await supabaseAdmin
+    .from("marketplace_listings")
+    .select("id, name")
+    .eq("publisher", owner)
+    .limit(1)
+  if (lookupError) return NextResponse.json({ error: lookupError.message }, { status: 500 })
+  if (existing && existing.length > 0) {
+    return NextResponse.json(
+      { error: "You already published " + (existing[0].name as string) + ". Each account can publish one agent." },
+      { status: 409 }
+    )
+  }
+
   const { data, error } = await supabaseAdmin
     .from("marketplace_listings")
-    .insert({ name, specialty, persona, price: price ?? 0, publisher: publisher ?? "you" })
+    .insert({ name, specialty, persona, price: price ?? 0, publisher: owner })
     .select()
     .single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

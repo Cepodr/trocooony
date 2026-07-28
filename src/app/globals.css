@@ -105,9 +105,16 @@ button:disabled,
   cursor: not-allowed;
 }
 
+/* One place to tune every box outline on the site. */
+:root {
+  --hairline-width: 1px;
+  --hairline-color: #3B3025;
+  --hairline-hover: #56472F;
+}
+
 .panel {
   position: relative;
-  border: 1px solid #2A2119;
+  border: var(--hairline-width) solid var(--hairline-color);
   background:
     radial-gradient(120% 100% at 50% 0%, rgba(234, 225, 206, 0.055), transparent 62%),
     linear-gradient(180deg, #17130E 0%, #100D09 100%);
@@ -116,7 +123,7 @@ button:disabled,
     0 1px 2px rgba(0, 0, 0, 0.4),
     0 18px 40px -24px rgba(0, 0, 0, 0.9);
 }
-.panel:hover { border-color: #3A2F23; }
+.panel:hover { border-color: var(--hairline-hover); }
 
 .panel-grid::before {
   content: "";

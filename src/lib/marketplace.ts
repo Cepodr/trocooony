@@ -68,14 +68,24 @@ export function useMarketplace() {
 
   useEffect(() => { refresh() }, [refresh])
 
-  const publishListing = useCallback((l: Omit<Listing, "id" | "ts">) => {
-    fetch("/api/marketplace", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(l),
-    }).then((r) => r.json()).then((d) => {
-      if (d && d.listing) setListings((prev) => [d.listing as Listing, ...prev])
-    }).catch(() => {})
+  // Publishing can be refused by the server, for example when an account
+  // already owns an agent. The caller needs the reason, not silence.
+  const publishListing = useCallback(async (l: Omit<Listing, "id" | "ts">): Promise<{ ok: boolean; error?: string }> => {
+    try {
+      const res = await fetch("/api/marketplace", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(l),
+      })
+      const d = await res.json().catch(() => ({}))
+      if (!res.ok || !d?.listing) {
+        return { ok: false, error: (d && d.error) || "Could not publish. Please try again." }
+      }
+      setListings((prev) => [d.listing as Listing, ...prev])
+      return { ok: true }
+    } catch {
+      return { ok: false, error: "Network error. Please try again." }
+    }
   }, [])
 
   const poolAction = useCallback((action: string, amount: number, coverage = 0) => {
@@ -87,6 +97,13 @@ export function useMarketplace() {
       if (d && d.pool) setPool(normalizePool(d.pool))
     }).catch(() => {})
   }, [])
+
+  // Protocol fees are deposits, not premiums. Recording them as premiums
+  // would inflate the premium figure and corrupt the claims ratio.
+  const collectFee = useCallback((amount: number) => {
+    if (!amount || amount <= 0) return
+    poolAction("deposit", amount)
+  }, [poolAction])
 
   const depositToPool = useCallback((amount: number) => poolAction("deposit", amount), [poolAction])
   const withdrawFromPool = useCallback((amount: number) => poolAction("withdraw", amount), [poolAction])
@@ -119,6 +136,7 @@ export function useMarketplace() {
     activeCoverage: pool.activeCoverage,
     apyBps: pool.apyBps,
     publishListing,
+    collectFee,
     depositToPool, withdrawFromPool, collectPremium, releaseCoverage, payClaim,
   }
 }

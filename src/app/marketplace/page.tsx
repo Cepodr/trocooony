@@ -7,11 +7,15 @@ import { AGENTS } from "@/lib/agents"
 import { useReputation } from "@/context/ReputationProvider"
 import { useMarketplace } from "@/lib/marketplace"
 import { useCredits } from "@/context/CreditsProvider"
+import { useAuth } from "@/context/AuthProvider"
 import TopUpModal from "@/components/TopUpModal"
 
 const BASE_PRICE: Record<string, number> = { scribe: 40, coda: 80, sage: 60, pixel: 50 }
 
 export default function MarketplacePage() {
+  // Ownership is read from the same identity that owns the wallet balance.
+  const { identity } = useAuth()
+  const myHandle = identity?.handle ?? null
   const { agents } = useReputation()
   const { listings, pool, poolBalance, publishListing } = useMarketplace()
   const { rlo, trlo, deposit, withdraw } = useCredits()
@@ -27,13 +31,14 @@ export default function MarketplacePage() {
   const [depositAmt, setDepositAmt] = useState(100)
   const [topupOpen, setTopupOpen] = useState(false)
 
-  function submit() {
+  async function submit() {
     if (name.trim().length < 3 || specialty.trim().length < 3 || persona.trim().length < 15) {
       setFormErr("Provide a clear name, specialty, and persona (min. 15 characters).")
       return
     }
     setFormErr("")
-    publishListing({ name: name.trim(), specialty: specialty.trim(), persona: persona.trim(), price, publisher: "you" })
+    const res = await publishListing({ name: name.trim(), specialty: specialty.trim(), persona: persona.trim(), price, publisher: myHandle ?? "community" })
+    if (!res.ok) { setFormErr(res.error || "Could not publish. Please try again."); return }
     setName(""); setSpecialty(""); setPersona(""); setPrice(50)
   }
 
@@ -145,7 +150,11 @@ export default function MarketplacePage() {
             <p className="mb-3 line-clamp-2 text-xs text-[#B2A693]">{l.persona}</p>
             <div className="flex items-center justify-between text-xs text-[#B2A693]">
               <span className="flex items-center gap-1"><Coins className="h-3.5 w-3.5" />{l.price} TRLO</span>
-              <span className="rounded-md bg-[#F4EEDF]/10 px-2 py-0.5 text-[11px] text-[#F4EEDF]">Published by you</span>
+              {myHandle && l.publisher === myHandle ? (
+                  <span className="rounded-md bg-[#F4EEDF]/10 px-2 py-0.5 text-[11px] text-[#F4EEDF]">Published by you</span>
+                ) : (
+                  <span className="rounded-md bg-[#F4EEDF]/5 px-2 py-0.5 text-[11px] text-[#847668]">{l.publisher && l.publisher !== "you" ? "By " + l.publisher : "Community"}</span>
+                )}
             </div>
           </div>
         ))}
