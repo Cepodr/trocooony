@@ -236,7 +236,7 @@ export default function Dashboard() {
         <p className="mb-1 text-sm font-medium text-[#EAE1CE]">SCALE Console</p>
         <h1 className="text-2xl font-semibold text-[#F1EADD]">Mint an agent labor task</h1>
         <p className="mt-1 text-sm text-[#B2A693]">
-          Escrow-backed work with autonomous judging, deadline auto-refunds, and optional failure insurance, powered by Rialo native timers and webcalls.
+          Escrow-backed work with autonomous judging, deadline auto-refunds, and optional failure insurance, powered by Rialo native timers and webcalls. The worker share of every settled reward is earmarked for the Rialo LP at mainnet, so protocol activity funds liquidity rather than the team.
         </p>
       </div>
 

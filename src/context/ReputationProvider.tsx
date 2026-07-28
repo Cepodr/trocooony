@@ -31,20 +31,29 @@ export function ReputationProvider({ children }: { children: ReactNode }) {
   const [outcomes, setOutcomes] = useState<Outcome[]>([])
 
   // Muat dari Supabase (via API). Fallback ke cache localStorage kalau offline.
+  // The first request after a cold start can fail while the database wakes
+  // up. A visitor arriving then has no cache to fall back on, so retry
+  // briefly before giving up and showing an empty reputation table.
   useEffect(() => {
     let alive = true
-    fetch("/api/reputation")
-      .then((r) => r.json())
-      .then((d) => {
+    const load = async (attempt = 0): Promise<void> => {
+      try {
+        const res = await fetch("/api/reputation")
+        const d = await res.json()
         if (!alive) return
-        if (Array.isArray(d.outcomes)) {
-          setOutcomes(d.outcomes as Outcome[])
-          try { localStorage.setItem(KEY, JSON.stringify(d.outcomes)) } catch {}
+        if (!res.ok || !Array.isArray(d.outcomes)) throw new Error("bad response")
+        setOutcomes(d.outcomes as Outcome[])
+        try { localStorage.setItem(KEY, JSON.stringify(d.outcomes)) } catch {}
+      } catch {
+        if (!alive) return
+        if (attempt < 2) {
+          setTimeout(() => { void load(attempt + 1) }, 800 * (attempt + 1))
+          return
         }
-      })
-      .catch(() => {
-        try { const s = localStorage.getItem(KEY); if (s) setOutcomes(JSON.parse(s)) } catch {}
-      })
+        try { const cached = localStorage.getItem(KEY); if (cached) setOutcomes(JSON.parse(cached)) } catch {}
+      }
+    }
+    void load()
     return () => { alive = false }
   }, [])
 
