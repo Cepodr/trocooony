@@ -10,7 +10,7 @@ const DAYS = 14
 
 export default function AnalyticsPage() {
   const { outcomes, agents } = useReputation()
-  const { pool, poolBalance } = useMarketplace()
+  const { pool, poolBalance, poolReserve, poolCash, poolYield, poolSolvency, poolLoading, activeCoverage, apyBps } = useMarketplace()
 
   const stats = useMemo(() => {
     const total = outcomes.length
@@ -89,6 +89,29 @@ export default function AnalyticsPage() {
             </div>
           )
         })}
+      </div>
+
+      <div className="mb-8 rounded-2xl panel panel-grid p-5">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <p className="text-sm font-medium text-[#F1EADD]">Reserve and solvency</p>
+          <span className="text-[11px] text-[#847668]">Real world asset backing</span>
+        </div>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {[
+            { label: "In tokenized treasuries", value: poolReserve.toFixed(2) + " TRLO" },
+            { label: "Claims buffer", value: poolCash.toFixed(2) + " TRLO" },
+            { label: "Yield accrued", value: poolYield.toFixed(4) + " TRLO" },
+            { label: "Solvency ratio", value: poolSolvency.toFixed(1) + "x" },
+          ].map((s) => (
+            <div key={s.label} className="rounded-lg panel p-3">
+              <p className="mb-1 text-[11px] text-[#847668]">{s.label}</p>
+              <p className="text-lg font-semibold text-[#F1EADD]">{s.value}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 text-xs leading-relaxed text-[#847668]">
+          Idle premium capital is held in tokenized treasuries at a fixed {(apyBps / 100).toFixed(2)} percent for this build. It is not a live oracle and no treasury is custodied yet. Yield accrues from elapsed time on the server, is added to the pool balance, and never reaches a private wallet. Active coverage is {activeCoverage} TRLO, which sets the solvency ratio above and the current premium loading of {poolLoading.toFixed(2)}x.
+        </p>
       </div>
 
       <div className="mb-8 grid gap-4 lg:grid-cols-3">

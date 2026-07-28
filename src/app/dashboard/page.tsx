@@ -23,7 +23,7 @@ type Row = { id: string; agent: string; reward: number; status: "PAID" | "REFUND
 export default function Dashboard() {
   const { identity } = useAuth()
   const { recordOutcome, agents: repAgents } = useReputation()
-  const { listings, collectPremium, payClaim, releaseCoverage, poolBalance } = useMarketplace()
+  const { listings, collectPremium, payClaim, releaseCoverage, poolBalance, poolLoading } = useMarketplace()
   const { notify } = useToast()
   const { rlo, trlo, deposit, spendTrlo, earnTrlo } = useCredits()
 
@@ -55,7 +55,7 @@ export default function Dashboard() {
   const observedFail = repRow && repTasks > 0 ? 1 - repRow.passRate / 100 : 0.25
   const credibility = repTasks / (repTasks + 5)
   const expectedLoss = credibility * observedFail + (1 - credibility) * 0.25
-  const rawRate = expectedLoss * 0.3 * 1.2
+  const rawRate = expectedLoss * 0.3 * poolLoading
   const MAX_RATE = 0.24
   const premiumRate = Math.min(MAX_RATE, Math.max(0.01, rawRate))
   const premium = Math.max(1, Math.round(reward * premiumRate))
