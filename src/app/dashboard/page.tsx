@@ -318,7 +318,17 @@ export default function Dashboard() {
           )}
 
           {output && (
-            <div className="max-h-56 overflow-auto rounded-lg panel p-3 text-sm text-[#F1EADD] whitespace-pre-wrap">{output}</div>
+            <>
+              {output.trim().startsWith("<svg") && (
+                <div className="mb-2 flex justify-center rounded-lg panel p-4">
+                  <div
+                    className="w-full max-w-[240px] [&>svg]:h-auto [&>svg]:w-full"
+                    dangerouslySetInnerHTML={{ __html: output }}
+                  />
+                </div>
+              )}
+              <div className="max-h-56 overflow-auto rounded-lg panel p-3 text-sm text-[#F1EADD] whitespace-pre-wrap">{output}</div>
+            </>
           )}
           {!output && !busy && !verdict && (
             <p className="flex items-center gap-2 text-sm text-[#847668]"><Bot className="h-4 w-4" />Mint a task to dispatch it to a worker agent.</p>
