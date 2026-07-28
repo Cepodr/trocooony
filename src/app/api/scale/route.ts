@@ -258,6 +258,40 @@ export async function POST(req: Request) {
       } catch {}
     }
 
+    if (!parsedOk) {
+      try {
+        const repair = await groq.chat.completions.create({
+          model: MODEL,
+          temperature: 0,
+          messages: [
+            { role: "system", content: "Convert the quality report below into STRICT JSON ONLY, no markdown and no commentary. Use a dimensions object holding correctness, completeness, usefulness, clarity and criteria, where each one is an object with a numeric score from 0 to 100 and a short note string. Add a flags array of strings and a summary string. Preserve the judgement faithfully and invent nothing." },
+            { role: "user", content: rawJudge || "No report was produced." },
+          ],
+        })
+        const rawRepair = repair.choices[0]?.message?.content || ""
+        const m2 = rawRepair.match(/\{[\s\S]*\}/)
+        if (m2) {
+          const parsed2 = JSON.parse(m2[0])
+          const dims2 = parsed2.dimensions || {}
+          breakdown = RUBRIC.map((r) => {
+            const d = dims2[r.key] || {}
+            const sc = Math.max(0, Math.min(100, Math.round(Number(d.score) || 0)))
+            return { key: r.key, label: r.label, weight: r.weight, score: sc, note: String(d.note || "").slice(0, 200) }
+          })
+          if (Array.isArray(parsed2.flags)) flags = parsed2.flags.map((f: unknown) => String(f)).slice(0, 8)
+          summary = String(parsed2.summary || summary).slice(0, 300)
+          parsedOk = true
+        }
+      } catch {}
+    }
+
+    if (!parsedOk) {
+      return NextResponse.json({
+        error: "The judge agent malfunctioned and returned no readable verdict. No quality judgement was made, so this task must not be settled as a failure.",
+        judgeError: true,
+      }, { status: 502 })
+    }
+
     const overall = parsedOk
       ? Math.round(breakdown.reduce((sum, d) => sum + d.score * d.weight, 0))
       : 0
