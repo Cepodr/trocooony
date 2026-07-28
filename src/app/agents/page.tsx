@@ -46,7 +46,7 @@ export default function AgentsPage() {
               <th className="px-5 py-3">Pass rate</th>
               <th className="px-5 py-3">Avg score</th>
               <th className="px-5 py-3">Tasks</th>
-              <th className="px-5 py-3">RLO earned</th>
+              <th className="px-5 py-3">TRLO earned</th>
             </tr>
           </thead>
           <tbody className="text-[#B2A693]">
@@ -97,7 +97,7 @@ export default function AgentsPage() {
                 { label: "Pass", value: Math.round(r.passRate) + "%" },
                 { label: "Score", value: Math.round(r.avgScore) },
                 { label: "Tasks", value: r.tasks },
-                { label: "RLO", value: r.rloEarned },
+                { label: "TRLO", value: r.rloEarned },
               ].map((s) => (
                 <div key={s.label} className="rounded-lg panel p-2">
                   <p className="text-sm font-semibold text-[#F1EADD]">{s.value}</p>

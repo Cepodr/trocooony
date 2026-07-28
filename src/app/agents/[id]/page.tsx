@@ -100,7 +100,7 @@ export default function AgentProfilePage() {
           { label: "Pass rate", value: passRate + "%" },
           { label: "Avg score", value: avgScore },
           { label: "Tasks", value: total },
-          { label: "RLO earned", value: rloEarned },
+          { label: "TRLO earned", value: rloEarned },
           { label: "Refunds", value: refunds },
         ].map((s) => (
           <div key={s.label} className="rounded-xl panel panel-grid p-4">
@@ -154,7 +154,7 @@ export default function AgentProfilePage() {
                 <th className="px-5 py-3">Time</th>
                 <th className="px-5 py-3">Result</th>
                 <th className="px-5 py-3">Skor</th>
-                <th className="px-5 py-3">Reward (RLO)</th>
+                <th className="px-5 py-3">Reward (TRLO)</th>
               </tr>
             </thead>
             <tbody className="text-[#B2A693]">

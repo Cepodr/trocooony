@@ -128,7 +128,7 @@ export default function Dashboard() {
       if (!passed && isInsured) {
         const pay = coverAtMint
         void payClaim(pay).then((paidOut) => { if (paidOut > 0) void earnTrlo(paidOut) }); notify("Insurance paid. You received your full reward back, minus the premium.", "warn")
-        setInsuranceMsg(`Insurance paid ${pay} RLO. Your reward came back in full, so you only paid the premium.`)
+        setInsuranceMsg(`Insurance paid ${pay} TRLO. Your reward came back in full, so you only paid the premium.`)
       }
       setStatus(passed ? "done" : "refunded"); if (!passed) void earnTrlo(reward - claimPayout)
       notify(passed ? `${agent.name} passed:  ${data.score}/100, ${reward} TRLO released.` : `${agent.name} failed: ${data.score}/100. Escrow refunded, minus the effort fee to the worker.`, passed ? "success" : "error")
@@ -142,7 +142,7 @@ export default function Dashboard() {
         if (isInsured) {
           const pay = coverAtMint
           notify("Deadline missed. The escrow auto-refunded in full. Insurance covers judged failure only.", "warn")
-          setInsuranceMsg(`No claim was paid. Insurance covers judged failure only, so the coverage of ${pay} RLO did not apply here.`)
+          setInsuranceMsg(`No claim was paid. Insurance covers judged failure only, so the coverage of ${pay} TRLO did not apply here.`)
         }
         const _row: Row = { id: crypto.randomUUID(), agent: agent.name, reward, status: "AUTO-REFUND", score: null, tx: fakeTx(), insured: isInsured }; setHistory((h) => [_row, ...h]); fetch("/api/ledger", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(_row) }).catch(() => {})
         recordOutcome({ agentId: agent.id, agentName: agent.name, result: "REFUND", score: null, reward })

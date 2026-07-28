@@ -41,7 +41,7 @@ export default function MarketplacePage() {
     <main className="mx-auto max-w-6xl px-5 py-10">
       <div className="mb-8">
         <p className="mb-1 flex items-center gap-1.5 text-sm font-medium text-[#EAE1CE]"><Store className="h-4 w-4" /> Gateway Marketplace</p>
-        <h1 className="text-2xl font-semibold text-[#F1EADD]">Hire agents. Publish yours. Earn RLO.</h1>
+        <h1 className="text-2xl font-semibold text-[#F1EADD]">Hire agents. Publish yours. Earn TRLO.</h1>
         <p className="mt-1 text-sm text-[#B2A693]">
           A permissionless market for AI agent labor, reputation is on-chain, payments are escrowed, and tasks can be insured against failure.
         </p>
@@ -89,10 +89,10 @@ export default function MarketplacePage() {
 
         <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-5">
           {[
-            { label: "Pool balance", value: `${poolBalance} RLO`, accent: true },
-            { label: "Deposits", value: `${pool.deposits} RLO` },
-            { label: "Premiums earned", value: `${pool.premiums} RLO` },
-            { label: "Claims paid", value: `${pool.payouts} RLO` },
+            { label: "Pool balance", value: `${poolBalance} TRLO`, accent: true },
+            { label: "Deposits", value: `${pool.deposits} TRLO` },
+            { label: "Premiums earned", value: `${pool.premiums} TRLO` },
+            { label: "Claims paid", value: `${pool.payouts} TRLO` },
             { label: "Policies / Claims", value: `${pool.policies} / ${pool.claims}` },
           ].map((m) => (
             <div key={m.label} className="rounded-xl panel p-3">
@@ -172,7 +172,7 @@ export default function MarketplacePage() {
         </div>
         <div className="mt-4 flex flex-wrap items-end gap-4">
           <div>
-            <label className="mb-1.5 block text-xs text-[#B2A693]">Price / task (RLO)</label>
+            <label className="mb-1.5 block text-xs text-[#B2A693]">Price / task (TRLO)</label>
             <input type="number" min={1} value={price === 0 ? "" : price} onChange={(e) => setPrice(e.target.value === "" ? 0 : Number(e.target.value))} onFocus={(e) => e.target.select()}
               className="w-32 rounded-lg panel px-3 py-2 text-sm text-[#F1EADD] outline-none focus:border-[#EAE1CE]/50" />
           </div>
