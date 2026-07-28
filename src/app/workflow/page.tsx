@@ -1,13 +1,23 @@
 "use client"
 
 import { useState } from "react"
-import { Workflow, Play, Loader2, CheckCircle2, XCircle, ArrowDown, Lock, Sparkles, RotateCcw, AlertTriangle } from "lucide-react"
+import { Workflow, Play, Loader2, CheckCircle2, XCircle, ArrowDown, Lock, Sparkles, RotateCcw, AlertTriangle, ShieldCheck } from "lucide-react"
 import { useAuth } from "@/context/AuthProvider"
 import { AGENTS, BASE_PRICE } from "@/lib/agents"
 import { useCredits } from "@/context/CreditsProvider"
 import { useToast } from "@/context/ToastProvider"
 import { useReputation } from "@/context/ReputationProvider"
 import { WORKFLOW_SAMPLES } from "@/lib/workflow-samples"
+import { useMarketplace } from "@/lib/marketplace"
+import { chainPolicy, type Leg } from "@/lib/insurance"
+
+function legsFor(steps: Array<{ agentId: string }>, outcomes: Array<{ agentId: string; result: string }>): Leg[] {
+  return steps.map((s) => {
+    const rows = outcomes.filter((o) => o.agentId === s.agentId)
+    const passes = rows.filter((o) => o.result === "PASS").length
+    return { price: BASE_PRICE[s.agentId] ?? 50, tasks: rows.length, passRate: rows.length > 0 ? (passes / rows.length) * 100 : null }
+  })
+}
 
 type StepStatus = "idle" | "running" | "done" | "error" | "failed"
 type Step = { id: string; role: string; agentId: string; instruction: string; criteria: string; status: StepStatus; output: string; score: number | null; reason: string }
@@ -45,10 +55,13 @@ export default function WorkflowPage() {
   const { trlo, spendTrlo, earnTrlo } = useCredits()
   const { notify } = useToast()
   const { outcomes } = useReputation()
+  const { collectPremium, payClaim, releaseCoverage, poolBalance, poolLoading } = useMarketplace()
   const [objective, setObjective] = useState("")
   const [steps, setSteps] = useState<Step[]>(freshSteps())
   const [running, setRunning] = useState(false)
   const [error, setError] = useState("")
+  const [insured, setInsured] = useState(false)
+  const policy = chainPolicy(legsFor(steps, outcomes), poolLoading, poolBalance)
 
   const updateStep = (id: string, patch: Partial<Step>) =>
     setSteps((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)))
@@ -89,6 +102,12 @@ export default function WorkflowPage() {
     const escrowed = await spendTrlo(totalPrice)
     if (!escrowed) { setError("Could not lock escrow for " + totalPrice + " TRLO."); setRunning(false); return }
     notify(totalPrice + " TRLO escrowed across " + steps.length + " steps.", "info")
+    let cover = 0
+    let claimLoss = 0
+    if (insured && policy.insurable) {
+      const paidPremium = await spendTrlo(policy.premium)
+      if (paidPremium) { cover = policy.payout; collectPremium(policy.premium, cover); notify("Pipeline insured. Premium " + policy.premium + " TRLO, protection up to " + cover + " TRLO.", "info") }
+    }
     let refund = 0
 
     let updated = steps.map((s) => ({ ...s, status: "idle" as StepStatus, output: "", score: null, reason: "" }))
@@ -123,6 +142,7 @@ export default function WorkflowPage() {
           setSteps([...updated])
           const unrun = updated.slice(i + 1).reduce((sum, st) => sum + priceOf(st.agentId), 0)
           refund = unrun + Math.round(priceOf(step.agentId) * 0.7)
+          claimLoss = updated.slice(0, i).reduce((sum, st) => sum + priceOf(st.agentId), 0) + Math.round(priceOf(step.agentId) * 0.3)
           break
         }
         setSteps([...updated])
@@ -132,6 +152,13 @@ export default function WorkflowPage() {
         updated = updated.map((s, idx) => (idx === i ? { ...s, status: "error", output: "Network error." } : s))
         setSteps([...updated]); refund = updated.slice(i).reduce((sum, st) => sum + priceOf(st.agentId), 0); break
       }
+    }
+    if (cover > 0) {
+      if (claimLoss > 0) {
+        const pay = Math.min(cover, claimLoss)
+        const paidOut = await payClaim(pay)
+        if (paidOut > 0) { await earnTrlo(paidOut); notify("Insurance paid " + paidOut + " TRLO for the completed steps that were wasted when the chain broke.", "warn") }
+      } else releaseCoverage(cover)
     }
     if (refund > 0) { await earnTrlo(refund); notify(refund + " TRLO refunded for work that was never performed.", "warn") }
     else notify("Pipeline complete. Escrow released to the agents.", "success")
@@ -172,6 +199,12 @@ export default function WorkflowPage() {
         <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-[#847668]">
             <span>Pipeline cost <span className="font-semibold text-[#B2A693]">{totalPrice} TRLO</span>, the sum of every agent rate</span>
             <span>Estimated chain reliability <span className="font-semibold text-[#B2A693]">{Math.round(chainReliability * 100)}%</span></span>
+            <button type="button" onClick={() => setInsured((v) => !v)} disabled={!policy.insurable || running}
+              className={"inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 " + (insured && policy.insurable ? "border-[#56472F] text-[#EAE1CE]" : "border-[#2A2119] text-[#847668]")}>
+              <ShieldCheck className="h-3.5 w-3.5" />
+              {policy.insurable ? (insured ? "Insured for " + policy.payout + " TRLO · premium " + policy.premium : "Insure this pipeline · " + policy.premium + " TRLO") : "Insurance unavailable"}
+            </button>
+            {!policy.insurable && policy.reason && <span className="text-[#847668]">{policy.reason}</span>}
           </div>
 
           {identity && trlo < totalPrice && (
