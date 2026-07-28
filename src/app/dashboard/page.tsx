@@ -59,6 +59,9 @@ export default function Dashboard() {
   const [verdict, setVerdict] = useState<string | null>(null)
   const [breakdown, setBreakdown] = useState<{ key: string; label: string; weight: number; score: number; note: string }[]>([])
   const [flags, setFlags] = useState<string[]>([])
+  const [checks, setChecks] = useState<{ label: string; ok: boolean; detail: string }[]>([])
+  const [judgedBy, setJudgedBy] = useState("")
+  const [visionModel, setVisionModel] = useState("")
   const [insuranceMsg, setInsuranceMsg] = useState("")
   const [error, setError] = useState("")
   const [history, setHistory] = useState<Row[]>([])
@@ -95,7 +98,7 @@ export default function Dashboard() {
     setReward(agentPrice)
     setDeadline(agentId === "coda" || agentId === "pixel" ? 45 : 25)
     setInsured(true)
-    setOutput(""); setScore(null); setReason(""); setVerdict(null); setInsuranceMsg(""); setError(""); setStatus("idle")
+    setOutput(""); setScore(null); setReason(""); setVerdict(null); setInsuranceMsg(""); setError(""); setStatus("idle"); setChecks([]); setJudgedBy(""); setVisionModel("")
   }
 
   function resetForm() {
@@ -124,7 +127,7 @@ export default function Dashboard() {
     if (trlo < reward) { notify(`Not enough TRLO (need ${reward}, have ${trlo}). Deposit RLO into TRLO in Marketplace first.`, "error"); return }
     const escrowed = await spendTrlo(reward)
     if (!escrowed) { notify("Could not lock escrow. Insufficient balance.", "error"); return }
-    setError(""); setOutput(""); setScore(null); setReason(""); setVerdict(null); setInsuranceMsg("")
+    setError(""); setOutput(""); setScore(null); setReason(""); setVerdict(null); setInsuranceMsg(""); setChecks([]); setJudgedBy(""); setVisionModel("")
     // The listed rate is a floor, not a suggestion. Paying more is allowed.
     if (reward < agentPrice) {
       const msg = agent.name + " charges at least " + agentPrice + " TRLO per task."
@@ -175,7 +178,7 @@ export default function Dashboard() {
         }
       }
       setStatus("judging"); await sleep(800)
-      setOutput(data.output); setScore(data.score); setReason(data.reason); setVerdict(data.verdict); setBreakdown(data.breakdown || []); setFlags(((data.flags || []) as string[]).map(cleanFlag).filter(Boolean))
+      setOutput(data.output); setScore(data.score); setReason(data.reason); setVerdict(data.verdict); setBreakdown(data.breakdown || []); setFlags(((data.flags || []) as string[]).map(cleanFlag).filter(Boolean)); setChecks((data.checks || []) as { label: string; ok: boolean; detail: string }[]); setJudgedBy(String(data.judgedBy || "text")); setVisionModel(String(data.visionModel || ""))
       const passed = data.verdict === "PASS"
       if (passed) {
         const royalty = Math.max(1, Math.round(reward * ROYALTY_RATE))
@@ -366,6 +369,28 @@ export default function Dashboard() {
             </div>
           )}
           {reason && <p className="mb-4 flex items-start gap-1.5 text-xs text-[#B2A693]"><Gavel className="mt-0.5 h-3.5 w-3.5 shrink-0" />{reason}</p>}
+          {(judgedBy || checks.length > 0) && verdict !== "TIMEOUT" && score != null && (
+            <div className="mb-3 rounded-lg panel p-3">
+              <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-[#B2A693]"><Gavel className="h-3.5 w-3.5" />Verification trail</p>
+              {judgedBy && (
+                <p className="mb-2 text-[11px] text-[#847668]">
+                  Reviewed by {judgedBy === "vision" ? "a vision model that looked at the rendered image" : "a text model that read the answer"}
+                  {visionModel ? " (" + visionModel + ")" : ""}.
+                </p>
+              )}
+              {checks.length > 0 && (
+                <ul className="space-y-1">
+                  {checks.map((c, i) => (
+                    <li key={i} className="flex items-start gap-1.5 text-[11px] text-[#B2A693]">
+                      <span className={"shrink-0 font-semibold " + (c.ok ? "text-[#EAE1CE]" : "text-[#FF6B6B]")}>{c.ok ? "PASS" : "FAIL"}</span>
+                      <span>{c.label}{c.detail ? " · " + c.detail : ""}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
           {breakdown.length > 0 && verdict !== "TIMEOUT" && (
             <div className="mb-4 rounded-lg panel p-3">
               <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-[#B2A693]"><Gavel className="h-3.5 w-3.5" />Judge rubric</p>
