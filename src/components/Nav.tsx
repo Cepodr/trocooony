@@ -60,14 +60,17 @@ export default function Nav() {
 
         <div className="relative hidden h-16 shrink-0 items-center gap-3 xl:flex" ref={menuRef}>
           {menu !== "none" && (
-            <div className="absolute right-0 top-full z-[60] mt-2 max-h-[calc(100vh-5.5rem)] w-72 overflow-y-auto rounded-xl panel panel-grid p-3 shadow-2xl">
+            <div className="absolute right-0 top-full z-[60] mt-1.5 max-h-[calc(100vh-5.5rem)] w-64 overflow-y-auto rounded-xl panel panel-grid p-3.5 shadow-2xl">
               {menu === "acct" && identity && (
                 <div>
                   <p className="text-xs text-[#847668]">Signed in as</p>
                   <p className="mt-0.5 truncate text-sm text-[#F1EADD]">{identity.handle}</p>
-                  <p className="mt-1 text-xs text-[#B2A693]">{trlo} TRLO / {rlo} RLO</p>
+                  <div className="mt-3 h-px bg-[#2A2119]" />
+<p className="mt-3 text-[11px] uppercase tracking-wide text-[#847668]">Balance</p>
+<p className="mt-1 text-2xl font-semibold leading-none text-[#F1EADD]">{trlo} <span className="text-xs font-normal text-[#847668]">TRLO</span></p>
+<p className="mt-1.5 text-[11px] text-[#847668]">{rlo} RLO waiting to convert</p>
                   <button onClick={() => { setMenu("none"); setTopupOpen(true) }} className="mt-3 w-full rounded-lg border border-[#2A2119] px-3 py-2 text-left text-sm text-[#F1EADD] hover:border-[#EAE1CE]/50">Top up balance</button>
-                  <button onClick={() => { setMenu("none"); signOutRialo() }} className="mt-2 w-full rounded-lg border border-[#2A2119] px-3 py-2 text-left text-sm text-[#FF6B6B] hover:border-[#FF6B6B]/50">Disconnect</button>
+                  <button onClick={() => { setMenu("none"); signOutRialo() }} className="mt-1 w-full rounded-lg px-3 py-2 text-left text-xs text-[#847668] transition-colors hover:text-[#FF6B6B]">Disconnect</button>
                 </div>
               )}
               {menu === "wallet" && wallet && (
@@ -77,8 +80,10 @@ export default function Nav() {
                     <p className="font-mono text-sm text-[#F1EADD]">{short(wallet.address)}</p>
                     <button onClick={() => { void navigator.clipboard.writeText(wallet.address); setCopied(true); setTimeout(() => setCopied(false), 1500) }} className="shrink-0 rounded-md border border-[#2A2119] px-2 py-0.5 text-[11px] text-[#B2A693] hover:border-[#EAE1CE]/50 hover:text-[#EAE1CE]">{copied ? "Copied" : "Copy"}</button>
                   </div>
-                  <p className="mt-1 text-xs text-[#B2A693]">{onSepolia ? "Ethereum Sepolia" : "Wrong network"}</p>
-                  <button onClick={() => { setMenu("none"); disconnectWallet() }} className="mt-3 w-full rounded-lg border border-[#2A2119] px-3 py-2 text-left text-sm text-[#FF6B6B] hover:border-[#FF6B6B]/50">Disconnect wallet</button>
+                  <div className="mt-3 h-px bg-[#2A2119]" />
+<p className="mt-3 text-[11px] uppercase tracking-wide text-[#847668]">Network</p>
+<p className="mt-1 text-sm text-[#F1EADD]">{onSepolia ? "Ethereum Sepolia" : "Wrong network"}</p>
+                  <button onClick={() => { setMenu("none"); disconnectWallet() }} className="mt-3 w-full rounded-lg px-3 py-2 text-left text-xs text-[#847668] transition-colors hover:text-[#FF6B6B]">Disconnect wallet</button>
                 </div>
               )}
             </div>
