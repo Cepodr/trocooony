@@ -14,6 +14,8 @@ export default function AnalyticsPage() {
   const [secondsLive, setSecondsLive] = useState(0)
   useEffect(() => { const t = setInterval(() => setSecondsLive((n) => n + 1), 1000); return () => clearInterval(t) }, [])
   const liveYield = poolYield + (poolReserve * (apyBps / 10000) * secondsLive) / 31536000
+  const reservePct = poolBalance > 0 ? Math.round((poolReserve / poolBalance) * 100) : 0
+  const cashPct = poolBalance > 0 ? 100 - reservePct : 0
 
   const stats = useMemo(() => {
     const total = outcomes.length
@@ -101,9 +103,9 @@ export default function AnalyticsPage() {
         </div>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {[
-            { label: "In tokenized treasuries", value: poolReserve.toFixed(2) + " TRLO" },
-            { label: "Claims buffer", value: poolCash.toFixed(2) + " TRLO" },
-            { label: "Yield accrued, live", value: liveYield.toFixed(8) + " TRLO" },
+            { label: "In tokenized treasuries, " + reservePct + "% of the pool", value: poolReserve.toFixed(2) + " TRLO" },
+            { label: "Claims buffer, " + cashPct + "% kept liquid to pay claims at once", value: poolCash.toFixed(2) + " TRLO" },
+            { label: "Yield accrued, live, earned on the reserve only", value: liveYield.toFixed(8) + " TRLO" },
             { label: "Solvency ratio", value: activeCoverage > 0 ? poolSolvency.toFixed(1) + "x" : "No active cover" },
           ].map((s) => (
             <div key={s.label} className="rounded-lg panel p-3">
