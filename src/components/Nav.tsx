@@ -58,22 +58,44 @@ export default function Nav() {
           })}
         </div>
 
-        <div className="relative hidden h-16 shrink-0 items-center gap-3 xl:flex" ref={menuRef}>
-          {menu !== "none" && (
-            <div className="absolute right-0 top-full z-[60] mt-1.5 max-h-[calc(100vh-5.5rem)] w-64 overflow-y-auto rounded-xl panel panel-grid p-3.5 shadow-2xl">
-              {menu === "acct" && identity && (
+        <div className="hidden h-16 shrink-0 items-center gap-3 xl:flex" ref={menuRef}>
+          {identity && (
+            <button onClick={() => setTopupOpen(true)} className="flex items-center gap-1.5 rounded-lg border border-[#2A2119] px-3 py-1.5 text-sm text-[#EAE1CE] hover:border-[#EAE1CE]/50" title="Top up & manage balance">
+              <Coins className="h-4 w-4" />{trlo} TRLO · {rlo} RLO
+            </button>
+          )}
+
+          {identity ? (
+            <div className="relative flex h-16 items-center">
+              <button onClick={() => setMenu(menu === "acct" ? "none" : "acct")} className="flex items-center gap-1.5 rounded-lg border border-[#2A2119] px-3 py-1.5 text-sm text-[#F1EADD] hover:border-[#EAE1CE]/50" title="Signed in">
+                <Check className="h-4 w-4 text-[#EAE1CE]" /><span className="max-w-[140px] truncate">{identity.handle}</span>
+              </button>
+              {menu === "acct" && (
+                <div className="!absolute right-0 top-full z-[60] mt-1.5 max-h-[calc(100vh-5.5rem)] w-64 overflow-y-auto rounded-xl panel panel-grid p-3.5 shadow-2xl">
                 <div>
                   <p className="text-xs text-[#847668]">Signed in as</p>
                   <p className="mt-0.5 truncate text-sm text-[#F1EADD]">{identity.handle}</p>
                   <div className="mt-3 h-px bg-[#2A2119]" />
-<p className="mt-3 text-[11px] uppercase tracking-wide text-[#847668]">Balance</p>
-<p className="mt-1 text-2xl font-semibold leading-none text-[#F1EADD]">{trlo} <span className="text-xs font-normal text-[#847668]">TRLO</span></p>
-<p className="mt-1.5 text-[11px] text-[#847668]">{rlo} RLO waiting to convert</p>
+                  <p className="mt-3 text-[11px] uppercase tracking-wide text-[#847668]">Balance</p>
+                  <p className="mt-1 text-2xl font-semibold leading-none text-[#F1EADD]">{trlo} <span className="text-xs font-normal text-[#847668]">TRLO</span></p>
+                  <p className="mt-1.5 text-[11px] text-[#847668]">{rlo} RLO waiting to convert</p>
                   <button onClick={() => { setMenu("none"); setTopupOpen(true) }} className="mt-3 w-full rounded-lg border border-[#2A2119] px-3 py-2 text-left text-sm text-[#F1EADD] hover:border-[#EAE1CE]/50">Top up balance</button>
                   <button onClick={() => { setMenu("none"); signOutRialo() }} className="mt-1 w-full rounded-lg px-3 py-2 text-left text-xs text-[#847668] transition-colors hover:text-[#FF6B6B]">Disconnect</button>
                 </div>
+                </div>
               )}
-              {menu === "wallet" && wallet && (
+            </div>
+          ) : (
+            <button onClick={() => setSignInOpen(true)} className="rounded-lg bg-[#EAE1CE] px-3.5 py-1.5 text-sm font-medium text-[#0D0A07] hover:bg-[#F4EEDF]">Sign in</button>
+          )}
+
+          {wallet ? (
+            <div className="relative flex h-16 items-center">
+              <button onClick={() => setMenu(menu === "wallet" ? "none" : "wallet")} className="flex items-center gap-1.5 rounded-lg border border-[#2A2119] px-3 py-1.5 text-sm text-[#F1EADD] hover:border-[#FF6B6B]/50" title={onSepolia ? "Connected to Sepolia" : "Wrong network"}>
+                <span className={`h-2 w-2 rounded-full ${onSepolia ? "bg-[#EAE1CE]" : "bg-[#F5B759]"}`} />{short(wallet.address)}
+              </button>
+              {menu === "wallet" && (
+                <div className="!absolute right-0 top-full z-[60] mt-1.5 max-h-[calc(100vh-5.5rem)] w-64 overflow-y-auto rounded-xl panel panel-grid p-3.5 shadow-2xl">
                 <div>
                   <p className="text-xs text-[#847668]">Wallet</p>
                   <div className="mt-0.5 flex items-center justify-between gap-2">
@@ -81,30 +103,13 @@ export default function Nav() {
                     <button onClick={() => { void navigator.clipboard.writeText(wallet.address); setCopied(true); setTimeout(() => setCopied(false), 1500) }} className="shrink-0 rounded-md border border-[#2A2119] px-2 py-0.5 text-[11px] text-[#B2A693] hover:border-[#EAE1CE]/50 hover:text-[#EAE1CE]">{copied ? "Copied" : "Copy"}</button>
                   </div>
                   <div className="mt-3 h-px bg-[#2A2119]" />
-<p className="mt-3 text-[11px] uppercase tracking-wide text-[#847668]">Network</p>
-<p className="mt-1 text-sm text-[#F1EADD]">{onSepolia ? "Ethereum Sepolia" : "Wrong network"}</p>
+                  <p className="mt-3 text-[11px] uppercase tracking-wide text-[#847668]">Network</p>
+                  <p className="mt-1 text-sm text-[#F1EADD]">{onSepolia ? "Ethereum Sepolia" : "Wrong network"}</p>
                   <button onClick={() => { setMenu("none"); disconnectWallet() }} className="mt-3 w-full rounded-lg px-3 py-2 text-left text-xs text-[#847668] transition-colors hover:text-[#FF6B6B]">Disconnect wallet</button>
+                </div>
                 </div>
               )}
             </div>
-          )}
-            {identity && (
-              <button onClick={() => setTopupOpen(true)} className="flex items-center gap-1.5 rounded-lg border border-[#2A2119] px-3 py-1.5 text-sm text-[#EAE1CE] hover:border-[#EAE1CE]/50" title="Top up & manage balance">
-                <Coins className="h-4 w-4" />{trlo} TRLO · {rlo} RLO
-              </button>
-            )}
-          {identity ? (
-            <button onClick={() => setMenu(menu === "acct" ? "none" : "acct")} className="flex items-center gap-1.5 rounded-lg border border-[#2A2119] px-3 py-1.5 text-sm text-[#F1EADD] hover:border-[#EAE1CE]/50" title="Signed in">
-              <Check className="h-4 w-4 text-[#EAE1CE]" /><span className="max-w-[140px] truncate">{identity.handle}</span>
-            </button>
-          ) : (
-            <button onClick={() => setSignInOpen(true)} className="rounded-lg bg-[#EAE1CE] px-3.5 py-1.5 text-sm font-medium text-[#0D0A07] hover:bg-[#F4EEDF]">Sign in</button>
-          )}
-
-          {wallet ? (
-            <button onClick={() => setMenu(menu === "wallet" ? "none" : "wallet")} className="flex items-center gap-1.5 rounded-lg border border-[#2A2119] px-3 py-1.5 text-sm text-[#F1EADD] hover:border-[#FF6B6B]/50" title={onSepolia ? "Connected to Sepolia" : "Wrong network"}>
-              <span className={`h-2 w-2 rounded-full ${onSepolia ? "bg-[#EAE1CE]" : "bg-[#F5B759]"}`} />{short(wallet.address)}
-            </button>
           ) : (
             <button onClick={connectWallet} className="flex items-center gap-1.5 rounded-lg border border-[#2A2119] px-3.5 py-1.5 text-sm text-[#F1EADD] hover:border-[#EAE1CE]/50">
               <Wallet className="h-4 w-4" />Connect Wallet
