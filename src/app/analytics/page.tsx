@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { Activity, Coins, ShieldCheck, Sparkles, Users, BarChart3, Trophy } from "lucide-react"
 import { useReputation } from "@/context/ReputationProvider"
@@ -11,6 +11,9 @@ const DAYS = 14
 export default function AnalyticsPage() {
   const { outcomes, agents } = useReputation()
   const { pool, poolBalance, poolReserve, poolCash, poolYield, poolSolvency, poolLoading, activeCoverage, apyBps } = useMarketplace()
+  const [secondsLive, setSecondsLive] = useState(0)
+  useEffect(() => { const t = setInterval(() => setSecondsLive((n) => n + 1), 1000); return () => clearInterval(t) }, [])
+  const liveYield = poolYield + (poolReserve * (apyBps / 10000) * secondsLive) / 31536000
 
   const stats = useMemo(() => {
     const total = outcomes.length
@@ -100,7 +103,7 @@ export default function AnalyticsPage() {
           {[
             { label: "In tokenized treasuries", value: poolReserve.toFixed(2) + " TRLO" },
             { label: "Claims buffer", value: poolCash.toFixed(2) + " TRLO" },
-            { label: "Yield accrued", value: poolYield.toFixed(4) + " TRLO" },
+            { label: "Yield accrued, live", value: liveYield.toFixed(8) + " TRLO" },
             { label: "Solvency ratio", value: activeCoverage > 0 ? poolSolvency.toFixed(1) + "x" : "No active cover" },
           ].map((s) => (
             <div key={s.label} className="rounded-lg panel p-3">
